@@ -374,6 +374,7 @@ class PredicateUtilsSpec extends Specification {
 
     @Unroll
     def 'is null passing value "#target" returns "#expected"'() {
+
         expect:
         def function = { AbstractMap.SimpleEntry e -> e.getValue() } as Function
         PredicateUtils.isNull(function).test(target) == expected
@@ -387,6 +388,7 @@ class PredicateUtilsSpec extends Specification {
 
     @Unroll
     def 'not null passing value "#target" returns "#expected"'() {
+
         expect:
         def function = { AbstractMap.SimpleEntry e -> e.getValue() } as Function
         PredicateUtils.notNull(function).test(target) == expected
@@ -417,6 +419,7 @@ class PredicateUtilsSpec extends Specification {
 
     @Unroll
     def 'gte passing #paramOne and #paramTwo returns #expected'() {
+
         expect:
         PredicateUtils.gte(paramOne as Comparable, identity()).test(paramTwo) == expected
 
@@ -434,6 +437,7 @@ class PredicateUtilsSpec extends Specification {
 
     @Unroll
     def 'lt passing #paramOne and #paramTwo returns #expected'() {
+
         expect:
         PredicateUtils.lt(paramOne as Comparable, identity()).test(paramTwo) == expected
 
@@ -451,6 +455,7 @@ class PredicateUtilsSpec extends Specification {
 
     @Unroll
     def 'lte passing #paramOne and #paramTwo returns #expected'() {
+
         expect:
         PredicateUtils.lte(paramOne as Comparable, identity()).test(paramTwo) == expected
 
@@ -468,6 +473,7 @@ class PredicateUtilsSpec extends Specification {
 
     @Unroll
     def 'is empty passing #target returns #expected'() {
+
         expect:
         def function = { List l -> l.asCollection() } as Function
         PredicateUtils.isEmpty(function).test(target) == expected
@@ -481,6 +487,7 @@ class PredicateUtilsSpec extends Specification {
 
     @Unroll
     def 'is not empty passing #target returns #expected'() {
+
         expect:
         def function = { List l -> l.asCollection() } as Function
         PredicateUtils.isNotEmpty(function).test(target) == expected
@@ -490,5 +497,19 @@ class PredicateUtilsSpec extends Specification {
         ['test'] | true
         null     | false
         []       | false
+    }
+
+    @Unroll
+    def 'find first passing input "#input"'() {
+
+        expect:
+        def predicate = PredicateUtils.isEqual(4, Function.identity())
+        PredicateUtils.transformAndFilter({ String s -> s.length() } as Function, predicate).test(input) == expected
+
+        where:
+        input  | expected
+        null   | false
+        ''     | false
+        'test' | true
     }
 }

@@ -150,4 +150,8 @@ public final class PredicateUtils {
     public static <T, R> Predicate<T> isNotEmpty(Function<T, Collection<R>> function) {
         return not(isEmpty(function));
     }
+
+    public static <T, R> Predicate<T> transformAndFilter(Function<T, R> transformer, Predicate<R> predicate) {
+        return t -> t != null && predicate.test(transformer.apply(t));
+    }
 }

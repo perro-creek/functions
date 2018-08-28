@@ -10,6 +10,7 @@ import static java.util.function.Function.identity
 import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.CollectorUtilsSpec.TestEnum.*
+import static org.hringsak.functions.PredicateUtils.isEqual
 
 class StreamUtilsSpec extends Specification {
 
@@ -143,6 +144,71 @@ class StreamUtilsSpec extends Specification {
         'null'   | null
     }
 
+    @Unroll
+    def 'find first returns expected value for string length "#length"'() {
+
+        expect:
+        StreamUtils.findFirst([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+
+        where:
+        length | expected
+        0      | ''
+        1      | null
+        4      | 'test'
+    }
+
+    @Unroll
+    def 'find first with default returns expected value for string length "#length"'() {
+
+        expect:
+        StreamUtils.findFirstWithDefault([null, '', 'test', ''], isEqual(length, { String s -> s.length() }), 'default') == expected
+
+        where:
+        length | expected
+        0      | ''
+        1      | 'default'
+        4      | 'test'
+    }
+
+    @Unroll
+    def 'index of first returns expected value for string length "#length"'() {
+
+        expect:
+        StreamUtils.indexOfFirst([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+
+        where:
+        length | expected
+        0      | 1
+        1      | -1
+        4      | 2
+    }
+
+    @Unroll
+    def 'any match returns expected value for string length "#length"'() {
+
+        expect:
+        StreamUtils.anyMatch([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+
+        where:
+        length | expected
+        0      | true
+        1      | false
+        4      | true
+    }
+
+    @Unroll
+    def 'none match returns expected value for string length "#length"'() {
+
+        expect:
+        StreamUtils.noneMatch([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+
+        where:
+        length | expected
+        0      | false
+        1      | true
+        4      | false
+    }
+
     def 'join returns expected results'() {
 
         given:
@@ -234,6 +300,22 @@ class StreamUtilsSpec extends Specification {
 
         then:
         partitions == expectedPartitions
+
+        where:
+        scenario          | inputCollection    || expectedPartitions
+        'populated list'  | [1, 2, 3, 4, 5, 6] || [[1, 2], [3, 4], [5, 6]]
+        'empty list'      | []                 || []
+        'null collection' | null               || []
+    }
+
+    @Unroll
+    def 'to partitioned stream returns expected value for #scenario'() {
+
+        when:
+        def partitionStream = StreamUtils.toPartitionedStream(inputCollection, 2)
+
+        then:
+        partitionStream.collect(toList()) == expectedPartitions
 
         where:
         scenario          | inputCollection    || expectedPartitions
