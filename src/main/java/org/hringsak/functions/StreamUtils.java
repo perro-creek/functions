@@ -1,6 +1,7 @@
 package org.hringsak.functions;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,11 +16,14 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static java.util.Collections.emptySet;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static org.hringsak.functions.MapperUtils.pairWithIndex;
 import static org.hringsak.functions.PredicateUtils.contains;
 import static org.hringsak.functions.PredicateUtils.not;
+import static org.hringsak.functions.PredicateUtils.transformAndFilter;
 
 public final class StreamUtils {
 
@@ -45,7 +49,7 @@ public final class StreamUtils {
     }
 
     public static <T, C extends Collection<T>> C transform(Collection<T> objects, Collector<T, ?, C> collector) {
-        return transform(objects, Function.identity(), collector);
+        return transform(objects, identity(), collector);
     }
 
     public static <T, R, C extends Collection<R>> C transform(Collection<T> objects, Function<T, R> transformer, Collector<R, ?, C> collector) {
@@ -67,6 +71,34 @@ public final class StreamUtils {
                 .collect(toList());
     }
 
+    public static <T> T findFirst(Collection<T> objects, Predicate<T> predicate) {
+        return findFirstWithDefault(objects, predicate, null);
+    }
+
+    public static <T> T findFirstWithDefault(Collection<T> objects, Predicate<T> predicate, T defaultValue) {
+        return defaultStream(objects)
+                .filter(predicate)
+                .findFirst()
+                .orElse(defaultValue);
+    }
+
+    public static <T> int indexOfFirst(Collection<T> objects, Predicate<T> predicate) {
+        return defaultStream(objects)
+                .map(pairWithIndex())
+                .filter(transformAndFilter(Pair::getLeft, predicate))
+                .mapToInt(Pair::getRight)
+                .findFirst()
+                .orElse(-1);
+    }
+
+    public static <T> boolean anyMatch(Collection<T> objects, Predicate<T> predicate) {
+        return defaultStream(objects).anyMatch(predicate);
+    }
+
+    public static <T> boolean noneMatch(Collection<T> objects, Predicate<T> predicate) {
+        return defaultStream(objects).noneMatch(predicate);
+    }
+
     public static <T> String join(Collection<T> objects, Function<T, CharSequence> mapper) {
         return join(objects, mapper, ",");
     }
@@ -84,8 +116,16 @@ public final class StreamUtils {
     public static <T> Set<T> subtract(Set<T> from, Set<T> toSubtract) {
         Stream<T> keyStream = defaultStream(from);
         Set<T> nonNullToSubtract = toSubtract == null ? emptySet() : toSubtract;
-        return keyStream.filter(not(contains(nonNullToSubtract, Function.identity())))
+        return keyStream.filter(not(contains(nonNullToSubtract, identity())))
                 .collect(toSet());
+    }
+
+    public static <T> Stream<T> fromIterator(Iterator<T> iterator) {
+        if (iterator != null) {
+            Iterable<T> iterable = () -> iterator;
+            return StreamSupport.stream(iterable.spliterator(), false);
+        }
+        return Stream.empty();
     }
 
     public static <T> Stream<T> defaultStream(Collection<T> objects) {
@@ -98,14 +138,6 @@ public final class StreamUtils {
 
     public static <T> Stream<T> defaultStream(T[] array) {
         return array == null ? Stream.empty() : Arrays.stream(array);
-    }
-
-    public static <T> Stream<T> fromIterator(Iterator<T> iterator) {
-        if (iterator != null) {
-            Iterable<T> iterable = () -> iterator;
-            return StreamSupport.stream(iterable.spliterator(), false);
-        }
-        return Stream.empty();
     }
 
     public static <T> List<List<T>> toPartitionedList(Collection<T> collection, int partitionSize) {
