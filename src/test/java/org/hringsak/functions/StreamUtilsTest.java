@@ -11,10 +11,11 @@ import static org.junit.Assert.assertEquals;
 
 public class StreamUtilsTest {
 
-    private String[] inputArray;
-    private Collection<String> inputCollection;
-    private Stream<String> inputStream;
-    private Stream<String> result;
+    private TestValue[] inputArray;
+    private Collection<TestValue> inputCollection;
+    private Stream<TestValue> inputStream;
+    private TestValue inputObject;
+    private Stream<TestValue> result;
 
     @Test
     public void testDefaultStreamForNullArray() {
@@ -31,7 +32,7 @@ public class StreamUtilsTest {
         result = StreamUtils.defaultStream(inputArray);
     }
 
-    private void thenExpectStream(String... expected) {
+    private void thenExpectStream(TestValue... expected) {
         assertEquals(Lists.newArrayList(expected), result.collect(toList()));
     }
 
@@ -42,15 +43,15 @@ public class StreamUtilsTest {
         thenExpectStream();
     }
 
-    private void givenInputArray(String... values) {
+    private void givenInputArray(TestValue... values) {
         inputArray = values;
     }
 
     @Test
     public void testDefaultStreamForPopulatedArray() {
-        givenInputArray("testOne", "testTwo");
+        givenInputArray(TestValue.ONE, TestValue.TWO);
         whenDefaultStreamIsRetrievedFromArray();
-        thenExpectStream("testOne", "testTwo");
+        thenExpectStream(TestValue.ONE, TestValue.TWO);
     }
 
     @Test
@@ -75,15 +76,15 @@ public class StreamUtilsTest {
         thenExpectStream();
     }
 
-    private void givenInputCollection(String... values) {
+    private void givenInputCollection(TestValue... values) {
         inputCollection = Lists.newArrayList(values);
     }
 
     @Test
     public void testDefaultStreamForPopulatedCollection() {
-        givenInputCollection("testOne", "testTwo");
+        givenInputCollection(TestValue.ONE, TestValue.TWO);
         whenDefaultStreamIsRetrievedFromCollection();
-        thenExpectStream("testOne", "testTwo");
+        thenExpectStream(TestValue.ONE, TestValue.TWO);
     }
 
     @Test
@@ -108,14 +109,45 @@ public class StreamUtilsTest {
         thenExpectStream();
     }
 
-    private void givenInputStream(String... values) {
+    private void givenInputStream(TestValue... values) {
         inputStream = Stream.of(values);
     }
 
     @Test
     public void testDefaultStreamForPopulatedStream() {
-        givenInputStream("testOne", "testTwo");
+        givenInputStream(TestValue.ONE, TestValue.TWO);
         whenDefaultStreamIsRetrievedFromStream();
-        thenExpectStream("testOne", "testTwo");
+        thenExpectStream(TestValue.ONE, TestValue.TWO);
+    }
+
+    @Test
+    public void testDefaultStreamForNullObject() {
+        givenNullInputObject();
+        whenDefaultStreamIsRetrievedFromObject();
+        thenExpectStream();
+    }
+
+    private void givenNullInputObject() {
+        inputObject = null;
+    }
+
+    private void whenDefaultStreamIsRetrievedFromObject() {
+        result = StreamUtils.defaultStream(inputObject);
+    }
+
+    @Test
+    public void testDefaultStreamForPopulatedObject() {
+        givenPopulatedInputObject();
+        whenDefaultStreamIsRetrievedFromObject();
+        thenExpectStream(TestValue.ONE);
+    }
+
+    private void givenPopulatedInputObject() {
+        inputObject = TestValue.ONE;
+    }
+
+    private enum TestValue {
+        ONE,
+        TWO
     }
 }

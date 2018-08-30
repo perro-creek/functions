@@ -136,16 +136,24 @@ public final class StreamUtils {
         return Stream.empty();
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static <T> Stream<T> defaultStream(Collection<T> objects) {
         return objects == null ? Stream.empty() : objects.stream();
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static <T> Stream<T> defaultStream(Stream<T> stream) {
         return stream == null ? Stream.empty() : stream;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static <T> Stream<T> defaultStream(T[] array) {
         return array == null ? Stream.empty() : Arrays.stream(array);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static <T> Stream<T> defaultStream(T target) {
+        return target == null ? Stream.empty() : Stream.of(target);
     }
 
     public static <T> List<List<T>> toPartitionedList(Collection<T> collection, int partitionSize) {
