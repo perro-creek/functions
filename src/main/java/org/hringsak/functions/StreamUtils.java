@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -72,7 +73,7 @@ public final class StreamUtils {
     }
 
     public static <T> T findFirst(Collection<T> objects, Predicate<T> predicate) {
-        return findFirstWithDefault(objects, predicate, null);
+        return findFirstWithDefault(objects, predicate, (T) null);
     }
 
     public static <T> T findFirstWithDefault(Collection<T> objects, Predicate<T> predicate, T defaultValue) {
@@ -80,6 +81,13 @@ public final class StreamUtils {
                 .filter(predicate)
                 .findFirst()
                 .orElse(defaultValue);
+    }
+
+    public static <T> T findFirstWithDefault(Collection<T> objects, Predicate<T> predicate, Supplier<T> defaultValue) {
+        return defaultStream(objects)
+                .filter(predicate)
+                .findFirst()
+                .orElseGet(defaultValue);
     }
 
     public static <T> int indexOfFirst(Collection<T> objects, Predicate<T> predicate) {

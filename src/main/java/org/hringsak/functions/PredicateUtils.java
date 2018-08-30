@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -21,7 +21,7 @@ public final class PredicateUtils {
         return predicate;
     }
 
-    public static <T> Predicate<T> predicate(Predicate<T> predicate, boolean defaultIfNull) {
+    public static <T> Predicate<T> predicate(Predicate<? super T> predicate, boolean defaultIfNull) {
         return t -> t == null ? defaultIfNull : predicate.test(t);
     }
 
@@ -29,89 +29,85 @@ public final class PredicateUtils {
         return t -> b;
     }
 
-    public static <T, U> Predicate<T> predicate(BiFunction<T, U, Boolean> biFunction, U value) {
-        return t -> biFunction.apply(t, value);
+    public static <T, U> Predicate<T> predicate(BiPredicate<? super T, ? super U> biPredicate, U value) {
+        return t -> biPredicate.test(t, value);
     }
 
-    public static <T, U> Predicate<T> predicate(U value, BiFunction<U, T, Boolean> biFunction) {
-        return t -> biFunction.apply(value, t);
+    public static <T, U> Predicate<T> predicate(U value, BiPredicate<? super U, ? super T> biPredicate) {
+        return t -> biPredicate.test(value, t);
     }
 
     public static <T> Predicate<T> not(Predicate<T> predicate) {
         return predicate.negate();
     }
 
-    public static <T> Predicate<T> not(Predicate<T> predicate, boolean defaultIfNull) {
-        return t -> t == null ? defaultIfNull : predicate.negate().test(t);
-    }
-
-    public static <T, R> Predicate<T> isEqual(R target, Function<T, R> extractor) {
+    public static <T, R> Predicate<T> isEqual(R target, Function<? super T, ? extends R> extractor) {
         return value -> Objects.equals(target, value == null ? null : extractor.apply(value));
     }
 
-    public static <T, R> Predicate<T> isNotEqual(R target, Function<T, R> function) {
+    public static <T, R> Predicate<T> isNotEqual(R target, Function<? super T, ? extends R> function) {
         return not(isEqual(target, function));
     }
 
-    public static <T> Predicate<T> equalsIgnoreCase(CharSequence target, Function<T, CharSequence> extractor) {
+    public static <T> Predicate<T> equalsIgnoreCase(CharSequence target, Function<? super T, ? extends CharSequence> extractor) {
         return value -> StringUtils.equalsIgnoreCase(target, value == null ? null : extractor.apply(value));
     }
 
-    public static <T, R> Predicate<T> contains(Collection<? super R> collection, Function<T, R> extractor) {
+    public static <T, R> Predicate<T> contains(Collection<? extends R> collection, Function<? super T, ? extends R> extractor) {
         return t -> collection != null && t != null && collection.contains(extractor.apply(t));
     }
 
-    public static <T, R> Predicate<T> contains(Function<T, Collection<? super R>> collectionExtractor, R value) {
+    public static <T, R> Predicate<T> contains(Function<? super T, ? extends Collection<R>> collectionExtractor, R value) {
         return t -> {
             if (t != null) {
-                Collection<? super R> collection = collectionExtractor.apply(t);
+                Collection<R> collection = collectionExtractor.apply(t);
                 return collection != null && collection.contains(value);
             }
             return false;
         };
     }
 
-    public static <T> Predicate<T> containsChar(Function<T, CharSequence> extractor, int searchChar) {
+    public static <T> Predicate<T> containsChar(Function<? super T, ? extends CharSequence> extractor, int searchChar) {
         return t -> t != null && StringUtils.contains(extractor.apply(t), searchChar);
     }
 
-    public static <T> Predicate<T> containsSequence(Function<T, CharSequence> extractor, CharSequence searchSeq) {
+    public static <T> Predicate<T> containsSequence(Function<? super T, ? extends CharSequence> extractor, CharSequence searchSeq) {
         return t -> t != null && StringUtils.contains(extractor.apply(t), searchSeq);
     }
 
-    public static <T> Predicate<T> containsIgnoreCase(Function<T, CharSequence> extractor, CharSequence searchSeq) {
+    public static <T> Predicate<T> containsIgnoreCase(Function<? super T, ? extends CharSequence> extractor, CharSequence searchSeq) {
         return t -> t != null && StringUtils.containsIgnoreCase(extractor.apply(t), searchSeq);
     }
 
-    public static <T> Predicate<T> isAlpha(Function<T, CharSequence> extractor) {
+    public static <T> Predicate<T> isAlpha(Function<? super T, ? extends CharSequence> extractor) {
         return t -> t != null && StringUtils.isAlpha(extractor.apply(t));
     }
 
-    public static <T> Predicate<T> isAlphanumeric(Function<T, CharSequence> extractor) {
+    public static <T> Predicate<T> isAlphanumeric(Function<? super T, ? extends CharSequence> extractor) {
         return t -> t != null && StringUtils.isAlphanumeric(extractor.apply(t));
     }
 
-    public static <T> Predicate<T> isNumeric(Function<T, CharSequence> extractor) {
+    public static <T> Predicate<T> isNumeric(Function<? super T, ? extends CharSequence> extractor) {
         return t -> t != null && StringUtils.isNumeric(extractor.apply(t));
     }
 
-    public static <T> Predicate<T> startsWith(Function<T, CharSequence> extractor, CharSequence prefix) {
+    public static <T> Predicate<T> startsWith(Function<? super T, ? extends CharSequence> extractor, CharSequence prefix) {
         return t -> t != null && StringUtils.startsWith(extractor.apply(t), prefix);
     }
 
-    public static <T> Predicate<T> startsWithIgnoreCase(Function<T, CharSequence> extractor, CharSequence prefix) {
+    public static <T> Predicate<T> startsWithIgnoreCase(Function<? super T, ? extends CharSequence> extractor, CharSequence prefix) {
         return t -> t != null && StringUtils.startsWithIgnoreCase(extractor.apply(t), prefix);
     }
 
-    public static <T> Predicate<T> endsWith(Function<T, CharSequence> extractor, CharSequence suffix) {
+    public static <T> Predicate<T> endsWith(Function<? super T, ? extends CharSequence> extractor, CharSequence suffix) {
         return t -> t != null && StringUtils.endsWith(extractor.apply(t), suffix);
     }
 
-    public static <T> Predicate<T> endsWithIgnoreCase(Function<T, CharSequence> extractor, CharSequence suffix) {
+    public static <T> Predicate<T> endsWithIgnoreCase(Function<? super T, ? extends CharSequence> extractor, CharSequence suffix) {
         return t -> t != null && StringUtils.endsWithIgnoreCase(extractor.apply(t), suffix);
     }
 
-    public static <T, R> Predicate<T> isNull(Function<T, R> function) {
+    public static <T, R> Predicate<T> isNull(Function<? super T, ? extends R> function) {
         return value -> value == null || Objects.isNull(function.apply(value));
     }
 
@@ -119,39 +115,39 @@ public final class PredicateUtils {
         return not(isNull(function));
     }
 
-    public static <T, R extends Comparable<R>> Predicate<T> gt(R compareTo, Function<T, R> valueExtractor) {
+    public static <T, R extends Comparable<R>> Predicate<T> gt(R compareTo, Function<? super T, ? extends R> valueExtractor) {
         return target -> getComparisonValue(compareTo, target, valueExtractor) > 0;
     }
 
-    public static <T, R extends Comparable<R>> Predicate<T> gte(R compareTo, Function<T, R> valueExtractor) {
+    public static <T, R extends Comparable<R>> Predicate<T> gte(R compareTo, Function<? super T, ? extends R> valueExtractor) {
         return target -> getComparisonValue(compareTo, target, valueExtractor) >= 0;
     }
 
-    public static <T, R extends Comparable<R>> Predicate<T> lt(R compareTo, Function<T, R> valueExtractor) {
+    public static <T, R extends Comparable<R>> Predicate<T> lt(R compareTo, Function<? super T, ? extends R> valueExtractor) {
         return target -> getComparisonValue(compareTo, target, valueExtractor) < 0;
     }
 
-    public static <T, R extends Comparable<R>> Predicate<T> lte(R compareTo, Function<T, R> valueExtractor) {
+    public static <T, R extends Comparable<R>> Predicate<T> lte(R compareTo, Function<? super T, ? extends R> valueExtractor) {
         return target -> getComparisonValue(compareTo, target, valueExtractor) <= 0;
     }
 
-    private static <T, R extends Comparable<R>> int getComparisonValue(R compareTo, T target, Function<T, R> valueExtractor) {
+    private static <T, R extends Comparable<R>> int getComparisonValue(R compareTo, T target, Function<? super T, ? extends R> valueExtractor) {
         return Objects.compare(compareTo, getValueIfTargetNonNull(target, valueExtractor), nullsLast(naturalOrder()));
     }
 
-    private static <T, R extends Comparable<R>> R getValueIfTargetNonNull(T target, Function<T, R> valueExtractor) {
+    private static <T, R extends Comparable<R>> R getValueIfTargetNonNull(T target, Function<? super T, ? extends R> valueExtractor) {
         return target == null ? null : valueExtractor.apply(target);
     }
 
-    public static <T, R> Predicate<T> isEmpty(Function<T, Collection<R>> function) {
+    public static <T, R> Predicate<T> isEmpty(Function<? super T, ? extends Collection<R>> function) {
         return t -> t == null || CollectionUtils.isEmpty(function.apply(t));
     }
 
-    public static <T, R> Predicate<T> isNotEmpty(Function<T, Collection<R>> function) {
+    public static <T, R> Predicate<T> isNotEmpty(Function<? super T, ? extends Collection<R>> function) {
         return not(isEmpty(function));
     }
 
-    public static <T, R> Predicate<T> transformAndFilter(Function<T, R> transformer, Predicate<R> predicate) {
+    public static <T, U> Predicate<T> transformAndFilter(Function<? super T, ? extends U> transformer, Predicate<? super U> predicate) {
         return t -> t != null && predicate.test(transformer.apply(t));
     }
 }

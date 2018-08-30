@@ -12,7 +12,7 @@ import static java.util.stream.Collectors.*
 
 class CollectorUtilsSpec extends Specification {
 
-    def 'test conditional group by collector'() {
+    def 'conditional group by collector'() {
         given:
         def pairStream = Stream.of(pair(1, null), pair(1, ''), pair(2, 'stringOne'), pair(2, 'stringTwo'))
         def nonEmptyPredicate = { String str -> !Strings.isNullOrEmpty(str) }
@@ -29,7 +29,7 @@ class CollectorUtilsSpec extends Specification {
         }
     }
 
-    def 'test to map from entry'() {
+    def 'to map from entry'() {
         given:
         def sourceMap = [keyOne: 'valueOne', keyTwo: 'valueTwo', keyThree: 'valueThree']
 
@@ -40,20 +40,33 @@ class CollectorUtilsSpec extends Specification {
         actual == sourceMap
     }
 
-    def 'test to partitioned stream'() {
+    def 'to partitioned stream'() {
         given:
         def partitionSize = 10
         def elements = (1..100).collect({ "element${StringUtils.leftPad("$it", 3, '0')}" })
 
         when:
-        def partitions = elements.stream().collect(CollectorUtils.toPartitionedStream(partitionSize)).collect(toList())
+        def partitions = elements.stream().collect(CollectorUtils.toPartitionedStream(partitionSize)).collect(toList())  as Collection<List>
 
         then:
         partitions.size() == 10
         partitions.each { List partition -> partition.size() == partitionSize }
     }
 
-    def 'test to string builder'() {
+    def 'to partitioned list'() {
+        given:
+        def partitionSize = 10
+        def elements = (1..100).collect({ "element${StringUtils.leftPad("$it", 3, '0')}" })
+
+        when:
+        def partitions = elements.stream().collect(CollectorUtils.toPartitionedList(partitionSize)) as Collection<List>
+
+        then:
+        partitions.size() == 10
+        partitions.each { List partition -> partition.size() == partitionSize }
+    }
+
+    def 'to string builder'() {
         when:
         def actual = 'test123'.codePoints()
                 .filter { codePoint -> Character.isDigit(codePoint) }
@@ -65,7 +78,7 @@ class CollectorUtilsSpec extends Specification {
         actual == '123'
     }
 
-    def 'test to enum set'() {
+    def 'to enum set'() {
         expect:
         Arrays.stream(TestEnum.values()).collect(CollectorUtils.toEnumSet(TestEnum)) == EnumSet.allOf(TestEnum)
     }
@@ -79,7 +92,7 @@ class CollectorUtilsSpec extends Specification {
         e.message =~ '"enumClass"'
     }
 
-    def 'test to unmodifiable list'() {
+    def 'to unmodifiable list'() {
         given:
         def numStream = Stream.of(1, 2, 3)
 
@@ -92,7 +105,7 @@ class CollectorUtilsSpec extends Specification {
         result instanceof List
     }
 
-    def 'test to unmodifiable set'() {
+    def 'to unmodifiable set'() {
         given:
         def numStream = Stream.of(1, 2, 3)
 
@@ -105,7 +118,7 @@ class CollectorUtilsSpec extends Specification {
         result instanceof Set
     }
 
-    def 'test to unmodifiable collection'() {
+    def 'to unmodifiable collection'() {
         given:
         def numStream = Stream.of(1, 2, 3)
 
@@ -118,7 +131,7 @@ class CollectorUtilsSpec extends Specification {
         result instanceof Collection
     }
 
-    def 'test to synchronized list'() {
+    def 'to synchronized list'() {
         given:
         def numStream = Stream.of(1, 2, 3)
 
@@ -129,7 +142,7 @@ class CollectorUtilsSpec extends Specification {
         result.getClass().getSimpleName() == 'SynchronizedRandomAccessList'
     }
 
-    def 'test to synchronized set'() {
+    def 'to synchronized set'() {
         given:
         def numStream = Stream.of(1, 2, 3)
 
@@ -140,7 +153,7 @@ class CollectorUtilsSpec extends Specification {
         result.getClass().getSimpleName() == 'SynchronizedSet'
     }
 
-    def 'test to synchronized collection'() {
+    def 'to synchronized collection'() {
         given:
         def numStream = Stream.of(1, 2, 3)
 
@@ -157,6 +170,6 @@ class CollectorUtilsSpec extends Specification {
 
     enum TestEnum {
         VALUE_ONE,
-        VALUE_TWO;
+        VALUE_TWO
     }
 }

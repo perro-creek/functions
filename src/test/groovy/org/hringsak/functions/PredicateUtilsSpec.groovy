@@ -4,6 +4,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.function.BiFunction
+import java.util.function.BiPredicate
 import java.util.function.Function
 import java.util.function.Predicate
 
@@ -57,11 +58,11 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'predicate for bi-function returns expected value for values "#paramOne" and "#paramTwo" returns #expected'() {
+    def 'predicate for bi-predicate returns expected value for values "#paramOne" and "#paramTwo" returns #expected'() {
 
         expect:
-        def biFunction = { a, b -> a.equals(b) } as BiFunction
-        PredicateUtils.predicate(biFunction, paramOne).test(paramTwo) == expected
+        def biPredicate = { a, b -> a.equals(b) } as BiPredicate
+        PredicateUtils.predicate(biPredicate, paramOne).test(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -73,11 +74,11 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'predicate for bi-function as second parameter returns expected value for values "#paramOne" and "#paramTwo" returns #expected'() {
+    def 'predicate for bi-predicate as second parameter returns expected value for values "#paramOne" and "#paramTwo" returns #expected'() {
 
         expect:
-        def biFunction = { a, b -> a.equals(b) } as BiFunction
-        PredicateUtils.predicate(paramOne, biFunction).test(paramTwo) == expected
+        def biPredicate = { a, b -> a.equals(b) } as BiPredicate
+        PredicateUtils.predicate(paramOne, biPredicate).test(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -100,23 +101,6 @@ class PredicateUtilsSpec extends Specification {
     def 'not passing non-null returns expected value'() {
         expect:
         PredicateUtils.not({ String s -> s.isEmpty() }).test('test')
-    }
-
-    @Unroll
-    def 'not with default taking boolean parameter "#defaultParameter" and predicate parameter "#predicateParameter" returns #expected'() {
-
-        expect:
-        def predicate = { String s -> s.isEmpty() } as Predicate
-        PredicateUtils.not(predicate, defaultParameter).test(predicateParameter) == expected
-
-        where:
-        defaultParameter | predicateParameter | expected
-        true             | null               | true
-        true             | ''                 | false
-        true             | 'test'             | true
-        false            | null               | false
-        false            | ''                 | false
-        false            | 'test'             | true
     }
 
     @Unroll
