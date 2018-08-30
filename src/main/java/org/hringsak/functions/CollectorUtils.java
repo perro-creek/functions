@@ -16,6 +16,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -101,6 +102,19 @@ public final class CollectorUtils {
     @SuppressWarnings("unused")
     private static <T, U extends Collection<T>> BiConsumer<U, T> accumulator(BiConsumer<U, T> biConsumer) {
         return biConsumer;
+    }
+
+    public static <T, R extends Collection<T>> Collector<T, ?, R> collectWithDefault(Collector<T, ?, R> collector, T defaultValue) {
+        return Collectors.collectingAndThen(collector, defaultFinisher(defaultValue));
+    }
+
+    private static <T, U extends Collection<? super T>> UnaryOperator<U> defaultFinisher(T defaultValue) {
+        return collection -> {
+            if (collection.isEmpty()) {
+                collection.add(defaultValue);
+            }
+            return collection;
+        };
     }
 
     public static <T> Collector<T, ?, List<T>> toUnmodifiableList() {

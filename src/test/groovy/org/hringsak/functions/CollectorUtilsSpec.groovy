@@ -83,13 +83,23 @@ class CollectorUtilsSpec extends Specification {
         Arrays.stream(TestEnum.values()).collect(CollectorUtils.toEnumSet(TestEnum)) == EnumSet.allOf(TestEnum)
     }
 
-    def 'test to enum set passing null enum class'() {
+    def 'to enum set passing null enum class'() {
         when:
         [].stream().collect(CollectorUtils.toEnumSet(null))
 
         then:
         def e = thrown(NullPointerException)
         e.message =~ '"enumClass"'
+    }
+
+    def 'collect with default for empty stream'() {
+        expect:
+        [].stream().collect(CollectorUtils.collectWithDefault(toList(), 'default')) == ['default']
+    }
+
+    def 'collect with default for populated stream'() {
+        expect:
+        ['test'].stream().collect(CollectorUtils.collectWithDefault(toList(), 'default')) == ['test']
     }
 
     def 'to unmodifiable list'() {
@@ -142,7 +152,7 @@ class CollectorUtilsSpec extends Specification {
         result.getClass().getSimpleName() == 'SynchronizedRandomAccessList'
     }
 
-    def 'to synchronized set'() {
+    def 'synchronized set'() {
         given:
         def numStream = Stream.of(1, 2, 3)
 
