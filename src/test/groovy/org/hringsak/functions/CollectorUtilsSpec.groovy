@@ -152,7 +152,7 @@ class CollectorUtilsSpec extends Specification {
         result.getClass().getSimpleName() == 'SynchronizedRandomAccessList'
     }
 
-    def 'synchronized set'() {
+    def 'to synchronized set'() {
         given:
         def numStream = Stream.of(1, 2, 3)
 
