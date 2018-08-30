@@ -13,12 +13,11 @@ public final class ComparatorUtils {
     private ComparatorUtils() {
     }
 
-    public static <T, U extends Comparable<U>> Comparator<T> comparingNullsFirst(Function<T, U> keyExtractor) {
+    public static <T, R extends Comparable<R>> Comparator<T> comparingNullsFirst(Function<? super T, ? extends R> keyExtractor) {
         return comparing(keyExtractor, nullsFirst(naturalOrder()));
     }
 
-    public static <T, U extends Comparable<U>> Comparator<T> comparingNullsLast(Function<T, U> keyExtractor) {
+    public static <T, R extends Comparable<R>> Comparator<T> comparingNullsLast(Function<? super T, ? extends R> keyExtractor) {
         return comparing(keyExtractor, nullsLast(naturalOrder()));
     }
-
 }

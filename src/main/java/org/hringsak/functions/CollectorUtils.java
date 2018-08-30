@@ -33,11 +33,12 @@ public final class CollectorUtils {
         return conditionalCollector(shouldAddToGroup, ArrayList::new);
     }
 
-    public static <T, R extends Collection<T>> Collector<T, R, R> conditionalCollector(Predicate<T> shouldAddToGroup, Supplier<R> supplier) {
+    @SuppressWarnings("WeakerAccess")
+    public static <T, U extends Collection<T>> Collector<T, U, U> conditionalCollector(Predicate<T> shouldAddToGroup, Supplier<U> supplier) {
         return Collector.of(supplier, accumulator(shouldAddToGroup), combiner(Collection::addAll));
     }
 
-    private static <T, R extends Collection<T>> BiConsumer<R, T> accumulator(Predicate<T> shouldAddToGroup) {
+    private static <T, U extends Collection<T>> BiConsumer<U, T> accumulator(Predicate<T> shouldAddToGroup) {
         return (groupedResults, target) -> {
             if (shouldAddToGroup.test(target)) {
                 groupedResults.add(target);
@@ -45,11 +46,7 @@ public final class CollectorUtils {
         };
     }
 
-    private static <T, R extends Collection<T>> BiConsumer<R, T> accumulator(BiConsumer<R, T> biConsumer) {
-        return biConsumer;
-    }
-
-    private static <R> BinaryOperator<R> combiner(BiConsumer<R, R> biConsumer) {
+    private static <T> BinaryOperator<T> combiner(BiConsumer<T, T> biConsumer) {
         return (left, right) -> {
             biConsumer.accept(left, right);
             return left;
@@ -64,13 +61,14 @@ public final class CollectorUtils {
         return (map, entry) -> map.put(entry.getKey(), entry.getValue());
     }
 
+    public static <T> Collector<T, List<List<T>>, Stream<List<T>>> toPartitionedStream(int partitionSize) {
+        return Collectors.collectingAndThen(toPartitionedList(partitionSize), List::stream);
+    }
+
+    @SuppressWarnings("WeakerAccess")
     public static <T> Collector<T, List<List<T>>, List<List<T>>> toPartitionedList(int partitionSize) {
         Preconditions.checkArgument(partitionSize > 0, "The 'partitionSize' argument must be greater than zero");
         return Collector.of(ArrayList::new, listPartitionAccumulator(partitionSize), combiner(List::addAll));
-    }
-
-    public static <T> Collector<T, List<List<T>>, Stream<List<T>>> toPartitionedStream(int partitionSize) {
-        return Collectors.collectingAndThen(toPartitionedList(partitionSize), List::stream);
     }
 
     private static <T> BiConsumer<List<List<T>>, T> listPartitionAccumulator(int partitionSize) {
@@ -98,6 +96,11 @@ public final class CollectorUtils {
 
     private static <E extends Enum<E>> Supplier<EnumSet<E>> enumSetSupplier(Class<E> enumClass) {
         return () -> EnumSet.noneOf(enumClass);
+    }
+
+    @SuppressWarnings("unused")
+    private static <T, U extends Collection<T>> BiConsumer<U, T> accumulator(BiConsumer<U, T> biConsumer) {
+        return biConsumer;
     }
 
     public static <T> Collector<T, ?, List<T>> toUnmodifiableList() {

@@ -5,6 +5,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.function.Function
+import java.util.function.Supplier
 
 import static java.util.function.Function.identity
 import static java.util.stream.Collectors.joining
@@ -162,6 +163,19 @@ class StreamUtilsSpec extends Specification {
 
         expect:
         StreamUtils.findFirstWithDefault([null, '', 'test', ''], isEqual(length, { String s -> s.length() }), 'default') == expected
+
+        where:
+        length | expected
+        0      | ''
+        1      | 'default'
+        4      | 'test'
+    }
+
+    @Unroll
+    def 'find first with default supplier returns expected value for string length "#length"'() {
+
+        expect:
+        StreamUtils.findFirstWithDefault([null, '', 'test', ''], isEqual(length, { String s -> s.length() }), { 'default' } as Supplier) == expected
 
         where:
         length | expected
