@@ -4,6 +4,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -65,6 +66,14 @@ public final class PredicateUtils {
             }
             return false;
         };
+    }
+
+    public static <T, R> Predicate<T> containsKey(Map<R, ?> map, Function<? super T, ? extends R> extractor) {
+        return t -> map != null && t != null && map.containsKey(extractor.apply(t));
+    }
+
+    public static <T, R> Predicate<T> containsValue(Map<?, R> map, Function<? super T, ? extends R> extractor) {
+        return t -> map != null && t != null && map.containsValue(extractor.apply(t));
     }
 
     public static <T> Predicate<T> containsChar(Function<? super T, ? extends CharSequence> extractor, int searchChar) {
@@ -147,7 +156,7 @@ public final class PredicateUtils {
         return not(isEmpty(function));
     }
 
-    public static <T, U> Predicate<T> transformAndFilter(Function<? super T, ? extends U> transformer, Predicate<? super U> predicate) {
+    static <T, U> Predicate<T> extractAndFilter(Function<? super T, ? extends U> transformer, Predicate<? super U> predicate) {
         return t -> t != null && predicate.test(transformer.apply(t));
     }
 }

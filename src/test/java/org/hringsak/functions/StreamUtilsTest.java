@@ -1,9 +1,13 @@
 package org.hringsak.functions;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -16,6 +20,13 @@ public class StreamUtilsTest {
     private Stream<TestValue> inputStream;
     private TestValue inputObject;
     private Stream<TestValue> result;
+
+    @Test
+    public void testToStringBuilder() {
+        System.out.println("test123".codePoints()
+                .filter(Character::isDigit)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append));
+    }
 
     @Test
     public void testDefaultStreamForNullArray() {

@@ -190,6 +190,38 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'contains key for map #map passing #enumValue returns #expected'() {
+
+        expect:
+        def extractor = { TestValue t -> t.name() } as Function
+        PredicateUtils.containsKey(map, extractor).test(enumValue) == expected
+
+        where:
+        map                            | enumValue     | expected
+        null                           | TestValue.ONE | false
+        [:]                            | TestValue.ONE | false
+        TestValue.makeNameToValueMap() | null          | false
+        TestValue.makeNameToValueMap() | TestValue.ONE | true
+        TestValue.makeNameToValueMap() | TestValue.TWO | true
+    }
+
+    @Unroll
+    def 'contains value for map #map passing #enumValue returns #expected'() {
+
+        expect:
+        def extractor = { TestValue t -> t.name() } as Function
+        PredicateUtils.containsValue(map, extractor).test(enumValue) == expected
+
+        where:
+        map                            | enumValue     | expected
+        null                           | TestValue.ONE | false
+        [:]                            | TestValue.ONE | false
+        TestValue.makeValueToNameMap() | null          | false
+        TestValue.makeValueToNameMap() | TestValue.ONE | true
+        TestValue.makeValueToNameMap() | TestValue.TWO | true
+    }
+
+    @Unroll
     def 'contains char with string extractor passing value "#extractedString" and "#searchChar" returns "#expected"'() {
 
         expect:
@@ -484,11 +516,11 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'find first passing input "#input"'() {
+    def 'extract and filter passing input "#input"'() {
 
         expect:
         def predicate = PredicateUtils.isEqual(4, Function.identity())
-        PredicateUtils.transformAndFilter({ String s -> s.length() } as Function, predicate).test(input) == expected
+        PredicateUtils.extractAndFilter({ String s -> s.length() } as Function, predicate).test(input) == expected
 
         where:
         input  | expected

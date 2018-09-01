@@ -8,15 +8,42 @@ import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
 import static java.util.Comparator.nullsLast;
 
+/**
+ * Methods that build comparators useful in many different situations, particularly in Java streams.
+ */
 public final class ComparatorUtils {
 
     private ComparatorUtils() {
     }
 
+    /**
+     * Builds a comparator that can be used to compare and sort instances of any type, provided that the
+     * <code>keyExtractor</code> function retrieves an instance of <code>Comparable</code> from them. The comparator
+     * sorts in a way that null values come before all non-null ones.
+     *
+     * @param keyExtractor An extractor function that retrieves a key value from a target element, the value being an
+     *                     instance of Comparable, which will be compared based on its natural order, with nulls being
+     *                     evaluated as less than non-nulls.
+     * @param <T>          The type of the elements to be compared.
+     * @param <R>          The type of the key value to be extracted, which must extend the Comparable interface.
+     * @return A comparator of instances of type &lt;T&gt;.
+     */
     public static <T, R extends Comparable<R>> Comparator<T> comparingNullsFirst(Function<? super T, ? extends R> keyExtractor) {
         return comparing(keyExtractor, nullsFirst(naturalOrder()));
     }
 
+    /**
+     * Builds a comparator that can be used to compare and sort instances of any type, provided that the
+     * <code>keyExtractor</code> function retrieves an instance of <code>Comparable</code> from them. The comparator
+     * sorts in a way that null values come after all non-null ones.
+     *
+     * @param keyExtractor An extractor function that retrieves a key value from a target element, the value being an
+     *                     instance of Comparable, which will be compared based on its natural order, with nulls being
+     *                     evaluated as greater than non-nulls.
+     * @param <T>          The type of the elements to be compared.
+     * @param <R>          The type of the key value to be extracted, which must extend the Comparable interface.
+     * @return A comparator of instances of type &lt;T&gt;.
+     */
     public static <T, R extends Comparable<R>> Comparator<T> comparingNullsLast(Function<? super T, ? extends R> keyExtractor) {
         return comparing(keyExtractor, nullsLast(naturalOrder()));
     }

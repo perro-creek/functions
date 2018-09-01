@@ -23,8 +23,8 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.hringsak.functions.MapperUtils.pairWithIndex;
 import static org.hringsak.functions.PredicateUtils.contains;
+import static org.hringsak.functions.PredicateUtils.extractAndFilter;
 import static org.hringsak.functions.PredicateUtils.not;
-import static org.hringsak.functions.PredicateUtils.transformAndFilter;
 
 public final class StreamUtils {
 
@@ -39,37 +39,6 @@ public final class StreamUtils {
     public static <T> Predicate<T> distinctByKeyParallel(Function<? super T, Object> keyExtractor) {
         Set<Object> uniqueKeys = Sets.newConcurrentHashSet();
         return t -> uniqueKeys.add(keyExtractor.apply(t));
-    }
-
-    public static <T, R> List<R> transform(Collection<T> objects, Function<T, R> transformer) {
-        return transform(objects, transformer, toList());
-    }
-
-    public static <T, R> Set<R> transformToSet(Collection<T> collection, Function<T, R> transformer) {
-        return transform(collection, transformer, toSet());
-    }
-
-    public static <T, C extends Collection<T>> C transform(Collection<T> objects, Collector<T, ?, C> collector) {
-        return transform(objects, identity(), collector);
-    }
-
-    public static <T, R, C extends Collection<R>> C transform(Collection<T> objects, Function<T, R> transformer, Collector<R, ?, C> collector) {
-        return defaultStream(objects)
-                .map(transformer)
-                .collect(collector);
-    }
-
-    public static <T, R> List<R> transformDistinct(Collection<T> objects, Function<T, R> transformer) {
-        return defaultStream(objects)
-                .map(transformer)
-                .distinct()
-                .collect(toList());
-    }
-
-    public static <T> List<T> filter(Collection<T> objects, Predicate<T> predicate) {
-        return defaultStream(objects)
-                .filter(predicate)
-                .collect(toList());
     }
 
     public static <T> T findFirst(Collection<T> objects, Predicate<T> predicate) {
@@ -93,7 +62,7 @@ public final class StreamUtils {
     public static <T> int indexOfFirst(Collection<T> objects, Predicate<T> predicate) {
         return defaultStream(objects)
                 .map(pairWithIndex())
-                .filter(transformAndFilter(Pair::getLeft, predicate))
+                .filter(extractAndFilter(Pair::getLeft, predicate))
                 .mapToInt(Pair::getRight)
                 .findFirst()
                 .orElse(-1);
@@ -136,6 +105,14 @@ public final class StreamUtils {
         return Stream.empty();
     }
 
+    public static <T> List<List<T>> toPartitionedList(Collection<T> collection, int partitionSize) {
+        return defaultStream(collection).collect(CollectorUtils.toPartitionedList(partitionSize));
+    }
+
+    public static <T> Stream<List<T>> toPartitionedStream(Collection<T> collection, int partitionSize) {
+        return defaultStream(collection).collect(CollectorUtils.toPartitionedStream(partitionSize));
+    }
+
     @SuppressWarnings("WeakerAccess")
     public static <T> Stream<T> defaultStream(Collection<T> objects) {
         return objects == null ? Stream.empty() : objects.stream();
@@ -154,13 +131,5 @@ public final class StreamUtils {
     @SuppressWarnings("WeakerAccess")
     public static <T> Stream<T> defaultStream(T target) {
         return target == null ? Stream.empty() : Stream.of(target);
-    }
-
-    public static <T> List<List<T>> toPartitionedList(Collection<T> collection, int partitionSize) {
-        return defaultStream(collection).collect(CollectorUtils.toPartitionedList(partitionSize));
-    }
-
-    public static <T> Stream<List<T>> toPartitionedStream(Collection<T> collection, int partitionSize) {
-        return defaultStream(collection).collect(CollectorUtils.toPartitionedStream(partitionSize));
     }
 }

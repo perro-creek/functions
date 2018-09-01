@@ -46,7 +46,7 @@ class CollectorUtilsSpec extends Specification {
         def elements = (1..100).collect({ "element${StringUtils.leftPad("$it", 3, '0')}" })
 
         when:
-        def partitions = elements.stream().collect(CollectorUtils.toPartitionedStream(partitionSize)).collect(toList())  as Collection<List>
+        def partitions = elements.stream().collect(CollectorUtils.toPartitionedStream(partitionSize)).collect(toList()) as Collection<List>
 
         then:
         partitions.size() == 10
@@ -80,7 +80,7 @@ class CollectorUtilsSpec extends Specification {
 
     def 'to enum set'() {
         expect:
-        Arrays.stream(TestEnum.values()).collect(CollectorUtils.toEnumSet(TestEnum)) == EnumSet.allOf(TestEnum)
+        Arrays.stream(TestValue.values()).collect(CollectorUtils.toEnumSet(TestValue)) == EnumSet.allOf(TestValue)
     }
 
     def 'to enum set passing null enum class'() {
@@ -92,14 +92,34 @@ class CollectorUtilsSpec extends Specification {
         e.message =~ '"enumClass"'
     }
 
-    def 'collect with default for empty stream'() {
+    def 'to list with default for empty stream'() {
         expect:
-        [].stream().collect(CollectorUtils.collectWithDefault(toList(), 'default')) == ['default']
+        [].stream().collect(CollectorUtils.toListWithDefault('default')) == ['default']
     }
 
-    def 'collect with default for populated stream'() {
+    def 'to list with default for populated stream'() {
         expect:
-        ['test'].stream().collect(CollectorUtils.collectWithDefault(toList(), 'default')) == ['test']
+        ['test'].stream().collect(CollectorUtils.toListWithDefault('default')) == ['test']
+    }
+
+    def 'to set with default passing supplier for empty stream'() {
+        expect:
+        [].stream().collect(CollectorUtils.toSetWithDefault('default')) == ['default'] as Set
+    }
+
+    def 'to set with default passing supplier for populated stream'() {
+        expect:
+        ['test'].stream().collect(CollectorUtils.toSetWithDefault('default')) == ['test'] as Set
+    }
+
+    def 'with default passing supplier for empty stream'() {
+        expect:
+        [].stream().collect(CollectorUtils.withDefault('default', { new HashSet<>() })) == ['default'] as Set
+    }
+
+    def 'collect with default passing collector for populated stream'() {
+        expect:
+        ['test'].stream().collect(CollectorUtils.withDefault('default', { new HashSet<>() })) == ['test'] as Set
     }
 
     def 'to unmodifiable list'() {
@@ -176,10 +196,5 @@ class CollectorUtilsSpec extends Specification {
 
     def pair(key, value) {
         Pair.of(key, value)
-    }
-
-    enum TestEnum {
-        VALUE_ONE,
-        VALUE_TWO
     }
 }
