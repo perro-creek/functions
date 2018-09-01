@@ -198,6 +198,22 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'get value for map #map and enumValue #enumValue returns #expected'() {
+
+        expect:
+        def extractor = { TestValue t -> t.name() } as Function
+        MapperUtils.getValue(map, extractor).apply(enumValue) == expected
+
+        where:
+        map                            | enumValue     || expected
+        null                           | TestValue.ONE || null
+        [:]                            | TestValue.ONE || null
+        TestValue.makeNameToValueMap() | null          || null
+        TestValue.makeNameToValueMap() | TestValue.ONE || TestValue.ONE
+        TestValue.makeNameToValueMap() | TestValue.TWO || TestValue.TWO
+    }
+
+    @Unroll
     def 'stream of passing value "#target" finding first returns "#expected"'() {
 
         expect:

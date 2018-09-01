@@ -4,8 +4,10 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -93,6 +95,10 @@ public final class MapperUtils {
         return t -> function.applyAsLong(value, t);
     }
 
+    public static <T, U, R> Function<T, R> getValue(Map<U, R> map, Function<T, U> extractor) {
+        return t -> (map == null || t == null) ? null : map.get(extractor.apply(t));
+    }
+
     public static <T, R> Function<T, Stream<R>> streamOf(Function<? super T, ? extends R> mapper) {
         return t -> t == null ? Stream.empty() : Stream.of(mapper.apply(t));
     }
@@ -101,7 +107,7 @@ public final class MapperUtils {
         return t -> t == null ? Stream.empty() : defaultStream(mapper.apply(t));
     }
 
-    public static <T, U, R> Function<T, Pair<U, R>> pairOf(Function<T, U> leftFunction, Function<? super T, ? extends R> rightFunction) {
+    public static <T, U, V> Function<T, Pair<U, V>> pairOf(Function<T, U> leftFunction, Function<? super T, ? extends V> rightFunction) {
         return t -> Pair.of(leftFunction.apply(t), rightFunction.apply(t));
     }
 
@@ -109,8 +115,8 @@ public final class MapperUtils {
         return pairWith(Function.identity(), pairedList);
     }
 
-    public static <T, U, R> Function<T, Pair<U, R>> pairWith(Function<? super T, ? extends U> function, List<R> pairedList) {
-        List<R> nonNullList = ListUtils.emptyIfNull(pairedList);
+    public static <T, U, V> Function<T, Pair<U, V>> pairWith(Function<? super T, ? extends U> function, List<V> pairedList) {
+        List<V> nonNullList = ListUtils.emptyIfNull(pairedList);
         MutableInt idx = new MutableInt();
         return t -> {
             U extracted = t == null ? null : function.apply(t);

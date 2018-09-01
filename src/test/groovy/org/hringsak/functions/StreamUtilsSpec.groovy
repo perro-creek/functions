@@ -1,16 +1,12 @@
 package org.hringsak.functions
 
-import com.google.common.collect.Sets
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.function.Function
 import java.util.function.Supplier
 
-import static java.util.function.Function.identity
 import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
-import static org.hringsak.functions.CollectorUtilsSpec.TestEnum.*
 import static org.hringsak.functions.PredicateUtils.isEqual
 
 class StreamUtilsSpec extends Specification {
@@ -45,104 +41,6 @@ class StreamUtilsSpec extends Specification {
                 .map({ i -> makeKeyValuePair(i) })
                 .filter(StreamUtils.distinctByKeyParallel(keyExtractor))
                 .collect(toList()) as Collection
-    }
-
-    def 'generic transform returns expected results'() {
-
-        given:
-        def list = [1, 2, 3]
-
-        expect:
-        StreamUtils.transform(list, { i -> String.valueOf(i) }) == ['1', '2', '3']
-    }
-
-    def 'transform to set returns expected results'() {
-
-        given:
-        def list = [1, 2, 3]
-
-        expect:
-        StreamUtils.transformToSet(list, { i -> String.valueOf(i) }) == Sets.newHashSet('1', '2', '3')
-    }
-
-    def 'transform with collector returns expected results'() {
-
-        given:
-        def list = [VALUE_ONE, VALUE_TWO]
-
-        when:
-        def enumSet = StreamUtils.transform(list, CollectorUtils.toEnumSet(CollectorUtilsSpec.TestEnum))
-
-        then:
-        enumSet == EnumSet.allOf(CollectorUtilsSpec.TestEnum)
-        enumSet instanceof EnumSet
-    }
-
-    def 'transform with mapping and collector returns expected results'() {
-
-        given:
-        def list = ['VALUE_ONE', 'VALUE_TWO']
-        Function transformer = { String enumName -> valueOf(enumName) }
-
-        when:
-        def enumSet = StreamUtils.transform(list, transformer, CollectorUtils.toEnumSet(CollectorUtilsSpec.TestEnum))
-
-        then:
-        enumSet == EnumSet.allOf(CollectorUtilsSpec.TestEnum)
-        enumSet instanceof EnumSet
-    }
-
-    @Unroll
-    def 'generic transform returns empty list for #scenario parameter'() {
-
-        expect:
-        StreamUtils.transform(metadata, identity()) == []
-
-        where:
-        scenario | metadata
-        'empty'  | []
-        'null'   | null
-    }
-
-    @Unroll
-    def 'generic transform distinct returns empty list for #scenario parameter'() {
-
-        expect:
-        StreamUtils.transformDistinct(metadata, identity()) == []
-
-        where:
-        scenario | metadata
-        'empty'  | []
-        'null'   | null
-    }
-
-    @Unroll
-    def 'transform to set returns empty list for #scenario parameter'() {
-
-        expect:
-        StreamUtils.transformToSet(metadata, identity()) == [] as Set
-
-        where:
-        scenario | metadata
-        'empty'  | []
-        'null'   | null
-    }
-
-    def 'filter returns expected values'() {
-        expect:
-        StreamUtils.filter([1, 2, 3], { i -> i % 2 == 0 }) == [2]
-    }
-
-    @Unroll
-    def 'filter returns empty list for #scenario parameter'() {
-
-        expect:
-        StreamUtils.filter(contents, PredicateUtils.predicate(false)) == []
-
-        where:
-        scenario | contents
-        'empty'  | []
-        'null'   | null
     }
 
     @Unroll
