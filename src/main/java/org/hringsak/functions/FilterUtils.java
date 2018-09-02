@@ -16,11 +16,11 @@ public final class FilterUtils {
     }
 
     public static <T> List<T> filter(Collection<T> objects, Predicate<T> predicate) {
-        return filter(objects, predicate, toList());
+        return filter(objects, FilterCollector.of(predicate, toList()));
     }
 
     public static <T> Set<T> filterToSet(Collection<T> objects, Predicate<T> predicate) {
-        return filter(objects, predicate, toSet());
+        return filter(objects, FilterCollector.of(predicate, toSet()));
     }
 
     public static <T> List<T> filterDistinct(Collection<T> objects, Predicate<T> predicate) {
@@ -30,9 +30,13 @@ public final class FilterUtils {
                 .collect(toList());
     }
 
-    public static <T, C extends Collection<T>> C filter(Collection<T> objects, Predicate<T> predicate, Collector<T, ?, C> collector) {
+    public static <T, C extends Collection<T>> C filter(Collection<T> objects, FilterCollector<T, C> filterCollector) {
         return defaultStream(objects)
-                .filter(predicate)
-                .collect(collector);
+                .filter(filterCollector.getFilter())
+                .collect(filterCollector.getCollector());
+    }
+
+    public static <T, C extends Collection<T>> FilterCollector<T, C> filterCollector(Predicate<T> filter, Collector<T, ?, C> collector) {
+        return FilterCollector.of(filter, collector);
     }
 }

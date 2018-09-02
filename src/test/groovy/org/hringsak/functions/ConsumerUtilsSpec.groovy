@@ -29,10 +29,10 @@ class ConsumerUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'consumer for bi-consumer as second parameter passing values "#paramOne" and "#paramTwo" does not throw NPE'() {
+    def 'inverse consumer for bi-consumer passing values "#paramOne" and "#paramTwo" does not throw NPE'() {
         when:
         def consumer = { a, b -> println "a: '$a', b: '$b'" } as BiConsumer
-        ConsumerUtils.consumer(paramOne, consumer).accept(paramTwo)
+        ConsumerUtils.inverseConsumer(consumer, paramOne).accept(paramTwo)
 
         then:
         noExceptionThrown()
@@ -60,10 +60,10 @@ class ConsumerUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'double consumer for bi-consumer as second parameter passing value "#value" does not throw NPE'() {
+    def 'inverse double consumer for bi-consumer passing value "#value" does not throw NPE'() {
         when:
         def consumer = { a, b -> println "a: '$a', b: '$b'" } as ObjDoubleConsumer
-        ConsumerUtils.doubleConsumer(value, consumer).accept(1.0D)
+        ConsumerUtils.inverseDoubleConsumer(consumer, value).accept(1.0D)
 
         then:
         noExceptionThrown()
@@ -86,10 +86,10 @@ class ConsumerUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'int consumer for bi-consumer as second parameter passing value "#value" does not throw NPE'() {
+    def 'inverse int consumer for bi-consumer passing value "#value" does not throw NPE'() {
         when:
         def consumer = { a, b -> println "a: '$a', b: '$b'" } as ObjIntConsumer
-        ConsumerUtils.intConsumer(value, consumer).accept(1)
+        ConsumerUtils.inverseIntConsumer(consumer, value).accept(1)
 
         then:
         noExceptionThrown()
@@ -112,10 +112,10 @@ class ConsumerUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'long consumer for bi-consumer as second parameter passing value "#value" does not throw NPE'() {
+    def 'inverse long consumer for bi-consumer passing value "#value" does not throw NPE'() {
         when:
         def consumer = { a, b -> println "a: '$a', b: '$b'" } as ObjLongConsumer
-        ConsumerUtils.longConsumer(value, consumer).accept(1L)
+        ConsumerUtils.inverseLongConsumer(consumer, value).accept(1L)
 
         then:
         noExceptionThrown()

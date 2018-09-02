@@ -6,6 +6,7 @@ import spock.lang.Unroll
 import java.util.function.Predicate
 
 import static java.util.stream.Collectors.toList
+import static org.hringsak.functions.FilterUtils.filterCollector
 
 class FilterUtilsSpec extends Specification {
 
@@ -47,10 +48,10 @@ class FilterUtilsSpec extends Specification {
 
         given:
         def list = ['ONE', 'TWO', 'THREE']
-        def predicate = { String s -> s == 'TWO' } as Predicate
+        def predicate = { String s -> s == 'TWO' } as Predicate<String>
 
         expect:
-        FilterUtils.filter(list, predicate, toList()) == ['TWO']
+        FilterUtils.filter(list, FilterCollector.of(predicate, toList())) == ['TWO']
     }
 
     @Unroll
@@ -58,7 +59,7 @@ class FilterUtilsSpec extends Specification {
 
         expect:
         def predicate = PredicateUtils.predicate(true) as Predicate
-        FilterUtils.filter(collection, predicate, toList()) == []
+        FilterUtils.filter(collection, filterCollector(predicate, toList())) == []
 
         where:
         scenario | collection

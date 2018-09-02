@@ -9,6 +9,21 @@ import java.util.function.*
 import static java.util.function.Function.identity
 import static java.util.stream.Collectors.toList
 import static org.apache.commons.lang3.StringUtils.defaultString
+import static org.hringsak.functions.MapperUtils.doubleMapper
+import static org.hringsak.functions.MapperUtils.doubleMapperDefault
+import static org.hringsak.functions.MapperUtils.extractors
+import static org.hringsak.functions.MapperUtils.flatMapper
+import static org.hringsak.functions.MapperUtils.getValue
+import static org.hringsak.functions.MapperUtils.intMapper
+import static org.hringsak.functions.MapperUtils.intMapperDefault
+import static org.hringsak.functions.MapperUtils.longMapper
+import static org.hringsak.functions.MapperUtils.longMapperDefault
+import static org.hringsak.functions.MapperUtils.mapperDefault
+import static org.hringsak.functions.MapperUtils.pairOf
+import static org.hringsak.functions.MapperUtils.pairWith
+import static org.hringsak.functions.MapperUtils.pairWithIndex
+import static org.hringsak.functions.MapperUtils.streamOf
+import static org.hringsak.functions.MapperUtils.ternary
 
 class MapperUtilsSpec extends Specification {
 
@@ -17,7 +32,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { s -> mapperResult }
-        MapperUtils.mapperDefault(mapper, 'default').apply(value) == expected
+        mapperDefault(mapper, 'default').apply(value) == expected
 
         where:
         value  | mapperResult | expected
@@ -64,7 +79,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { s -> (double) s.length() }
-        MapperUtils.doubleMapperDefault(mapper, -1).applyAsDouble(value) == expected
+        doubleMapperDefault(mapper, -1).applyAsDouble(value) == expected
 
         where:
         value  | expected
@@ -78,7 +93,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { String a, String b -> ((double) defaultString(a).length()) + defaultString(b).length() } as ToDoubleBiFunction<String, String>
-        MapperUtils.doubleMapper(mapper, paramOne).applyAsDouble(paramTwo) == expected
+        doubleMapper(mapper, paramOne).applyAsDouble(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -94,7 +109,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { String a, String b -> ((double) defaultString(a).length()) + defaultString(b).length() } as ToDoubleBiFunction<String, String>
-        MapperUtils.doubleMapper(paramOne, mapper).applyAsDouble(paramTwo) == expected
+        doubleMapper(paramOne, mapper).applyAsDouble(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -110,7 +125,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { s -> s.length() }
-        MapperUtils.intMapperDefault(mapper, -1).applyAsInt(value) == expected
+        intMapperDefault(mapper, -1).applyAsInt(value) == expected
 
         where:
         value  | expected
@@ -124,7 +139,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { String a, String b -> defaultString(a).length() + defaultString(b).length() } as ToIntBiFunction<String, String>
-        MapperUtils.intMapper(mapper, paramOne).applyAsInt(paramTwo) == expected
+        intMapper(mapper, paramOne).applyAsInt(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -140,7 +155,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { String a, String b -> defaultString(a).length() + defaultString(b).length() } as ToIntBiFunction<String, String>
-        MapperUtils.intMapper(paramOne, mapper).applyAsInt(paramTwo) == expected
+        intMapper(paramOne, mapper).applyAsInt(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -156,7 +171,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { s -> (long) s.length() }
-        MapperUtils.longMapperDefault(mapper, -1).applyAsLong(value) == expected
+        longMapperDefault(mapper, -1).applyAsLong(value) == expected
 
         where:
         value  | expected
@@ -170,7 +185,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { String a, String b -> ((long) defaultString(a).length()) + defaultString(b).length() } as ToLongBiFunction<String, String>
-        MapperUtils.longMapper(mapper, paramOne).applyAsLong(paramTwo) == expected
+        longMapper(mapper, paramOne).applyAsLong(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -186,7 +201,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { String a, String b -> ((long) defaultString(a).length()) + defaultString(b).length() } as ToLongBiFunction<String, String>
-        MapperUtils.longMapper(paramOne, mapper).applyAsLong(paramTwo) == expected
+        longMapper(paramOne, mapper).applyAsLong(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -202,7 +217,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def extractor = { TestValue t -> t.name() } as Function
-        MapperUtils.getValue(map, extractor).apply(enumValue) == expected
+        getValue(map, extractor).apply(enumValue) == expected
 
         where:
         map                            | enumValue     || expected
@@ -217,7 +232,7 @@ class MapperUtilsSpec extends Specification {
     def 'stream of passing value "#target" finding first returns "#expected"'() {
 
         expect:
-        def stream = MapperUtils.streamOf(identity()).apply(target)
+        def stream = streamOf(identity()).apply(target)
         stream.findFirst().orElse(null) == expected
 
         where:
@@ -231,7 +246,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         Function function = { String param -> param.codePoints().boxed().collect(toList()) }
-        def codePoints = MapperUtils.flatMapper(function).apply(paramOne).collect(toList())
+        def codePoints = flatMapper(function).apply(paramOne).collect(toList())
         codePoints == expected
 
         where:
@@ -247,7 +262,7 @@ class MapperUtilsSpec extends Specification {
         expect:
         def leftFunction = { t -> t } as Function<String, String>
         def rightFunction = { t -> right } as Function<String, String>
-        MapperUtils.pairOf(leftFunction, rightFunction).apply(target) == expected
+        pairOf(leftFunction, rightFunction).apply(target) == expected
 
         where:
         target   | right   || expected
@@ -260,7 +275,7 @@ class MapperUtilsSpec extends Specification {
     def 'pair with list passing values "#target" and "#listParam" returns #expected'() {
 
         expect:
-        MapperUtils.pairWith(listParam).apply(target) == expected
+        pairWith(listParam).apply(target) == expected
 
         where:
         target   | listParam     || expected
@@ -274,7 +289,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def identity = { t -> t } as Function<String, String>
-        MapperUtils.pairWith(identity, listParam).apply(target) == expected
+        pairWith(identity, listParam).apply(target) == expected
 
         where:
         target   | listParam     || expected
@@ -285,7 +300,7 @@ class MapperUtilsSpec extends Specification {
 
     def 'pair with index calling multiple times returns incremented indexes'() {
         expect:
-        def mapper = MapperUtils.pairWithIndex()
+        def mapper = pairWithIndex()
         (0..5).each { i ->
             with(mapper.apply('test')) {
                 getRight() == i
@@ -297,7 +312,7 @@ class MapperUtilsSpec extends Specification {
     def 'pair with index returns #expected'() {
 
         expect:
-        MapperUtils.pairWithIndex().apply(value) == expected
+        pairWithIndex().apply(value) == expected
 
         where:
         value   | expected
@@ -311,7 +326,7 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def identity = Function.identity()
-        MapperUtils.pairWithIndex(identity).apply(value) == expected
+        pairWithIndex(identity).apply(value) == expected
 
         where:
         value   | expected
@@ -325,9 +340,9 @@ class MapperUtilsSpec extends Specification {
 
         expect:
         def predicate = { String s -> s.isEmpty() } as Predicate
-        def trueValueFunction = { s -> trueValue } as Function
-        def falseValueFunction = { s -> falseValue } as Function
-        def result = MapperUtils.ternary(predicate, trueValueFunction, falseValueFunction).apply(predicateParameter)
+        def trueExtractor = { s -> trueValue } as Function
+        def falseExtractor = { s -> falseValue } as Function
+        def result = ternary(predicate, extractors(trueExtractor, falseExtractor)).apply(predicateParameter)
         result == expectedResult
 
         where:

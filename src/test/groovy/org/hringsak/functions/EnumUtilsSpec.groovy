@@ -1,21 +1,33 @@
 package org.hringsak.functions
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class EnumUtilsSpec extends Specification {
 
-    def 'get name for service type #type returns #name'() {
+    @Unroll
+    def 'get formatted name for method #methodName returns "#expectedValue"'() {
         expect:
-        EnumUtils.getCamelCaseName(TestValue.UPPER_UNDERSCORE_NAME) == 'upperUnderscoreName'
+        EnumUtils."$methodName"(TestValue.UPPER_UNDERSCORE_NAME) == expectedValue
+
+        where:
+        methodName           || expectedValue
+        'getLowerCamelName'  || 'upperUnderscoreName'
+        'getUpperCamelName'  || 'UpperUnderscoreName'
+        'getLowerHyphenName' || 'upper-underscore-name'
     }
 
-    def 'camelCaseName throws exception when enumeratedValue is null'() {
+    @Unroll
+    def 'get formatted name for method #methodName throws exception when enumeratedValue is null'() {
         when:
-        EnumUtils.getCamelCaseName(null)
+        EnumUtils."$methodName"(null)
 
         then:
         def e = thrown(NullPointerException)
         e.message =~ /'enumeratedValue'/
+
+        where:
+        methodName << ['getLowerCamelName', 'getUpperCamelName', 'getLowerHyphenName']
     }
 
     enum TestValue {

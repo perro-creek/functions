@@ -4,8 +4,14 @@ import org.apache.commons.lang3.StringUtils
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.util.function.BiFunction
+import java.util.function.ToDoubleBiFunction
+import java.util.function.ToIntBiFunction
+import java.util.function.ToLongBiFunction
+
 import static org.apache.commons.lang3.StringUtils.defaultString
 import static org.apache.commons.lang3.StringUtils.isEmpty
+import static org.hringsak.functions.SupplierUtils.*
 
 class SupplierUtilsSpec extends Specification {
 
@@ -14,7 +20,7 @@ class SupplierUtilsSpec extends Specification {
 
         expect:
         def function = { String -> StringUtils.reverse(value) }
-        SupplierUtils.supplier(function, value).get() == expected
+        supplier(function, value).get() == expected
 
         where:
         value  | expected
@@ -27,8 +33,8 @@ class SupplierUtilsSpec extends Specification {
     def 'supplier passing left parameter "#left" and right parameter "#right"'() {
 
         expect:
-        def function = { String l, String r -> defaultString(l) + defaultString(r) }
-        SupplierUtils.supplier(function, left, right).get() == expected
+        def function = { String l, String r -> defaultString(l) + defaultString(r) } as BiFunction
+        supplier(function, arguments(left, right)).get() == expected
 
         where:
         left   | right  | expected
@@ -48,7 +54,7 @@ class SupplierUtilsSpec extends Specification {
 
         expect:
         def function = { String s -> isEmpty(s) }
-        SupplierUtils.booleanSupplier(function, value).getAsBoolean() == expected
+        booleanSupplier(function, value).getAsBoolean() == expected
 
         where:
         value  | expected
@@ -61,8 +67,8 @@ class SupplierUtilsSpec extends Specification {
     def 'boolean supplier passing parameters "#left" and "#right"'() {
 
         expect:
-        def function = { String l, String r -> isEmpty(l) && isEmpty(r) }
-        SupplierUtils.booleanSupplier(function, left, right).getAsBoolean() == expected
+        def function = { String l, String r -> isEmpty(l) && isEmpty(r) } as BiFunction
+        booleanSupplier(function, arguments(left, right)).getAsBoolean() == expected
 
         where:
         left   | right  | expected
@@ -82,7 +88,7 @@ class SupplierUtilsSpec extends Specification {
 
         expect:
         def function = { String s -> (double) defaultString(s).length() }
-        SupplierUtils.doubleSupplier(function, value).getAsDouble() == expected
+        doubleSupplier(function, value).getAsDouble() == expected
 
         where:
         value  | expected
@@ -95,8 +101,8 @@ class SupplierUtilsSpec extends Specification {
     def 'double supplier passing parameters "#left" and "#right"'() {
 
         expect:
-        def function = { String l, String r -> ((double) defaultString(l).length()) + defaultString(r).length() }
-        SupplierUtils.doubleSupplier(function, left, right).getAsDouble() == expected
+        def function = { String l, String r -> ((double) defaultString(l).length()) + defaultString(r).length() } as ToDoubleBiFunction
+        doubleSupplier(function, arguments(left, right)).getAsDouble() == expected
 
         where:
         left   | right  | expected
@@ -116,7 +122,7 @@ class SupplierUtilsSpec extends Specification {
 
         expect:
         def function = { String s -> defaultString(s).length() }
-        SupplierUtils.intSupplier(function, value).getAsInt() == expected
+        intSupplier(function, value).getAsInt() == expected
 
         where:
         value  | expected
@@ -129,8 +135,8 @@ class SupplierUtilsSpec extends Specification {
     def 'int supplier passing parameters "#left" and "#right"'() {
 
         expect:
-        def function = { String l, String r -> defaultString(l).length() + defaultString(r).length() }
-        SupplierUtils.intSupplier(function, left, right).getAsInt() == expected
+        def function = { String l, String r -> defaultString(l).length() + defaultString(r).length() } as ToIntBiFunction
+        intSupplier(function, arguments(left, right)).getAsInt() == expected
 
         where:
         left   | right  | expected
@@ -150,7 +156,7 @@ class SupplierUtilsSpec extends Specification {
 
         expect:
         def function = { String s -> (long) defaultString(s).length() }
-        SupplierUtils.longSupplier(function, value).getAsLong() == expected
+        longSupplier(function, value).getAsLong() == expected
 
         where:
         value  | expected
@@ -163,8 +169,8 @@ class SupplierUtilsSpec extends Specification {
     def 'long supplier passing parameters "#left" and "#right"'() {
 
         expect:
-        def function = { String l, String r -> ((long) defaultString(l).length()) + defaultString(r).length() }
-        SupplierUtils.longSupplier(function, left, right).getAsLong() == expected
+        def function = { String l, String r -> ((long) defaultString(l).length()) + defaultString(r).length() } as ToLongBiFunction
+        longSupplier(function, arguments(left, right)).getAsLong() == expected
 
         where:
         left   | right  | expected

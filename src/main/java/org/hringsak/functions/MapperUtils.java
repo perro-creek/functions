@@ -4,7 +4,6 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -134,9 +133,11 @@ public final class MapperUtils {
         return t -> Pair.of(function.apply(t), idx.getAndIncrement());
     }
 
-    public static <T, R> Function<T, R> ternary(Predicate<? super T> predicate,
-                                                Function<? super T, ? extends R> trueExtractor,
-                                                Function<? super T, ? extends R>  falseExtractor) {
-        return t -> t != null && predicate.test(t) ? trueExtractor.apply(t) : falseExtractor.apply(t);
+    public static <T, R> Function<T, R> ternary(Predicate<T> predicate, Pair<Function<T, R>, Function<T, R>> extractorPair) {
+        return t -> t != null && predicate.test(t) ? extractorPair.getLeft().apply(t) : extractorPair.getRight().apply(t);
+    }
+
+    public static <T, R> Pair<Function<T, R>, Function<T, R>> extractors(Function<T, R> trueExtractor, Function<T, R>  falseExtractor) {
+        return Pair.of(trueExtractor, falseExtractor);
     }
 }
