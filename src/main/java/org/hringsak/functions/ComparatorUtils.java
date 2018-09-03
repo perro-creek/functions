@@ -19,7 +19,8 @@ public final class ComparatorUtils {
     /**
      * Builds a comparator that can be used to compare and sort instances of any type, provided that the
      * <code>keyExtractor</code> function retrieves an instance of <code>Comparable</code> from them. The comparator
-     * sorts in a way that null values come before all non-null ones.
+     * sorts in a way that null values come before all non-null ones. Note that, because this method takes a function as
+     * its first parameter, that any of the function building methods from {@link MapperUtils} are fair game here.
      *
      * @param keyExtractor An extractor function that retrieves a key value from a target element, the value being an
      *                     instance of Comparable, which will be compared based on its natural order, with nulls being
@@ -35,7 +36,8 @@ public final class ComparatorUtils {
     /**
      * Builds a comparator that can be used to compare and sort instances of any type, provided that the
      * <code>keyExtractor</code> function retrieves an instance of <code>Comparable</code> from them. The comparator
-     * sorts in a way that null values come after all non-null ones.
+     * sorts in a way that null values come after all non-null ones. Note that, because this method takes a function as
+     * its first parameter, that any of the function building methods from {@link MapperUtils} are fair game here.
      *
      * @param keyExtractor An extractor function that retrieves a key value from a target element, the value being an
      *                     instance of Comparable, which will be compared based on its natural order, with nulls being

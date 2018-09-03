@@ -13,13 +13,15 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.hringsak.functions.MapperUtils.pairWithIndex;
 import static org.hringsak.functions.PredicateUtils.contains;
@@ -41,22 +43,52 @@ public final class StreamUtils {
         return t -> uniqueKeys.add(keyExtractor.apply(t));
     }
 
+    public static <T> T findAny(Collection<T> objects, Predicate<T> predicate) {
+        return findAnyWithDefault(objects, findWithDefault(predicate));
+    }
+
+    public static <T> T findAnyWithDefault(Collection<T> objects, FindWithDefault<T> findWithDefault) {
+        return defaultStream(objects)
+                .filter(findWithDefault.getPredicate())
+                .findAny()
+                .orElse(findWithDefault.getDefaultValue());
+    }
+
+    public static <T> T findAnyWithDefault(Collection<T> objects, FindWithDefaultSupplier<T> findWithDefaultSupplier) {
+        return defaultStream(objects)
+                .filter(findWithDefaultSupplier.getPredicate())
+                .findAny()
+                .orElseGet(findWithDefaultSupplier.getDefaultSupplier());
+    }
+
     public static <T> T findFirst(Collection<T> objects, Predicate<T> predicate) {
-        return findFirstWithDefault(objects, predicate, (T) null);
+        return findFirstWithDefault(objects, findWithDefault(predicate));
     }
 
-    public static <T> T findFirstWithDefault(Collection<T> objects, Predicate<T> predicate, T defaultValue) {
+    public static <T> T findFirstWithDefault(Collection<T> objects, FindWithDefault<T> findWithDefault) {
         return defaultStream(objects)
-                .filter(predicate)
+                .filter(findWithDefault.getPredicate())
                 .findFirst()
-                .orElse(defaultValue);
+                .orElse(findWithDefault.getDefaultValue());
     }
 
-    public static <T> T findFirstWithDefault(Collection<T> objects, Predicate<T> predicate, Supplier<T> defaultValue) {
+    public static <T> T findFirstWithDefault(Collection<T> objects, FindWithDefaultSupplier<T> findWithDefaultSupplier) {
         return defaultStream(objects)
-                .filter(predicate)
+                .filter(findWithDefaultSupplier.getPredicate())
                 .findFirst()
-                .orElseGet(defaultValue);
+                .orElseGet(findWithDefaultSupplier.getDefaultSupplier());
+    }
+
+    private static <T> FindWithDefault<T> findWithDefault(Predicate<T> predicate) {
+        return FindWithDefault.of(predicate, null);
+    }
+
+    public static <T> FindWithDefault<T> findWithDefault(Predicate<T> predicate, T defaultValue) {
+        return FindWithDefault.of(predicate, defaultValue);
+    }
+
+    public static <T> FindWithDefaultSupplier<T> findWithDefault(Predicate<T> predicate, Supplier<T> defaultSupplier) {
+        return FindWithDefaultSupplier.of(predicate, defaultSupplier);
     }
 
     public static <T> int indexOfFirst(Collection<T> objects, Predicate<T> predicate) {
@@ -131,5 +163,65 @@ public final class StreamUtils {
     @SuppressWarnings("WeakerAccess")
     public static <T> Stream<T> defaultStream(T target) {
         return target == null ? Stream.empty() : Stream.of(target);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static DoubleStream defaultDoubleStream(Collection<Double> objects) {
+        return objects == null ? DoubleStream.empty() : objects.stream().mapToDouble(Double::doubleValue);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static DoubleStream defaultDoubleStream(Stream<Double> stream) {
+        return stream == null ? DoubleStream.empty() : stream.mapToDouble(Double::doubleValue);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static DoubleStream defaultDoubleStream(DoubleStream stream) {
+        return stream == null ? DoubleStream.empty() : stream;
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static DoubleStream defaultDoubleStream(double[] array) {
+        return array == null ? DoubleStream.empty() : Arrays.stream(array);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static IntStream defaultIntStream(Collection<Integer> objects) {
+        return objects == null ? IntStream.empty() : objects.stream().mapToInt(Integer::intValue);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static IntStream defaultIntStream(Stream<Integer> stream) {
+        return stream == null ? IntStream.empty() : stream.mapToInt(Integer::intValue);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static IntStream defaultIntStream(IntStream stream) {
+        return stream == null ? IntStream.empty() : stream;
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static IntStream defaultIntStream(int[] array) {
+        return array == null ? IntStream.empty() : Arrays.stream(array);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static LongStream defaultLongStream(Collection<Long> objects) {
+        return objects == null ? LongStream.empty() : objects.stream().mapToLong(Long::longValue);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static LongStream defaultLongStream(Stream<Long> stream) {
+        return stream == null ? LongStream.empty() : stream.mapToLong(Long::longValue);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static LongStream defaultLongStream(LongStream stream) {
+        return stream == null ? LongStream.empty() : stream;
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static LongStream defaultLongStream(long[] array) {
+        return array == null ? LongStream.empty() : Arrays.stream(array);
     }
 }

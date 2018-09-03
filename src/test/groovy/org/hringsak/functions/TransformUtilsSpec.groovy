@@ -8,6 +8,8 @@ import java.util.function.Function
 
 import static java.util.function.Function.identity
 import static java.util.stream.Collectors.toList
+import static org.hringsak.functions.CollectorUtils.toEnumSet
+import static org.hringsak.functions.TransformUtils.transformAndThen
 
 class TransformUtilsSpec extends Specification {
 
@@ -59,7 +61,7 @@ class TransformUtilsSpec extends Specification {
         def list = [TestValue.ONE, TestValue.TWO]
 
         when:
-        def enumSet = TransformUtils.transform(list, CollectorUtils.toEnumSet(TestValue))
+        def enumSet = TransformUtils.transform(list, toEnumSet(TestValue))
 
         then:
         enumSet == EnumSet.allOf(TestValue)
@@ -82,10 +84,10 @@ class TransformUtilsSpec extends Specification {
 
         given:
         def list = ['ONE', 'TWO']
-        Function transformer = { String enumName -> TestValue.valueOf(enumName) }
+        def transformer = { String enumName -> TestValue.valueOf(enumName) } as Function<String, TestValue>
 
         when:
-        def enumSet = TransformUtils.transform(list, transformer, CollectorUtils.toEnumSet(TestValue))
+        def enumSet = TransformUtils.transform(list, transformAndThen(transformer, toEnumSet(TestValue)))
 
         then:
         enumSet == EnumSet.allOf(TestValue)
@@ -96,7 +98,7 @@ class TransformUtilsSpec extends Specification {
     def 'transform with mapping and collector returns empty list for #scenario parameter'() {
 
         expect:
-        TransformUtils.transform(collection, identity(), toList()) == []
+        TransformUtils.transform(collection, transformAndThen(identity(), toList())) == []
 
         where:
         scenario | collection
