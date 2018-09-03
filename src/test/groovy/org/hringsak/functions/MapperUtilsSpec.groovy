@@ -9,21 +9,7 @@ import java.util.function.*
 import static java.util.function.Function.identity
 import static java.util.stream.Collectors.toList
 import static org.apache.commons.lang3.StringUtils.defaultString
-import static org.hringsak.functions.MapperUtils.doubleMapper
-import static org.hringsak.functions.MapperUtils.doubleMapperDefault
-import static org.hringsak.functions.MapperUtils.extractors
-import static org.hringsak.functions.MapperUtils.flatMapper
-import static org.hringsak.functions.MapperUtils.getValue
-import static org.hringsak.functions.MapperUtils.intMapper
-import static org.hringsak.functions.MapperUtils.intMapperDefault
-import static org.hringsak.functions.MapperUtils.longMapper
-import static org.hringsak.functions.MapperUtils.longMapperDefault
-import static org.hringsak.functions.MapperUtils.mapperDefault
-import static org.hringsak.functions.MapperUtils.pairOf
-import static org.hringsak.functions.MapperUtils.pairWith
-import static org.hringsak.functions.MapperUtils.pairWithIndex
-import static org.hringsak.functions.MapperUtils.streamOf
-import static org.hringsak.functions.MapperUtils.ternary
+import static org.hringsak.functions.MapperUtils.*
 
 class MapperUtilsSpec extends Specification {
 
@@ -59,11 +45,11 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'mapper for bi-function as second parameter passing values "#paramOne" and "#paramTwo" returns #expected'() {
+    def 'inverse mapper for bi-function passing values "#paramOne" and "#paramTwo" returns #expected'() {
 
         expect:
         def mapper = { a, b -> Objects.equals(a, b) } as BiFunction<String, String, Boolean>
-        MapperUtils.mapper(paramOne, mapper).apply(paramTwo) == expected
+        inverseMapper(mapper, paramOne).apply(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -75,11 +61,39 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'double mapper with default passing value "#value" returns "#expected"'() {
+    def 'double mapper for bi-function passing values "#constantValue" returns #expected'() {
+
+        expect:
+        def mapper = { d, s -> "double: $d, string: $s" }
+        doubleMapper(mapper, constantValue).apply(1.0D) == expected
+
+        where:
+        constantValue || expected
+        'test'        || 'double: 1.0, string: test'
+        ''            || 'double: 1.0, string: '
+        null          || 'double: 1.0, string: null'
+    }
+
+    @Unroll
+    def 'inverse double mapper for bi-function passing values "#constantValue" returns #expected'() {
+
+        expect:
+        def mapper = { s, d -> "double: $d, string: $s" }
+        inverseDoubleMapper(mapper, constantValue).apply(1.0D) == expected
+
+        where:
+        constantValue || expected
+        'test'        || 'double: 1.0, string: test'
+        ''            || 'double: 1.0, string: '
+        null          || 'double: 1.0, string: null'
+    }
+
+    @Unroll
+    def 'to double mapper with default passing value "#value" returns "#expected"'() {
 
         expect:
         def mapper = { s -> (double) s.length() }
-        doubleMapperDefault(mapper, -1).applyAsDouble(value) == expected
+        toDoubleMapperDefault(mapper, -1).applyAsDouble(value) == expected
 
         where:
         value  | expected
@@ -89,11 +103,11 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'double mapper for bi-function passing values "#paramOne" and "#paramTwo" returns #expected'() {
+    def 'to double mapper for bi-function passing values "#paramOne" and "#paramTwo" returns #expected'() {
 
         expect:
         def mapper = { String a, String b -> ((double) defaultString(a).length()) + defaultString(b).length() } as ToDoubleBiFunction<String, String>
-        doubleMapper(mapper, paramOne).applyAsDouble(paramTwo) == expected
+        toDoubleMapper(mapper, paramOne).applyAsDouble(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -105,11 +119,11 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'double mapper for bi-function as second parameter passing values "#paramOne" and "#paramTwo" returns #expected'() {
+    def 'inverse to double mapper for bi-function passing values "#paramOne" and "#paramTwo" returns #expected'() {
 
         expect:
         def mapper = { String a, String b -> ((double) defaultString(a).length()) + defaultString(b).length() } as ToDoubleBiFunction<String, String>
-        doubleMapper(paramOne, mapper).applyAsDouble(paramTwo) == expected
+        inverseToDoubleMapper(mapper, paramOne).applyAsDouble(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -121,11 +135,39 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'int mapper with default passing value "#value" returns "#expected"'() {
+    def 'int mapper for bi-function passing values "#constantValue" returns #expected'() {
+
+        expect:
+        def mapper = { i, s -> "int: $i, string: $s" }
+        intMapper(mapper, constantValue).apply(1) == expected
+
+        where:
+        constantValue || expected
+        'test'        || 'int: 1, string: test'
+        ''            || 'int: 1, string: '
+        null          || 'int: 1, string: null'
+    }
+
+    @Unroll
+    def 'inverse int mapper for bi-function passing values "#constantValue" returns #expected'() {
+
+        expect:
+        def mapper = { s, i -> "int: $i, string: $s" }
+        inverseIntMapper(mapper, constantValue).apply(1) == expected
+
+        where:
+        constantValue || expected
+        'test'        || 'int: 1, string: test'
+        ''            || 'int: 1, string: '
+        null          || 'int: 1, string: null'
+    }
+
+    @Unroll
+    def 'to int mapper with default passing value "#value" returns "#expected"'() {
 
         expect:
         def mapper = { s -> s.length() }
-        intMapperDefault(mapper, -1).applyAsInt(value) == expected
+        toIntMapperDefault(mapper, -1).applyAsInt(value) == expected
 
         where:
         value  | expected
@@ -135,11 +177,11 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'int mapper for bi-function passing values "#paramOne" and "#paramTwo" returns #expected'() {
+    def 'to int mapper for bi-function passing values "#paramOne" and "#paramTwo" returns #expected'() {
 
         expect:
         def mapper = { String a, String b -> defaultString(a).length() + defaultString(b).length() } as ToIntBiFunction<String, String>
-        intMapper(mapper, paramOne).applyAsInt(paramTwo) == expected
+        toIntMapper(mapper, paramOne).applyAsInt(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -151,11 +193,11 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'int mapper for bi-function as second parameter passing values "#paramOne" and "#paramTwo" returns #expected'() {
+    def 'inverse to int mapper for bi-function passing values "#paramOne" and "#paramTwo" returns #expected'() {
 
         expect:
         def mapper = { String a, String b -> defaultString(a).length() + defaultString(b).length() } as ToIntBiFunction<String, String>
-        intMapper(paramOne, mapper).applyAsInt(paramTwo) == expected
+        inverseToIntMapper(mapper, paramOne).applyAsInt(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -167,11 +209,39 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'long mapper with default passing value "#value" returns "#expected"'() {
+    def 'long mapper for bi-function passing values "#constantValue" returns #expected'() {
+
+        expect:
+        def mapper = { l, s -> "long: $l, string: $s" }
+        longMapper(mapper, constantValue).apply(1L) == expected
+
+        where:
+        constantValue || expected
+        'test'        || 'long: 1, string: test'
+        ''            || 'long: 1, string: '
+        null          || 'long: 1, string: null'
+    }
+
+    @Unroll
+    def 'inverse long mapper for bi-function passing values "#constantValue" returns #expected'() {
+
+        expect:
+        def mapper = { s, l -> "long: $l, string: $s" }
+        inverseLongMapper(mapper, constantValue).apply(1L) == expected
+
+        where:
+        constantValue || expected
+        'test'        || 'long: 1, string: test'
+        ''            || 'long: 1, string: '
+        null          || 'long: 1, string: null'
+    }
+
+    @Unroll
+    def 'to long mapper with default passing value "#value" returns "#expected"'() {
 
         expect:
         def mapper = { s -> (long) s.length() }
-        longMapperDefault(mapper, -1).applyAsLong(value) == expected
+        toLongMapperDefault(mapper, -1).applyAsLong(value) == expected
 
         where:
         value  | expected
@@ -181,11 +251,11 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'long mapper for bi-function passing values "#paramOne" and "#paramTwo" returns #expected'() {
+    def 'to long mapper for bi-function passing values "#paramOne" and "#paramTwo" returns #expected'() {
 
         expect:
         def mapper = { String a, String b -> ((long) defaultString(a).length()) + defaultString(b).length() } as ToLongBiFunction<String, String>
-        longMapper(mapper, paramOne).applyAsLong(paramTwo) == expected
+        toLongMapper(mapper, paramOne).applyAsLong(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -197,11 +267,11 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'long mapper for bi-function as second parameter passing values "#paramOne" and "#paramTwo" returns #expected'() {
+    def 'inverse to long mapper for bi-function passing values "#paramOne" and "#paramTwo" returns #expected'() {
 
         expect:
         def mapper = { String a, String b -> ((long) defaultString(a).length()) + defaultString(b).length() } as ToLongBiFunction<String, String>
-        longMapper(paramOne, mapper).applyAsLong(paramTwo) == expected
+        inverseToLongMapper(mapper, paramOne).applyAsLong(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -254,6 +324,111 @@ class MapperUtilsSpec extends Specification {
         'test'   || ['t', 'e', 's', 't']
         null     || []
         ''       || []
+    }
+
+    @Unroll
+    def 'flat array mapper taking function passing value "#paramOne" returns #expected'() {
+
+        expect:
+        Function function = { String param -> param.codePoints().boxed().toArray({ i -> new Integer[i] }) }
+        def codePoints = flatArrayMapper(function).apply(paramOne).collect(toList())
+        codePoints == expected
+
+        where:
+        paramOne || expected
+        'test'   || ['t', 'e', 's', 't']
+        null     || []
+        ''       || []
+    }
+
+    @Unroll
+    def 'flat double mapper taking function passing value "#paramOne" returns #expected'() {
+
+        expect:
+        Function function = { String param -> [1.0D, 2.0D, 3.0D] }
+        def doubles = flatDoubleMapper(function).apply(paramOne).toArray()
+        doubles == expected as double[]
+
+        where:
+        paramOne || expected
+        'test'   || [1.0D, 2.0D, 3.0D]
+        null     || []
+        ''       || [1.0D, 2.0D, 3.0D]
+    }
+
+    @Unroll
+    def 'flat double array mapper taking function passing value "#paramOne" returns #expected'() {
+
+        expect:
+        Function function = { String param -> [1.0D, 2.0D, 3.0D] as double[] }
+        def doubles = flatDoubleArrayMapper(function).apply(paramOne).toArray()
+        doubles == expected as double[]
+
+        where:
+        paramOne || expected
+        'test'   || [1.0D, 2.0D, 3.0D]
+        null     || []
+        ''       || [1.0D, 2.0D, 3.0D]
+    }
+
+    @Unroll
+    def 'flat int mapper taking function passing value "#paramOne" returns #expected'() {
+
+        expect:
+        Function function = { String param -> param.codePoints().boxed().collect(toList()) }
+        def codePoints = flatIntMapper(function).apply(paramOne).toArray()
+        codePoints == expected as int[]
+
+        where:
+        paramOne || expected
+        'test'   || [116, 101, 115, 116]
+        null     || []
+        ''       || []
+    }
+
+    @Unroll
+    def 'flat int array mapper taking function passing value "#paramOne" returns #expected'() {
+
+        expect:
+        Function function = { String param -> param.codePoints().toArray() }
+        def codePoints = flatIntArrayMapper(function).apply(paramOne).toArray()
+        codePoints == expected as int[]
+
+        where:
+        paramOne || expected
+        'test'   || [116, 101, 115, 116]
+        null     || []
+        ''       || []
+    }
+
+    @Unroll
+    def 'flat long mapper taking function passing value "#paramOne" returns #expected'() {
+
+        expect:
+        Function function = { String param -> [1L, 2L, 3L] }
+        def longs = flatLongMapper(function).apply(paramOne).toArray()
+        longs == expected as long[]
+
+        where:
+        paramOne || expected
+        'test'   || [1L, 2L, 3L]
+        null     || []
+        ''       || [1L, 2L, 3L]
+    }
+
+    @Unroll
+    def 'flat long array mapper taking function passing value "#paramOne" returns #expected'() {
+
+        expect:
+        Function function = { String param -> [1L, 2L, 3L] as long[] }
+        def longs = flatLongArrayMapper(function).apply(paramOne).toArray()
+        longs == expected as long[]
+
+        where:
+        paramOne || expected
+        'test'   || [1L, 2L, 3L]
+        null     || []
+        ''       || [1L, 2L, 3L]
     }
 
     @Unroll
@@ -336,7 +511,7 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'ternary testing predicateParameter=#predicateParameter'() {
+    def 'ternary passing predicateParameter "#predicateParameter" expecting "#expectedResult'() {
 
         expect:
         def predicate = { String s -> s.isEmpty() } as Predicate
@@ -347,7 +522,7 @@ class MapperUtilsSpec extends Specification {
 
         where:
         predicateParameter | trueValue   | falseValue   || expectedResult
-        'a'                | 'trueValue' | 'falseValue' || 'falseValue'
+        'test'             | 'trueValue' | 'falseValue' || 'falseValue'
         ''                 | 'trueValue' | 'falseValue' || 'trueValue'
     }
 }

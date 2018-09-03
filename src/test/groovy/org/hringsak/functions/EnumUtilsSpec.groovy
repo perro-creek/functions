@@ -18,6 +18,18 @@ class EnumUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'get formatted name for method #methodName passing enum with non-conforming name returns "#expectedValue"'() {
+        expect:
+        EnumUtils."$methodName"(TestValue.non_conforming_name) == expectedValue
+
+        where:
+        methodName           || expectedValue
+        'getLowerCamelName'  || 'nonConformingName'
+        'getUpperCamelName'  || 'NonConformingName'
+        'getLowerHyphenName' || 'non-conforming-name'
+    }
+
+    @Unroll
     def 'get formatted name for method #methodName throws exception when enumeratedValue is null'() {
         when:
         EnumUtils."$methodName"(null)
@@ -31,6 +43,7 @@ class EnumUtilsSpec extends Specification {
     }
 
     enum TestValue {
-        UPPER_UNDERSCORE_NAME
+        UPPER_UNDERSCORE_NAME,
+        non_conforming_name
     }
 }

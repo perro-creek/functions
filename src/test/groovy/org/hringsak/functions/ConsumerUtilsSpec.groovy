@@ -8,6 +8,19 @@ import java.util.function.ObjDoubleConsumer
 import java.util.function.ObjIntConsumer
 import java.util.function.ObjLongConsumer
 
+
+import static org.hringsak.functions.ConsumerUtils.doubleConsumer
+import static org.hringsak.functions.ConsumerUtils.doubleSetter
+import static org.hringsak.functions.ConsumerUtils.intConsumer
+import static org.hringsak.functions.ConsumerUtils.intSetter
+import static org.hringsak.functions.ConsumerUtils.inverseConsumer
+import static org.hringsak.functions.ConsumerUtils.inverseDoubleConsumer
+import static org.hringsak.functions.ConsumerUtils.inverseIntConsumer
+import static org.hringsak.functions.ConsumerUtils.inverseLongConsumer
+import static org.hringsak.functions.ConsumerUtils.longConsumer
+import static org.hringsak.functions.ConsumerUtils.longSetter
+import static org.hringsak.functions.ConsumerUtils.setter
+
 class ConsumerUtilsSpec extends Specification {
 
     @Unroll
@@ -32,7 +45,7 @@ class ConsumerUtilsSpec extends Specification {
     def 'inverse consumer for bi-consumer passing values "#paramOne" and "#paramTwo" does not throw NPE'() {
         when:
         def consumer = { a, b -> println "a: '$a', b: '$b'" } as BiConsumer
-        ConsumerUtils.inverseConsumer(consumer, paramOne).accept(paramTwo)
+        inverseConsumer(consumer, paramOne).accept(paramTwo)
 
         then:
         noExceptionThrown()
@@ -50,7 +63,7 @@ class ConsumerUtilsSpec extends Specification {
     def 'double consumer for bi-consumer passing value "#value" does not throw NPE'() {
         when:
         def consumer = { a, b -> println "a: '$a', b: '$b'" } as BiConsumer
-        ConsumerUtils.doubleConsumer(consumer, value).accept(1.0D)
+        doubleConsumer(consumer, value).accept(1.0D)
 
         then:
         noExceptionThrown()
@@ -63,7 +76,7 @@ class ConsumerUtilsSpec extends Specification {
     def 'inverse double consumer for bi-consumer passing value "#value" does not throw NPE'() {
         when:
         def consumer = { a, b -> println "a: '$a', b: '$b'" } as ObjDoubleConsumer
-        ConsumerUtils.inverseDoubleConsumer(consumer, value).accept(1.0D)
+        inverseDoubleConsumer(consumer, value).accept(1.0D)
 
         then:
         noExceptionThrown()
@@ -76,7 +89,7 @@ class ConsumerUtilsSpec extends Specification {
     def 'int consumer for bi-consumer passing value "#value" does not throw NPE'() {
         when:
         def consumer = { a, b -> println "a: '$a', b: '$b'" } as BiConsumer
-        ConsumerUtils.intConsumer(consumer, value).accept(1)
+        intConsumer(consumer, value).accept(1)
 
         then:
         noExceptionThrown()
@@ -89,7 +102,7 @@ class ConsumerUtilsSpec extends Specification {
     def 'inverse int consumer for bi-consumer passing value "#value" does not throw NPE'() {
         when:
         def consumer = { a, b -> println "a: '$a', b: '$b'" } as ObjIntConsumer
-        ConsumerUtils.inverseIntConsumer(consumer, value).accept(1)
+        inverseIntConsumer(consumer, value).accept(1)
 
         then:
         noExceptionThrown()
@@ -102,7 +115,7 @@ class ConsumerUtilsSpec extends Specification {
     def 'long consumer for bi-consumer passing value "#value" does not throw NPE'() {
         when:
         def consumer = { a, b -> println "a: '$a', b: '$b'" } as BiConsumer
-        ConsumerUtils.longConsumer(consumer, value).accept(1L)
+        longConsumer(consumer, value).accept(1L)
 
         then:
         noExceptionThrown()
@@ -115,7 +128,7 @@ class ConsumerUtilsSpec extends Specification {
     def 'inverse long consumer for bi-consumer passing value "#value" does not throw NPE'() {
         when:
         def consumer = { a, b -> println "a: '$a', b: '$b'" } as ObjLongConsumer
-        ConsumerUtils.inverseLongConsumer(consumer, value).accept(1L)
+        inverseLongConsumer(consumer, value).accept(1L)
 
         then:
         noExceptionThrown()
@@ -124,20 +137,83 @@ class ConsumerUtilsSpec extends Specification {
         value << ['test', null, '']
     }
 
-    def 'setter passing null does not throw NPE'() {
+    @Unroll
+    def 'setter passing #bean does not throw NPE'() {
         when:
         def consumer = { Map m, v -> m.test = v } as BiConsumer
-        ConsumerUtils.setter(consumer, null).accept(null)
+        def extractor = { Map m -> m.toExtract}
+        setter(consumer, extractor).accept(bean)
 
         then:
         noExceptionThrown()
+
+        where:
+        bean << [null, [:]]
     }
 
     def 'setter passing value behaves as expected'() {
         expect:
         def consumer = { Map m, v -> m.test = v } as BiConsumer
-        def bean = [:]
-        ConsumerUtils.setter(consumer, 'test').accept(bean)
+        def extractor = { Map m -> m.toExtract}
+        def bean = [toExtract: 'test']
+        setter(consumer, extractor).accept(bean)
         bean.test == 'test'
+    }
+
+    def 'double setter passing null does not throw NPE'() {
+        when:
+        def consumer = { Map m, v -> m.test = v } as BiConsumer
+        def extractor = { Map m -> m.toExtract}
+        doubleSetter(consumer, extractor).accept(null)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def 'double setter passing value behaves as expected'() {
+        expect:
+        def consumer = { Map m, v -> m.test = v } as BiConsumer
+        def extractor = { Map m -> m.toExtract}
+        def bean = [toExtract: 1.0D]
+        doubleSetter(consumer, extractor).accept(bean)
+        bean.test == 1.0D
+    }
+
+    def 'int setter passing null does not throw NPE'() {
+        when:
+        def consumer = { Map m, v -> m.test = v } as BiConsumer
+        def extractor = { Map m -> m.toExtract}
+        intSetter(consumer, extractor).accept(null)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def 'int setter passing value behaves as expected'() {
+        expect:
+        def consumer = { Map m, v -> m.test = v } as BiConsumer
+        def extractor = { Map m -> m.toExtract}
+        def bean = [toExtract: 1]
+        intSetter(consumer, extractor).accept(bean)
+        bean.test == 1
+    }
+
+    def 'long setter passing null does not throw NPE'() {
+        when:
+        def consumer = { Map m, v -> m.test = v } as BiConsumer
+        def extractor = { Map m -> m.toExtract}
+        longSetter(consumer, extractor).accept(null)
+
+        then:
+        noExceptionThrown()
+    }
+
+    def 'long setter passing value behaves as expected'() {
+        expect:
+        def consumer = { Map m, v -> m.test = v } as BiConsumer
+        def extractor = { Map m -> m.toExtract}
+        def bean = [toExtract: 1L]
+        longSetter(consumer, extractor).accept(bean)
+        bean.test == 1L
     }
 }

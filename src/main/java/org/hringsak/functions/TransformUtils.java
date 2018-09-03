@@ -41,7 +41,7 @@ public final class TransformUtils {
                 .collect(transformerCollector.getCollector());
     }
 
-    public static <T, U, C extends Collection<U>> TransformerCollector<T, U, C> transformerCollector(Function<T, U> transformer, Collector<U, ?, C> collector) {
+    public static <T, U, C extends Collection<U>> TransformerCollector<T, U, C> transformAndThen(Function<T, U> transformer, Collector<U, ?, C> collector) {
         return TransformerCollector.of(transformer, collector);
     }
 }

@@ -6,7 +6,7 @@ import spock.lang.Unroll
 import java.util.function.Predicate
 
 import static java.util.stream.Collectors.toList
-import static org.hringsak.functions.FilterUtils.filterCollector
+import static org.hringsak.functions.FilterUtils.filterAndThen
 
 class FilterUtilsSpec extends Specification {
 
@@ -59,7 +59,7 @@ class FilterUtilsSpec extends Specification {
 
         expect:
         def predicate = PredicateUtils.predicate(true) as Predicate
-        FilterUtils.filter(collection, filterCollector(predicate, toList())) == []
+        FilterUtils.filter(collection, filterAndThen(predicate, toList())) == []
 
         where:
         scenario | collection

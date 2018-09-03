@@ -1,7 +1,5 @@
 package org.hringsak.functions;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -25,7 +23,7 @@ public final class SupplierUtils {
         return () -> function.apply(value);
     }
 
-    public static <T, U, R> Supplier<R> supplier(BiFunction<T, U, R> function, Pair<T, U> arguments) {
+    public static <T, U, R> Supplier<R> supplier(BiFunction<T, U, R> function, Arguments<T, U> arguments) {
         return () -> function.apply(arguments.getLeft(), arguments.getRight());
     }
 
@@ -33,7 +31,7 @@ public final class SupplierUtils {
         return () -> function.apply(value);
     }
 
-    public static <T, U> BooleanSupplier booleanSupplier(BiFunction<T, U, Boolean> function, Pair<T, U> arguments) {
+    public static <T, U> BooleanSupplier booleanSupplier(BiFunction<T, U, Boolean> function, Arguments<T, U> arguments) {
         return () -> function.apply(arguments.getLeft(), arguments.getRight());
     }
 
@@ -41,7 +39,7 @@ public final class SupplierUtils {
         return () -> function.applyAsDouble(value);
     }
 
-    public static <T, U> DoubleSupplier doubleSupplier(ToDoubleBiFunction<T, U> function, Pair<T, U> arguments) {
+    public static <T, U> DoubleSupplier doubleSupplier(ToDoubleBiFunction<T, U> function, Arguments<T, U> arguments) {
         return () -> function.applyAsDouble(arguments.getLeft(), arguments.getRight());
     }
 
@@ -49,7 +47,7 @@ public final class SupplierUtils {
         return () -> function.applyAsInt(value);
     }
 
-    public static <T, U> IntSupplier intSupplier(ToIntBiFunction<T, U> function, Pair<T, U> arguments) {
+    public static <T, U> IntSupplier intSupplier(ToIntBiFunction<T, U> function, Arguments<T, U> arguments) {
         return () -> function.applyAsInt(arguments.getLeft(), arguments.getRight());
     }
 
@@ -57,11 +55,11 @@ public final class SupplierUtils {
         return () -> function.applyAsLong(value);
     }
 
-    public static <T, U> LongSupplier longSupplier(ToLongBiFunction<T, U> function, Pair<T, U> arguments) {
+    public static <T, U> LongSupplier longSupplier(ToLongBiFunction<T, U> function, Arguments<T, U> arguments) {
         return () -> function.applyAsLong(arguments.getLeft(), arguments.getRight());
     }
 
-    public static <T, U> Pair<T, U> arguments(T left, U right) {
-        return Pair.of(left, right);
+    public static <T, U> Arguments<T, U> arguments(T left, U right) {
+        return Arguments.of(left, right);
     }
 }
