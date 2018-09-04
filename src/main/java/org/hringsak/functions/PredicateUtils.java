@@ -22,20 +22,20 @@ public final class PredicateUtils {
         return predicate;
     }
 
-    public static <T> Predicate<T> predicate(Predicate<? super T> predicate, boolean defaultIfNull) {
-        return t -> t == null ? defaultIfNull : predicate.test(t);
-    }
-
-    public static <T> Predicate<T> predicate(boolean b) {
-        return t -> b;
-    }
-
     public static <T, U> Predicate<T> predicate(BiPredicate<? super T, ? super U> biPredicate, U value) {
         return t -> biPredicate.test(t, value);
     }
 
-    public static <T, U> Predicate<T> predicate(U value, BiPredicate<? super U, ? super T> biPredicate) {
+    public static <T, U> Predicate<T> inversePredicate(BiPredicate<? super U, ? super T> biPredicate, U value) {
         return t -> biPredicate.test(value, t);
+    }
+
+    public static <T> Predicate<T> predicateDefault(Predicate<? super T> predicate, boolean defaultIfNull) {
+        return t -> t == null ? defaultIfNull : predicate.test(t);
+    }
+
+    public static <T> Predicate<T> predicateConstant(boolean b) {
+        return t -> b;
     }
 
     public static <T> Predicate<T> not(Predicate<T> predicate) {
@@ -58,7 +58,7 @@ public final class PredicateUtils {
         return t -> collection != null && t != null && collection.contains(extractor.apply(t));
     }
 
-    public static <T, R> Predicate<T> contains(Function<? super T, ? extends Collection<R>> collectionExtractor, R value) {
+    public static <T, R> Predicate<T> inverseContains(Function<? super T, ? extends Collection<R>> collectionExtractor, R value) {
         return t -> {
             if (t != null) {
                 Collection<R> collection = collectionExtractor.apply(t);

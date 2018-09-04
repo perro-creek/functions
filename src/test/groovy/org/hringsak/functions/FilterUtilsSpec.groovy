@@ -19,7 +19,7 @@ class FilterUtilsSpec extends Specification {
     def 'generic filter returns empty list for #scenario parameter'() {
 
         expect:
-        FilterUtils.filter(contents, PredicateUtils.predicate(false)) == []
+        FilterUtils.filter(contents, PredicateUtils.predicateConstant(false)) == []
 
         where:
         scenario | contents
@@ -36,7 +36,7 @@ class FilterUtilsSpec extends Specification {
     def 'filter to set returns empty list for #scenario parameter'() {
 
         expect:
-        FilterUtils.filterToSet(collection, PredicateUtils.predicate(true)) == [] as Set
+        FilterUtils.filterToSet(collection, PredicateUtils.predicateConstant(true)) == [] as Set
 
         where:
         scenario | collection
@@ -58,7 +58,7 @@ class FilterUtilsSpec extends Specification {
     def 'filter with predicate and collector returns empty list for #scenario parameter'() {
 
         expect:
-        def predicate = PredicateUtils.predicate(true) as Predicate
+        def predicate = PredicateUtils.predicateConstant(true) as Predicate
         FilterUtils.filter(collection, filterAndThen(predicate, toList())) == []
 
         where:
@@ -76,7 +76,7 @@ class FilterUtilsSpec extends Specification {
     def 'filter distinct returns empty list for #scenario parameter'() {
 
         expect:
-        FilterUtils.filterDistinct(collection, PredicateUtils.predicate(true)) == []
+        FilterUtils.filterDistinct(collection, PredicateUtils.predicateConstant(true)) == []
 
         where:
         scenario | collection

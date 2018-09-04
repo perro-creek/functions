@@ -3,7 +3,6 @@ package org.hringsak.functions
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.function.BiFunction
 import java.util.function.BiPredicate
 import java.util.function.Function
 import java.util.function.Predicate
@@ -27,66 +26,66 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'predicate with default taking boolean parameter "#booleanParameter" and predicate parameter "#predicateParameter" returns expected result'() {
+    def 'predicate with default taking boolean parameter "#booleanParameter" and target "#target" returns #expected'() {
 
         expect:
         def predicate = { String s -> s.isEmpty() } as Predicate
-        PredicateUtils.predicate(predicate, defaultParameter).test(predicateParameter) == expected
+        PredicateUtils.predicateDefault(predicate, defaultParameter).test(target) == expected
 
         where:
-        defaultParameter | predicateParameter | expected
-        true             | null               | true
-        true             | 'test'             | false
-        true             | ''                 | true
-        false            | null               | false
-        false            | 'test'             | false
-        false            | ''                 | true
+        defaultParameter | target | expected
+        true             | null   | true
+        true             | 'test' | false
+        true             | ''     | true
+        false            | null   | false
+        false            | 'test' | false
+        false            | ''     | true
     }
 
     @Unroll
-    def 'predicate taking boolean parameter "#booleanParameter" and predicate parameter "#predicateParameter" returns expected result'() {
+    def 'predicate taking boolean parameter "#booleanParameter" and target "#target" returns #expected'() {
 
         expect:
-        PredicateUtils.predicate(booleanParameter).test(predicateParameter) == expected
+        PredicateUtils.predicateConstant(booleanParameter).test(target) == expected
 
         where:
-        booleanParameter | predicateParameter | expected
-        true             | null               | true
-        true             | 'test'             | true
-        false            | null               | false
-        false            | 'test'             | false
+        booleanParameter | target | expected
+        true             | null   | true
+        true             | 'test' | true
+        false            | null   | false
+        false            | 'test' | false
     }
 
     @Unroll
-    def 'predicate for bi-predicate returns expected value for values "#paramOne" and "#paramTwo" returns #expected'() {
-
-        expect:
-        def biPredicate = { a, b -> a.equals(b) } as BiPredicate
-        PredicateUtils.predicate(biPredicate, paramOne).test(paramTwo) == expected
-
-        where:
-        paramOne | paramTwo | expected
-        'test'   | null     | false
-        'test'   | ''       | false
-        'test'   | 'test'   | true
-        null     | 'test'   | false
-        ''       | 'test'   | false
-    }
-
-    @Unroll
-    def 'predicate for bi-predicate as second parameter returns expected value for values "#paramOne" and "#paramTwo" returns #expected'() {
+    def 'predicate for bi-predicate for constantValue "#constantValue" and target "#target" returns #expected'() {
 
         expect:
         def biPredicate = { a, b -> a.equals(b) } as BiPredicate
-        PredicateUtils.predicate(paramOne, biPredicate).test(paramTwo) == expected
+        PredicateUtils.predicate(biPredicate, constantValue).test(target) == expected
 
         where:
-        paramOne | paramTwo | expected
-        'test'   | null     | false
-        'test'   | ''       | false
-        'test'   | 'test'   | true
-        null     | 'test'   | false
-        ''       | 'test'   | false
+        constantValue | target | expected
+        'test'        | null   | false
+        'test'        | ''     | false
+        'test'        | 'test' | true
+        null          | 'test' | false
+        ''            | 'test' | false
+    }
+
+    @Unroll
+    def 'inverse predicate for bi-predicate for constantValue "#constantValue" and target "#target" returns #expected'() {
+
+        expect:
+        def biPredicate = { a, b -> a.equals(b) } as BiPredicate
+        PredicateUtils.inversePredicate(biPredicate, constantValue).test(target) == expected
+
+        where:
+        constantValue | target | expected
+        'test'        | null   | false
+        'test'        | ''     | false
+        'test'        | 'test' | true
+        null          | 'test' | false
+        ''            | 'test' | false
     }
 
     def 'not passing null value throws NPE'() {
@@ -104,89 +103,89 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'is equal passing #paramOne and #paramTwo returns #expected'() {
+    def 'is equal passing constantValue #constantValue and target #target returns #expected'() {
 
         expect:
         def function = { String s -> s.toString() } as Function
-        PredicateUtils.isEqual(paramOne, function).test(paramTwo) == expected
+        PredicateUtils.isEqual(constantValue, function).test(target) == expected
 
         where:
-        paramOne | paramTwo | expected
-        'test'   | null     | false
-        'test'   | ''       | false
-        'test'   | 'test'   | true
-        null     | 'test'   | false
-        ''       | 'test'   | false
+        constantValue | target | expected
+        'test'        | null   | false
+        'test'        | ''     | false
+        'test'        | 'test' | true
+        null          | 'test' | false
+        ''            | 'test' | false
     }
 
     @Unroll
-    def 'is not equal passing #paramOne and #paramTwo returns #expected'() {
+    def 'is not equal passing constantValue #constantValue and target #target returns #expected'() {
 
         expect:
         def function = { String s -> s.toString() } as Function
-        PredicateUtils.isNotEqual(paramOne, function).test(paramTwo) == expected
+        PredicateUtils.isNotEqual(constantValue, function).test(target) == expected
 
         where:
-        paramOne | paramTwo | expected
-        'test'   | null     | true
-        'test'   | ''       | true
-        'test'   | 'test'   | false
-        null     | 'test'   | true
-        ''       | 'test'   | true
+        constantValue | target | expected
+        'test'        | null   | true
+        'test'        | ''     | true
+        'test'        | 'test' | false
+        null          | 'test' | true
+        ''            | 'test' | true
     }
 
     @Unroll
-    def 'equals ignore case passing #paramOne and #paramTwo returns #expected'() {
+    def 'equals ignore case passing constantValue #constantValue and target #target returns #expected'() {
 
         expect:
         def function = { String s -> s.toString() } as Function
-        PredicateUtils.equalsIgnoreCase(paramOne, function).test(paramTwo) == expected
+        PredicateUtils.equalsIgnoreCase(constantValue, function).test(target) == expected
 
         where:
-        paramOne | paramTwo | expected
-        'test'   | null     | false
-        'test'   | ''       | false
-        'test'   | 'test'   | true
-        'test'   | 'TEST'   | true
-        'TEST'   | 'test'   | true
-        null     | 'test'   | false
-        ''       | 'test'   | false
+        constantValue | target | expected
+        'test'        | null   | false
+        'test'        | ''     | false
+        'test'        | 'test' | true
+        'test'        | 'TEST' | true
+        'TEST'        | 'test' | true
+        null          | 'test' | false
+        ''            | 'test' | false
     }
 
     @Unroll
-    def 'contains passing value "#collection" and "#predicateParameter" returns "#expected"'() {
+    def 'contains passing collection "#collection" and target "#target" returns "#expected"'() {
 
         expect:
         def function = { String s -> s.toString() } as Function
-        PredicateUtils.contains(collection, function).test(predicateParameter) == expected
+        PredicateUtils.contains(collection, function).test(target) == expected
 
         where:
-        collection | predicateParameter | expected
-        ['test']   | null               | false
-        ['test']   | ''                 | false
-        ['test']   | 'test'             | true
-        [null]     | 'test'             | false
-        [null]     | null               | false
-        ['']       | 'test'             | false
-        []         | 'test'             | false
+        collection | target | expected
+        ['test']   | null   | false
+        ['test']   | ''     | false
+        ['test']   | 'test' | true
+        [null]     | 'test' | false
+        [null]     | null   | false
+        ['']       | 'test' | false
+        []         | 'test' | false
     }
 
     @Unroll
-    def 'contains with collection extractor passing value "#collection" and "#predicateParameter" returns "#expected"'() {
+    def 'inverse contains passing collection "#collection" and target "#target" returns "#expected"'() {
 
         expect:
         def function = { String s -> collection } as Function
-        PredicateUtils.contains(function, predicateParameter).test(predicateParameter) == expected
+        PredicateUtils.inverseContains(function, target).test(target) == expected
 
         where:
-        collection | predicateParameter | expected
-        ['test']   | null               | false
-        ['test']   | ''                 | false
-        ['test']   | 'test'             | true
-        [null]     | 'test'             | false
-        [null]     | null               | false
-        ['']       | 'test'             | false
-        []         | 'test'             | false
+        collection | target | expected
+        ['test']   | null   | false
+        ['test']   | ''     | false
+        ['test']   | 'test' | true
+        [null]     | 'test' | false
+        [null]     | null   | false
+        ['']       | 'test' | false
+        []         | 'test' | false
     }
 
     @Unroll

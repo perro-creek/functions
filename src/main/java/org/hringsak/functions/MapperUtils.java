@@ -9,17 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
-import java.util.function.DoubleFunction;
 import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.LongFunction;
 import java.util.function.Predicate;
-import java.util.function.ToDoubleBiFunction;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntBiFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongBiFunction;
-import java.util.function.ToLongFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -52,14 +43,14 @@ public final class MapperUtils {
      * </pre>
      * The <code>Function.andThen()</code> method can only be called on the method reference because of the cast.
      *
-     * @param mapper A method reference to be cast to a Function.
-     * @param <T>    The type of the single parameter to the Function.
-     * @param <R>    The type of the result of the Function.
+     * @param function A method reference to be cast to a Function.
+     * @param <T>      The type of the single parameter to the Function.
+     * @param <R>      The type of the result of the Function.
      * @return A method reference cast to a Function.
      */
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public static <T, R> Function<T, R> mapper(Function<T, R> mapper) {
-        return mapper;
+    public static <T, R> Function<T, R> mapper(Function<T, R> function) {
+        return function;
     }
 
     /**
@@ -74,8 +65,8 @@ public final class MapperUtils {
      *         .collect(toList());
      * </pre>
      *
-     * @param mapper       A method reference which takes a single parameter of type &lt;T&gt;, and returns a value of type
-     *                     &lt;R&gt;.
+     * @param function     A method reference which takes a single parameter of type &lt;T&gt;, and returns a value of
+     *                     type &lt;R&gt;.
      * @param defaultValue A default value of type &lt;R&gt;, to be returned in case the target element, or the result
      *                     of the Function call on the target element is null.
      * @param <T>          The type of the target element on which the mapper Function is to be called.
@@ -83,8 +74,8 @@ public final class MapperUtils {
      * @return A mapper Function that returns a default value if the target element, or the result of the Function call
      * on the target element is null.
      */
-    public static <T, R> Function<T, R> mapperDefault(Function<? super T, ? extends R> mapper, R defaultValue) {
-        return t -> (t == null || mapper.apply(t) == null) ? defaultValue : mapper.apply(t);
+    public static <T, R> Function<T, R> mapperDefault(Function<? super T, ? extends R> function, R defaultValue) {
+        return t -> (t == null || function.apply(t) == null) ? defaultValue : function.apply(t);
     }
 
     /**
@@ -130,15 +121,15 @@ public final class MapperUtils {
     }
 
     /**
-     * As in the {@link #mapper(BiFunction, Object)} method, builds a <code>Function</code> from a passed <code>
-     * BiFunction</code>, which can be very useful in the common situation where you are streaming through a collection
-     * elements, and have a method to call that takes two parameters. In the <code>BiConsumer</code> passed to this
-     * method, the parameters are basically the same as in {@link #mapper(BiFunction, Object)}, but in the inverse
-     * order. Here, the first parameter is a constant value that will be passed to all invocations of the method, and
-     * the second parameter is the target element on which you are streaming. This would typically be called from within
-     * a chain of method calls based on a <code>Stream</code>. In the following example, assume the <code>
-     * LineItemRequest</code> objects come in from a rest API call, and we want to transform them into a collection of
-     * <code>OrderLineItem</code> objects:
+     * As in the {@link #mapper(BiFunction, Object)} method, builds a <code>Function</code> from a passed
+     * <code>BiFunction</code>, which can be very useful in the common situation where you are streaming through a
+     * collection elements, and have a method to call that takes two parameters. In the <code>BiFunction</code> passed
+     * to this method, the parameters are basically the same as in {@link #mapper(BiFunction, Object)}, but in the
+     * inverse order. Here, the first parameter is a constant value that will be passed to all invocations of the
+     * method, and the second parameter is the target element on which you are streaming. This would typically be called
+     * from within a chain of method calls based on a <code>Stream</code>. In the following example, assume the
+     * <code>LineItemRequest</code> objects come in from a rest API call, and we want to transform them into a
+     * collection of <code>OrderLineItem</code> objects:
      * <pre>
      *     private Collection&lt;OrderLineItem&gt; buildOrderLineItems(String orderId, Collection&lt;LineItemRequest&gt; requestLineItems) {
      *         return Collection&lt;OrderLineItem&gt; orderLineItems = requestLineItems.stream()
@@ -175,107 +166,6 @@ public final class MapperUtils {
      */
     public static <T, U, R> Function<T, R> inverseMapper(BiFunction<? super U, ? super T, ? extends R> biFunction, U value) {
         return t -> biFunction.apply(value, t);
-    }
-
-    @SuppressWarnings("unused")
-    public static <R> DoubleFunction<R> doubleMapper(DoubleFunction<R> function) {
-        return function;
-    }
-
-    public static <U, R> DoubleFunction<R> doubleMapper(BiFunction<Double, ? super U, ? extends R> biFunction, U value) {
-        return d -> biFunction.apply(d, value);
-    }
-
-    public static <U, R> DoubleFunction<R> inverseDoubleMapper(BiFunction<? super U, Double, ? extends R> biFunction, U value) {
-        return d -> biFunction.apply(value, d);
-    }
-
-    /**
-     * Simply casts a method reference, which takes a single parameter of type &lt;T&gt;</code> and returns void, to a
-     * <code>ToDoubleFunction</code>. Everything said about the {@link #mapper(Function)} method applies here. The
-     * difference is that instead of an element of type &lt;T&gt; being streamed through, it would be a primitive <code>
-     * double</code> instead. It may be harder to think of a situation where this overload would be useful, but
-     * this method is included for sake of completeness.
-     *
-     * @param function
-     * @param <T>
-     * @return
-     */
-    @SuppressWarnings("unused")
-    public static <T> ToDoubleFunction<T> toDoubleMapper(ToDoubleFunction<T> function) {
-        return function;
-    }
-
-    public static <T> ToDoubleFunction<T> toDoubleMapperDefault(ToDoubleFunction<? super T> function, double defaultValue) {
-        return t -> t == null ? defaultValue : function.applyAsDouble(t);
-    }
-
-    public static <T, U> ToDoubleFunction<T> toDoubleMapper(ToDoubleBiFunction<? super T, ? super U> biFunction, U value) {
-        return t -> biFunction.applyAsDouble(t, value);
-    }
-
-    public static <T, U> ToDoubleFunction<T> inverseToDoubleMapper(ToDoubleBiFunction<? super U, ? super T> biFunction, U value) {
-        return t -> biFunction.applyAsDouble(value, t);
-    }
-
-    @SuppressWarnings("unused")
-    public static <R> IntFunction<R> intMapper(IntFunction<R> function) {
-        return function;
-    }
-
-    public static <U, R> IntFunction<R> intMapper(BiFunction<Integer, ? super U, ? extends R> biFunction, U value) {
-        return i -> biFunction.apply(i, value);
-    }
-
-    public static <U, R> IntFunction<R> inverseIntMapper(BiFunction<? super U, Integer, ? extends R> biFunction, U value) {
-        return i -> biFunction.apply(value, i);
-    }
-
-    @SuppressWarnings("unused")
-    public static <T> ToIntFunction<T> toIntMapper(ToIntFunction<T> function) {
-        return function;
-    }
-
-    public static <T> ToIntFunction<T> toIntMapperDefault(ToIntFunction<? super T> function, int defaultValue) {
-        return t -> t == null ? defaultValue : function.applyAsInt(t);
-    }
-
-    public static <T, U> ToIntFunction<T> toIntMapper(ToIntBiFunction<? super T, ? super U> biFunction, U value) {
-        return t -> biFunction.applyAsInt(t, value);
-    }
-
-    public static <T, U> ToIntFunction<T> inverseToIntMapper(ToIntBiFunction<? super U, ? super T> biFunction, U value) {
-        return t -> biFunction.applyAsInt(value, t);
-    }
-
-    @SuppressWarnings("unused")
-    public static <R> LongFunction<R> longMapper(LongFunction<R> function) {
-        return function;
-    }
-
-    public static <U, R> LongFunction<R> longMapper(BiFunction<Long, ? super U, ? extends R> biFunction, U value) {
-        return l -> biFunction.apply(l, value);
-    }
-
-    public static <U, R> LongFunction<R> inverseLongMapper(BiFunction<? super U, Long, ? extends R> biFunction, U value) {
-        return l -> biFunction.apply(value, l);
-    }
-
-    @SuppressWarnings("unused")
-    public static <T> ToLongFunction<T> toLongMapper(ToLongFunction<T> function) {
-        return function;
-    }
-
-    public static <T> ToLongFunction<T> toLongMapperDefault(ToLongFunction<? super T> function, long defaultValue) {
-        return t -> t == null ? defaultValue : function.applyAsLong(t);
-    }
-
-    public static <T, U> ToLongFunction<T> toLongMapper(ToLongBiFunction<? super T, ? super U> biFunction, U value) {
-        return t -> biFunction.applyAsLong(t, value);
-    }
-
-    public static <T, U> ToLongFunction<T> inverseToLongMapper(ToLongBiFunction<? super U, ? super T> biFunction, U value) {
-        return t -> biFunction.applyAsLong(value, t);
     }
 
     public static <T, U, R> Function<T, R> getValue(Map<U, R> map, Function<T, U> extractor) {
