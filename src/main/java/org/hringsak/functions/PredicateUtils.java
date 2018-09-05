@@ -38,6 +38,10 @@ public final class PredicateUtils {
         return t -> b;
     }
 
+    public static <T> Predicate<T> fromMapper(Function<T, Boolean> function) {
+        return t -> t != null && function.apply(t);
+    }
+
     public static <T> Predicate<T> not(Predicate<T> predicate) {
         return predicate.negate();
     }

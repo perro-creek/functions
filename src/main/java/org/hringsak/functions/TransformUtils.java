@@ -2,12 +2,14 @@ package org.hringsak.functions;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collector;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.hringsak.functions.StreamUtils.defaultStream;
 
@@ -39,6 +41,11 @@ public final class TransformUtils {
         return defaultStream(objects)
                 .map(transformerCollector.getTransformer())
                 .collect(transformerCollector.getCollector());
+    }
+
+    public static <T, K, V> Map<K, V> transformToMap(Collection<T> objects, KeyValueMapper<T, K, V> keyValueMapper) {
+        return defaultStream(objects)
+                .collect(toMap(keyValueMapper.getKeyMapper(), keyValueMapper.getValueMapper()));
     }
 
     public static <T, U, C extends Collection<U>> TransformerCollector<T, U, C> transformAndThen(Function<T, U> transformer, Collector<U, ?, C> collector) {

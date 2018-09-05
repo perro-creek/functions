@@ -9,7 +9,10 @@ import java.util.function.Function
 import static java.util.function.Function.identity
 import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.CollectorUtils.toEnumSet
+import static org.hringsak.functions.MapperUtils.keyValueMapper
 import static org.hringsak.functions.TransformUtils.transformAndThen
+import static org.hringsak.functions.TransformUtils.transformToMap
+import static org.hringsak.functions.TransformUtils.transformToMap
 
 class TransformUtilsSpec extends Specification {
 
@@ -116,6 +119,23 @@ class TransformUtilsSpec extends Specification {
 
         expect:
         TransformUtils.transformDistinct(collection, identity()) == []
+
+        where:
+        scenario | collection
+        'empty'  | []
+        'null'   | null
+    }
+
+    def 'transform to map returns expected'() {
+        expect:
+        transformToMap(['foo', 'bar', 'bazz'], keyValueMapper({ s -> s }, { String s -> s.length() })) == [foo: 3, bar: 3, bazz: 4]
+    }
+
+    @Unroll
+    def 'transform to map returns empty list for #scenario parameter'() {
+
+        expect:
+        transformToMap(collection, keyValueMapper({ s -> s }, { String s -> s.length() })) == [:]
 
         where:
         scenario | collection
