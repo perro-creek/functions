@@ -1,0 +1,26 @@
+package org.hringsak.functions;
+
+import java.util.function.Function;
+
+class KeyValueMapper <T, K, V> {
+
+    private final Function<T, K> keyMapper;
+    private final Function<T, V> valueMapper;
+
+    private KeyValueMapper(Function<T, K> keyMapper, Function<T, V> valueMapper) {
+        this.keyMapper = keyMapper;
+        this.valueMapper = valueMapper;
+    }
+
+    static <T, K, V> KeyValueMapper<T, K, V> of(Function<T, K> keyMapper, Function<T, V> valueMapper) {
+        return new KeyValueMapper<>(keyMapper, valueMapper);
+    }
+
+    Function<T, K> getKeyMapper() {
+        return keyMapper;
+    }
+
+    Function<T, V> getValueMapper() {
+        return valueMapper;
+    }
+}

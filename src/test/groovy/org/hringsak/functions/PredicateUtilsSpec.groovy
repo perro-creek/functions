@@ -8,13 +8,14 @@ import java.util.function.Function
 import java.util.function.Predicate
 
 import static java.util.function.Function.identity
+import static org.hringsak.functions.PredicateUtils.*
 
 class PredicateUtilsSpec extends Specification {
 
     def 'predicate passing null value throws NPE'() {
 
         when:
-        PredicateUtils.predicate({ String s -> s.isEmpty() }).test(null)
+        predicate({ String s -> s.isEmpty() }).test(null)
 
         then:
         thrown(NullPointerException)
@@ -22,15 +23,15 @@ class PredicateUtilsSpec extends Specification {
 
     def 'predicate passing non-null returns expected value'() {
         expect:
-        PredicateUtils.predicate({ String s -> s.isEmpty() }).test('')
+        predicate({ String s -> s.isEmpty() }).test('')
     }
 
     @Unroll
-    def 'predicate with default taking boolean parameter "#booleanParameter" and target "#target" returns #expected'() {
+    def 'predicate default passing parameter "#booleanParameter" and target "#target" returns #expected'() {
 
         expect:
         def predicate = { String s -> s.isEmpty() } as Predicate
-        PredicateUtils.predicateDefault(predicate, defaultParameter).test(target) == expected
+        predicateDefault(predicate, defaultParameter).test(target) == expected
 
         where:
         defaultParameter | target | expected
@@ -43,10 +44,42 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'predicate taking boolean parameter "#booleanParameter" and target "#target" returns #expected'() {
+    def 'predicate for bi-predicate passing constantValue "#constantValue" and target "#target" returns #expected'() {
 
         expect:
-        PredicateUtils.predicateConstant(booleanParameter).test(target) == expected
+        def biPredicate = { a, b -> a.equals(b) } as BiPredicate
+        predicate(biPredicate, constantValue).test(target) == expected
+
+        where:
+        constantValue | target | expected
+        'test'        | null   | false
+        'test'        | ''     | false
+        'test'        | 'test' | true
+        null          | 'test' | false
+        ''            | 'test' | false
+    }
+
+    @Unroll
+    def 'inverse predicate for bi-predicate passing constantValue "#constantValue" and target "#target" returns #expected'() {
+
+        expect:
+        def biPredicate = { a, b -> a.equals(b) } as BiPredicate
+        inversePredicate(biPredicate, constantValue).test(target) == expected
+
+        where:
+        constantValue | target | expected
+        'test'        | null   | false
+        'test'        | ''     | false
+        'test'        | 'test' | true
+        null          | 'test' | false
+        ''            | 'test' | false
+    }
+
+    @Unroll
+    def 'predicate constant passing parameter "#booleanParameter" and target "#target" returns #expected'() {
+
+        expect:
+        predicateConstant(booleanParameter).test(target) == expected
 
         where:
         booleanParameter | target | expected
@@ -57,41 +90,22 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'predicate for bi-predicate for constantValue "#constantValue" and target "#target" returns #expected'() {
+    def 'from mapper passing target "#target" returns #expected'() {
 
         expect:
-        def biPredicate = { a, b -> a.equals(b) } as BiPredicate
-        PredicateUtils.predicate(biPredicate, constantValue).test(target) == expected
+        fromMapper({ String s -> !s.isEmpty() } as Function).test(target) == expected
 
         where:
-        constantValue | target | expected
-        'test'        | null   | false
-        'test'        | ''     | false
-        'test'        | 'test' | true
-        null          | 'test' | false
-        ''            | 'test' | false
-    }
-
-    @Unroll
-    def 'inverse predicate for bi-predicate for constantValue "#constantValue" and target "#target" returns #expected'() {
-
-        expect:
-        def biPredicate = { a, b -> a.equals(b) } as BiPredicate
-        PredicateUtils.inversePredicate(biPredicate, constantValue).test(target) == expected
-
-        where:
-        constantValue | target | expected
-        'test'        | null   | false
-        'test'        | ''     | false
-        'test'        | 'test' | true
-        null          | 'test' | false
-        ''            | 'test' | false
+        target | expected
+        null   | false
+        ''     | false
+        'test' | true
     }
 
     def 'not passing null value throws NPE'() {
 
         when:
-        PredicateUtils.not({ String s -> s.isEmpty() }).test(null)
+        not({ String s -> s.isEmpty() }).test(null)
 
         then:
         thrown(NullPointerException)
@@ -99,7 +113,7 @@ class PredicateUtilsSpec extends Specification {
 
     def 'not passing non-null returns expected value'() {
         expect:
-        PredicateUtils.not({ String s -> s.isEmpty() }).test('test')
+        not({ String s -> s.isEmpty() }).test('test')
     }
 
     @Unroll
@@ -107,7 +121,7 @@ class PredicateUtilsSpec extends Specification {
 
         expect:
         def function = { String s -> s.toString() } as Function
-        PredicateUtils.isEqual(constantValue, function).test(target) == expected
+        isEqual(constantValue, function).test(target) == expected
 
         where:
         constantValue | target | expected
@@ -123,7 +137,7 @@ class PredicateUtilsSpec extends Specification {
 
         expect:
         def function = { String s -> s.toString() } as Function
-        PredicateUtils.isNotEqual(constantValue, function).test(target) == expected
+        isNotEqual(constantValue, function).test(target) == expected
 
         where:
         constantValue | target | expected
@@ -139,7 +153,7 @@ class PredicateUtilsSpec extends Specification {
 
         expect:
         def function = { String s -> s.toString() } as Function
-        PredicateUtils.equalsIgnoreCase(constantValue, function).test(target) == expected
+        equalsIgnoreCase(constantValue, function).test(target) == expected
 
         where:
         constantValue | target | expected
@@ -157,7 +171,7 @@ class PredicateUtilsSpec extends Specification {
 
         expect:
         def function = { String s -> s.toString() } as Function
-        PredicateUtils.contains(collection, function).test(target) == expected
+        contains(collection, function).test(target) == expected
 
         where:
         collection | target | expected
@@ -175,7 +189,7 @@ class PredicateUtilsSpec extends Specification {
 
         expect:
         def function = { String s -> collection } as Function
-        PredicateUtils.inverseContains(function, target).test(target) == expected
+        inverseContains(function, target).test(target) == expected
 
         where:
         collection | target | expected
@@ -193,7 +207,7 @@ class PredicateUtilsSpec extends Specification {
 
         expect:
         def extractor = { TestValue t -> t.name() } as Function
-        PredicateUtils.containsKey(map, extractor).test(enumValue) == expected
+        containsKey(map, extractor).test(enumValue) == expected
 
         where:
         map                            | enumValue     | expected
@@ -209,7 +223,7 @@ class PredicateUtilsSpec extends Specification {
 
         expect:
         def extractor = { TestValue t -> t.name() } as Function
-        PredicateUtils.containsValue(map, extractor).test(enumValue) == expected
+        containsValue(map, extractor).test(enumValue) == expected
 
         where:
         map                            | enumValue     | expected
@@ -224,7 +238,7 @@ class PredicateUtilsSpec extends Specification {
     def 'contains char with string extractor passing value "#extractedString" and "#searchChar" returns "#expected"'() {
 
         expect:
-        PredicateUtils.containsChar(Function.identity(), searchChar.codePointAt(0)).test(extractedString) == expected
+        containsChar(Function.identity(), searchChar.codePointAt(0)).test(extractedString) == expected
 
         where:
         extractedString | searchChar | expected
@@ -238,7 +252,7 @@ class PredicateUtilsSpec extends Specification {
     def 'contains sequence with string extractor passing value "#extractedString" and "#searchSeq" returns "#expected"'() {
 
         expect:
-        PredicateUtils.containsSequence(Function.identity(), searchSeq).test(extractedString) == expected
+        containsSequence(Function.identity(), searchSeq).test(extractedString) == expected
 
         where:
         extractedString | searchSeq | expected
@@ -254,7 +268,7 @@ class PredicateUtilsSpec extends Specification {
     def 'contains ignore case with string extractor passing value "#extractedString" and "#searchSeq" returns "#expected"'() {
 
         expect:
-        PredicateUtils.containsIgnoreCase(Function.identity(), searchSeq).test(extractedString) == expected
+        containsIgnoreCase(Function.identity(), searchSeq).test(extractedString) == expected
 
         where:
         extractedString | searchSeq | expected
@@ -272,7 +286,7 @@ class PredicateUtilsSpec extends Specification {
     def 'is alpha passing value "#extractedString" returns "#expected"'() {
 
         expect:
-        PredicateUtils.isAlpha(Function.identity()).test(extractedString) == expected
+        isAlpha(Function.identity()).test(extractedString) == expected
 
         where:
         extractedString | expected
@@ -288,7 +302,7 @@ class PredicateUtilsSpec extends Specification {
     def 'is alphanumeric passing value "#extractedString" returns "#expected"'() {
 
         expect:
-        PredicateUtils.isAlphanumeric(Function.identity()).test(extractedString) == expected
+        isAlphanumeric(Function.identity()).test(extractedString) == expected
 
         where:
         extractedString | expected
@@ -306,7 +320,7 @@ class PredicateUtilsSpec extends Specification {
     def 'is numeric passing value "#extractedString" returns "#expected"'() {
 
         expect:
-        PredicateUtils.isNumeric(Function.identity()).test(extractedString) == expected
+        isNumeric(Function.identity()).test(extractedString) == expected
 
         where:
         extractedString | expected
@@ -325,7 +339,7 @@ class PredicateUtilsSpec extends Specification {
     def 'starts with passing value "#extractedString" and "#prefix" returns "#expected"'() {
 
         expect:
-        PredicateUtils.startsWith(Function.identity(), prefix).test(extractedString) == expected
+        startsWith(Function.identity(), prefix).test(extractedString) == expected
 
         where:
         extractedString | prefix | expected
@@ -341,7 +355,7 @@ class PredicateUtilsSpec extends Specification {
     def 'starts with ignore case passing value "#extractedString" and "#prefix" returns "#expected"'() {
 
         expect:
-        PredicateUtils.startsWithIgnoreCase(Function.identity(), prefix).test(extractedString) == expected
+        startsWithIgnoreCase(Function.identity(), prefix).test(extractedString) == expected
 
         where:
         extractedString | prefix | expected
@@ -358,7 +372,7 @@ class PredicateUtilsSpec extends Specification {
     def 'ends with passing value "#extractedString" and "#suffix" returns "#expected"'() {
 
         expect:
-        PredicateUtils.endsWith(Function.identity(), suffix).test(extractedString) == expected
+        endsWith(Function.identity(), suffix).test(extractedString) == expected
 
         where:
         extractedString | suffix | expected
@@ -374,7 +388,7 @@ class PredicateUtilsSpec extends Specification {
     def 'ends with ignore case passing value "#extractedString" and "#suffix" returns "#expected"'() {
 
         expect:
-        PredicateUtils.endsWithIgnoreCase(Function.identity(), suffix).test(extractedString) == expected
+        endsWithIgnoreCase(Function.identity(), suffix).test(extractedString) == expected
 
         where:
         extractedString | suffix | expected
@@ -392,7 +406,7 @@ class PredicateUtilsSpec extends Specification {
 
         expect:
         def function = { AbstractMap.SimpleEntry e -> e.getValue() } as Function
-        PredicateUtils.isNull(function).test(target) == expected
+        isNull(function).test(target) == expected
 
         where:
         target                                      | expected
@@ -406,7 +420,7 @@ class PredicateUtilsSpec extends Specification {
 
         expect:
         def function = { AbstractMap.SimpleEntry e -> e.getValue() } as Function
-        PredicateUtils.notNull(function).test(target) == expected
+        notNull(function).test(target) == expected
 
         where:
         target                                      | expected
@@ -418,7 +432,7 @@ class PredicateUtilsSpec extends Specification {
     @Unroll
     def 'gt passing #paramOne and #paramTwo returns #expected'() {
         expect:
-        PredicateUtils.gt(paramOne as Comparable, identity()).test(paramTwo) == expected
+        gt(paramOne as Comparable, identity()).test(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -436,7 +450,7 @@ class PredicateUtilsSpec extends Specification {
     def 'gte passing #paramOne and #paramTwo returns #expected'() {
 
         expect:
-        PredicateUtils.gte(paramOne as Comparable, identity()).test(paramTwo) == expected
+        gte(paramOne as Comparable, identity()).test(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -454,7 +468,7 @@ class PredicateUtilsSpec extends Specification {
     def 'lt passing #paramOne and #paramTwo returns #expected'() {
 
         expect:
-        PredicateUtils.lt(paramOne as Comparable, identity()).test(paramTwo) == expected
+        lt(paramOne as Comparable, identity()).test(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -491,7 +505,7 @@ class PredicateUtilsSpec extends Specification {
 
         expect:
         def function = { List l -> l.asCollection() } as Function
-        PredicateUtils.isEmpty(function).test(target) == expected
+        isEmpty(function).test(target) == expected
 
         where:
         target   | expected
@@ -505,7 +519,7 @@ class PredicateUtilsSpec extends Specification {
 
         expect:
         def function = { List l -> l.asCollection() } as Function
-        PredicateUtils.isNotEmpty(function).test(target) == expected
+        isNotEmpty(function).test(target) == expected
 
         where:
         target   | expected
@@ -518,8 +532,8 @@ class PredicateUtilsSpec extends Specification {
     def 'extract and filter passing input "#input"'() {
 
         expect:
-        def predicate = PredicateUtils.isEqual(4, Function.identity())
-        PredicateUtils.extractAndFilter({ String s -> s.length() } as Function, predicate).test(input) == expected
+        def predicate = isEqual(4, Function.identity())
+        extractAndFilter({ String s -> s.length() } as Function, predicate).test(input) == expected
 
         where:
         input  | expected

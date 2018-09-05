@@ -296,7 +296,7 @@ class MapperUtilsSpec extends Specification {
         def predicate = { String s -> s.isEmpty() } as Predicate
         def trueExtractor = { s -> trueValue } as Function
         def falseExtractor = { s -> falseValue } as Function
-        def result = ternary(predicate, extractors(trueExtractor, falseExtractor)).apply(predicateParameter)
+        def result = ternary(predicate, ternaryMapper(trueExtractor, falseExtractor)).apply(predicateParameter)
         result == expectedResult
 
         where:

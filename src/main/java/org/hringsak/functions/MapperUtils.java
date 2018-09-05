@@ -168,6 +168,10 @@ public final class MapperUtils {
         return t -> biFunction.apply(value, t);
     }
 
+    public static <T, U, R> Function<T, R> mapper(Function<? super T, ? extends U> left, Function<? super U, ? extends R> right) {
+        return t -> right.apply(left.apply(t));
+    }
+
     public static <T, U, R> Function<T, R> getValue(Map<U, R> map, Function<T, U> extractor) {
         return t -> (map == null || t == null) ? null : map.get(extractor.apply(t));
     }
@@ -235,11 +239,15 @@ public final class MapperUtils {
         return t -> Pair.of(function.apply(t), idx.getAndIncrement());
     }
 
-    public static <T, R> Function<T, R> ternary(Predicate<T> predicate, Pair<Function<T, R>, Function<T, R>> extractorPair) {
-        return t -> t != null && predicate.test(t) ? extractorPair.getLeft().apply(t) : extractorPair.getRight().apply(t);
+    public static <T, R> Function<T, R> ternary(Predicate<T> predicate, TernaryMapper<T, R> ternaryMapper) {
+        return t -> t != null && predicate.test(t) ? ternaryMapper.getTrueMapper().apply(t) : ternaryMapper.getFalseMapper().apply(t);
     }
 
-    public static <T, R> Pair<Function<T, R>, Function<T, R>> extractors(Function<T, R> trueExtractor, Function<T, R> falseExtractor) {
-        return Pair.of(trueExtractor, falseExtractor);
+    public static <T, R> TernaryMapper<T, R> ternaryMapper(Function<T, R> trueExtractor, Function<T, R> falseExtractor) {
+        return TernaryMapper.of(trueExtractor, falseExtractor);
+    }
+
+    public static <T, K, V> KeyValueMapper<T, K, V> keyValueMapper(Function<T, K> keyMapper, Function<T, V> valueMapper) {
+        return KeyValueMapper.of(keyMapper, valueMapper);
     }
 }
