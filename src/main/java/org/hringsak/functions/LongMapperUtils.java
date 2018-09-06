@@ -1,5 +1,8 @@
 package org.hringsak.functions;
 
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.LongFunction;
@@ -193,5 +196,14 @@ public final class LongMapperUtils {
      */
     public static <T, U> ToLongFunction<T> inverseToLongMapper(ToLongBiFunction<? super U, ? super T> biFunction, U value) {
         return t -> biFunction.applyAsLong(value, t);
+    }
+
+    public static LongFunction<Pair<Long, Integer>> pairLongWithIndex() {
+        return pairLongWithIndex(Long::valueOf);
+    }
+
+    public static <R> LongFunction<Pair<R, Integer>> pairLongWithIndex(LongFunction<? extends R> function) {
+        AtomicInteger idx = new AtomicInteger();
+        return t -> Pair.of(function.apply(t), idx.getAndIncrement());
     }
 }

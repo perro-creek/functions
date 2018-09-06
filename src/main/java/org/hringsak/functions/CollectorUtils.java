@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -99,7 +100,7 @@ public final class CollectorUtils {
         };
     }
 
-    static <T> BinaryOperator<T> combiner(BiConsumer<T, T> biConsumer) {
+    static <T> BinaryOperator<T> combiner(BiConsumer<? super T, ? super T> biConsumer) {
         return (left, right) -> {
             biConsumer.accept(left, right);
             return left;
@@ -201,6 +202,12 @@ public final class CollectorUtils {
     public static <T> Collector<T, ?, List<List<T>>> toPartitionedList(int partitionSize) {
         Preconditions.checkArgument(partitionSize > 0, "The 'partitionSize' argument must be greater than zero");
         return Collector.of(ArrayList::new, listPartitionAccumulator(partitionSize), combiner(List::addAll));
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    static <T, R> Collector<T, List<List<T>>, List<R>> toPartitionedList(int partitionSize, Function<List<List<T>>, List<R>> finisher) {
+        Preconditions.checkArgument(partitionSize > 0, "The 'partitionSize' argument must be greater than zero");
+        return Collector.of(ArrayList::new, listPartitionAccumulator(partitionSize), combiner(List::addAll), finisher);
     }
 
     private static <T> BiConsumer<List<List<T>>, T> listPartitionAccumulator(int partitionSize) {
