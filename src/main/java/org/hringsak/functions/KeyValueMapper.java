@@ -2,6 +2,8 @@ package org.hringsak.functions;
 
 import java.util.function.Function;
 
+import static org.hringsak.functions.MapperUtils.mapper;
+
 class KeyValueMapper <T, K, V> {
 
     private final Function<T, K> keyMapper;
@@ -17,10 +19,10 @@ class KeyValueMapper <T, K, V> {
     }
 
     Function<T, K> getKeyMapper() {
-        return keyMapper;
+        return mapper(keyMapper);
     }
 
     Function<T, V> getValueMapper() {
-        return valueMapper;
+        return mapper(valueMapper);
     }
 }
