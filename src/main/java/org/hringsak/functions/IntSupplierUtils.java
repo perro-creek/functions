@@ -17,7 +17,7 @@ public final class IntSupplierUtils {
         return () -> function.applyAsInt(value);
     }
 
-    public static <T, U> IntSupplier intSupplier(ToIntBiFunction<T, U> function, Arguments<T, U> arguments) {
-        return () -> function.applyAsInt(arguments.getLeft(), arguments.getRight());
+    public static <T, U> IntSupplier intSupplier(ToIntBiFunction<T, U> function, ConstantValues<T, U> constants) {
+        return () -> function.applyAsInt(constants.getLeft(), constants.getRight());
     }
 }

@@ -1,18 +1,8 @@
 package org.hringsak.functions;
 
 import java.util.function.BiFunction;
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
 import java.util.function.Function;
-import java.util.function.IntSupplier;
-import java.util.function.LongSupplier;
 import java.util.function.Supplier;
-import java.util.function.ToDoubleBiFunction;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntBiFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongBiFunction;
-import java.util.function.ToLongFunction;
 
 public final class SupplierUtils {
 
@@ -27,11 +17,11 @@ public final class SupplierUtils {
         return () -> function.apply(value);
     }
 
-    public static <T, U, R> Supplier<R> supplier(BiFunction<T, U, R> function, Arguments<T, U> arguments) {
-        return () -> function.apply(arguments.getLeft(), arguments.getRight());
+    public static <T, U, R> Supplier<R> supplier(BiFunction<T, U, R> function, ConstantValues<T, U> constants) {
+        return () -> function.apply(constants.getLeft(), constants.getRight());
     }
 
-    public static <T, U> Arguments<T, U> arguments(T left, U right) {
-        return Arguments.of(left, right);
+    public static <T, U> ConstantValues<T, U> constantValues(T left, U right) {
+        return ConstantValues.of(left, right);
     }
 }

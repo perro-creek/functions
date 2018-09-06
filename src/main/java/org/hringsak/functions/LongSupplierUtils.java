@@ -17,7 +17,7 @@ public final class LongSupplierUtils {
         return () -> function.applyAsLong(value);
     }
 
-    public static <T, U> LongSupplier longSupplier(ToLongBiFunction<T, U> function, Arguments<T, U> arguments) {
-        return () -> function.applyAsLong(arguments.getLeft(), arguments.getRight());
+    public static <T, U> LongSupplier longSupplier(ToLongBiFunction<T, U> function, ConstantValues<T, U> constants) {
+        return () -> function.applyAsLong(constants.getLeft(), constants.getRight());
     }
 }

@@ -6,17 +6,17 @@ import spock.lang.Unroll
 import java.util.function.ToDoubleBiFunction
 
 import static org.apache.commons.lang3.StringUtils.defaultString
-import static org.hringsak.functions.DoubleSupplierUtils.doubleSupplier
-import static org.hringsak.functions.SupplierUtils.arguments
+import static DblSupplierUtils.dblSupplier
+import static org.hringsak.functions.SupplierUtils.constantValues
 
-class DoubleSupplierUtilsSpec extends Specification {
+class DblSupplierUtilsSpec extends Specification {
 
     @Unroll
     def 'double supplier passing value parameter "#value"'() {
 
         expect:
         def function = { String s -> (double) defaultString(s).length() }
-        doubleSupplier(function, value).getAsDouble() == expected
+        dblSupplier(function, value).getAsDouble() == expected
 
         where:
         value  | expected
@@ -30,7 +30,7 @@ class DoubleSupplierUtilsSpec extends Specification {
 
         expect:
         def function = { String l, String r -> ((double) defaultString(l).length()) + defaultString(r).length() } as ToDoubleBiFunction
-        doubleSupplier(function, arguments(left, right)).getAsDouble() == expected
+        dblSupplier(function, constantValues(left, right)).getAsDouble() == expected
 
         where:
         left   | right  | expected

@@ -1,17 +1,17 @@
 package org.hringsak.functions;
 
-class Arguments<U, V> {
+class ConstantValues<U, V> {
 
     private final U left;
     private final V right;
 
-    private Arguments(U left, V right) {
+    private ConstantValues(U left, V right) {
         this.left = left;
         this.right = right;
     }
 
-    static <U, V> Arguments<U, V> of(U left, V right) {
-        return new Arguments<>(left, right);
+    static <U, V> ConstantValues<U, V> of(U left, V right) {
+        return new ConstantValues<>(left, right);
     }
 
     U getLeft() {

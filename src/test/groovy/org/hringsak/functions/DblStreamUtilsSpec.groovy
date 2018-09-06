@@ -7,9 +7,21 @@ import java.util.stream.IntStream
 
 import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
-import static org.hringsak.functions.DoubleStreamUtils.*
+import static org.hringsak.functions.DblStreamUtils.dblAnyMatch
+import static org.hringsak.functions.DblStreamUtils.dblDistinctByKey
+import static org.hringsak.functions.DblStreamUtils.dblDistinctByKeyParallel
+import static org.hringsak.functions.DblStreamUtils.dblJoin
+import static org.hringsak.functions.DblStreamUtils.dblNoneMatch
+import static org.hringsak.functions.DblStreamUtils.findAnyDblDefault
+import static org.hringsak.functions.DblStreamUtils.findDblDefault
+import static org.hringsak.functions.DblStreamUtils.findDblDefaultSupplier
+import static org.hringsak.functions.DblStreamUtils.findFirstDblDefault
+import static org.hringsak.functions.DblStreamUtils.findFirstDblDefaultSupplier
+import static org.hringsak.functions.DblStreamUtils.indexOfFirstDbl
+import static org.hringsak.functions.DblStreamUtils.toPartitionedDblList
+import static org.hringsak.functions.DblStreamUtils.toPartitionedDblStream
 
-class DoubleStreamUtilsSpec extends Specification {
+class DblStreamUtilsSpec extends Specification {
 
     static final int RAW_LIST_SIZE = 1000
     static final int DISTINCT_KEY_SIZE = 100
@@ -23,7 +35,7 @@ class DoubleStreamUtilsSpec extends Specification {
     double[] makeEntriesDistinctByKey() {
         IntStream.range(0, RAW_LIST_SIZE)
                 .mapToDouble({ i -> (double) i })
-                .filter(doubleDistinctByKey(keyExtractor))
+                .filter(dblDistinctByKey(keyExtractor))
                 .toArray()
     }
 
@@ -35,7 +47,7 @@ class DoubleStreamUtilsSpec extends Specification {
     Collection makeEntriesDistinctByKeyParallel() {
         IntStream.range(0, RAW_LIST_SIZE).parallel()
                 .mapToDouble({ i -> (double) i })
-                .filter(doubleDistinctByKeyParallel(keyExtractor))
+                .filter(dblDistinctByKeyParallel(keyExtractor))
                 .toArray()
     }
 
@@ -44,7 +56,7 @@ class DoubleStreamUtilsSpec extends Specification {
 
         expect:
         def predicate = { d -> d > compareValue }
-        findAnyDoubleDefault([1.0D, 2.0D, 3.0D] as double[], findDoubleDefault(predicate, -1.0D)) == expected
+        findAnyDblDefault([1.0D, 2.0D, 3.0D] as double[], findDblDefault(predicate, -1.0D)) == expected
 
         where:
         compareValue | expected
@@ -58,7 +70,7 @@ class DoubleStreamUtilsSpec extends Specification {
         expect:
         def predicate = { d -> d > compareValue }
         def supplier = { -1.0D }
-        findAnyDoubleDefault([1.0D, 2.0D, 3.0D] as double[], findDoubleDefaultSupplier(predicate, supplier)) == expected
+        findAnyDblDefault([1.0D, 2.0D, 3.0D] as double[], findDblDefaultSupplier(predicate, supplier)) == expected
 
         where:
         compareValue | expected
@@ -71,7 +83,7 @@ class DoubleStreamUtilsSpec extends Specification {
 
         expect:
         def predicate = { d -> d > compareValue }
-        findFirstDoubleDefault([1.0D, 2.0D, 3.0D] as double[], findDoubleDefault(predicate, -1.0D)) == expected
+        findFirstDblDefault([1.0D, 2.0D, 3.0D] as double[], findDblDefault(predicate, -1.0D)) == expected
 
         where:
         compareValue | expected
@@ -85,7 +97,7 @@ class DoubleStreamUtilsSpec extends Specification {
         expect:
         def predicate = { d -> d > compareValue }
         def supplier = { -1.0D }
-        findFirstDoubleDefaultSupplier([1.0D, 2.0D, 3.0D] as double[], findDoubleDefaultSupplier(predicate, supplier)) == expected
+        findFirstDblDefaultSupplier([1.0D, 2.0D, 3.0D] as double[], findDblDefaultSupplier(predicate, supplier)) == expected
 
         where:
         compareValue | expected
@@ -98,7 +110,7 @@ class DoubleStreamUtilsSpec extends Specification {
 
         expect:
         def predicate = { d -> d > compareValue }
-        indexOfFirstDouble([1.0D, 2.0D, 3.0D] as double[], predicate) == expected
+        indexOfFirstDbl([1.0D, 2.0D, 3.0D] as double[], predicate) == expected
 
         where:
         compareValue | expected
@@ -111,7 +123,7 @@ class DoubleStreamUtilsSpec extends Specification {
 
         expect:
         def predicate = { d -> d > compareValue }
-        doubleAnyMatch([1.0D, 2.0D, 3.0D] as double[], predicate) == expected
+        dblAnyMatch([1.0D, 2.0D, 3.0D] as double[], predicate) == expected
 
         where:
         compareValue | expected
@@ -124,7 +136,7 @@ class DoubleStreamUtilsSpec extends Specification {
 
         expect:
         def predicate = { d -> d > compareValue }
-        doubleNoneMatch([1.0D, 2.0D, 3.0D] as double[], predicate) == expected
+        dblNoneMatch([1.0D, 2.0D, 3.0D] as double[], predicate) == expected
 
         where:
         compareValue | expected
@@ -134,14 +146,14 @@ class DoubleStreamUtilsSpec extends Specification {
 
     def 'double join returns expected results'() {
         expect:
-        doubleJoin([1.0D, 2.0D, 3.0D] as double[], { d -> String.valueOf(d) }) == '1.0,2.0,3.0'
+        dblJoin([1.0D, 2.0D, 3.0D] as double[], { d -> String.valueOf(d) }) == '1.0,2.0,3.0'
     }
 
     @Unroll
     def 'double join returns "#expected" for delimiter "#delimiter"'() {
 
         expect:
-        doubleJoin([1.0D, 2.0D, 3.0D] as double[], { d -> String.valueOf(d) }, delimiter) == expected
+        dblJoin([1.0D, 2.0D, 3.0D] as double[], { d -> String.valueOf(d) }, delimiter) == expected
 
         where:
         delimiter || expected
@@ -154,7 +166,7 @@ class DoubleStreamUtilsSpec extends Specification {
 
         expect:
         def joiner = joining(delimiter, prefix, suffix)
-        doubleJoin([1.0D, 2.0D, 3.0D] as double[], { d -> String.valueOf(d) }, joiner) == expected
+        dblJoin([1.0D, 2.0D, 3.0D] as double[], { d -> String.valueOf(d) }, joiner) == expected
 
         where:
         delimiter | prefix | suffix  || expected
@@ -166,7 +178,7 @@ class DoubleStreamUtilsSpec extends Specification {
     def 'double join returns empty string for #scenario parameter'() {
 
         expect:
-        doubleJoin(values, { d -> String.valueOf(d) }) == ''
+        dblJoin(values, { d -> String.valueOf(d) }) == ''
 
         where:
         scenario | values
@@ -178,7 +190,7 @@ class DoubleStreamUtilsSpec extends Specification {
     def 'to partitioned double list returns #expectedPartitions for #scenario'() {
 
         when:
-        def partitions = toPartitionedDoubleList(inputArray, 2)
+        def partitions = toPartitionedDblList(inputArray, 2)
 
         then:
         partitions == expectedPartitions
@@ -194,7 +206,7 @@ class DoubleStreamUtilsSpec extends Specification {
     def 'to partitioned double stream returns #expectedPartitions for #scenario'() {
 
         when:
-        def partitionStream = toPartitionedDoubleStream(inputArray, 2)
+        def partitionStream = toPartitionedDblStream(inputArray, 2)
 
         then:
         partitionStream.collect(toList()) == expectedPartitions

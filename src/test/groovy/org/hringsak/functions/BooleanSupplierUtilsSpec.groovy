@@ -7,7 +7,7 @@ import java.util.function.BiFunction
 
 import static org.apache.commons.lang3.StringUtils.isEmpty
 import static org.hringsak.functions.BooleanSupplierUtils.booleanSupplier
-import static org.hringsak.functions.SupplierUtils.arguments
+import static org.hringsak.functions.SupplierUtils.constantValues
 
 class BooleanSupplierUtilsSpec extends Specification {
 
@@ -30,7 +30,7 @@ class BooleanSupplierUtilsSpec extends Specification {
 
         expect:
         def function = { String l, String r -> isEmpty(l) && isEmpty(r) } as BiFunction
-        booleanSupplier(function, arguments(left, right)).getAsBoolean() == expected
+        booleanSupplier(function, constantValues(left, right)).getAsBoolean() == expected
 
         where:
         left   | right  | expected

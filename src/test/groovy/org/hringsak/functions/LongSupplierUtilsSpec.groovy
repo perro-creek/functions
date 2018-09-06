@@ -6,10 +6,8 @@ import spock.lang.Unroll
 import java.util.function.ToLongBiFunction
 
 import static org.apache.commons.lang3.StringUtils.defaultString
-import static org.apache.commons.lang3.StringUtils.defaultString
-import static org.apache.commons.lang3.StringUtils.defaultString
 import static org.hringsak.functions.LongSupplierUtils.longSupplier
-import static org.hringsak.functions.SupplierUtils.arguments
+import static org.hringsak.functions.SupplierUtils.constantValues
 
 class LongSupplierUtilsSpec extends Specification {
 
@@ -32,7 +30,7 @@ class LongSupplierUtilsSpec extends Specification {
 
         expect:
         def function = { String l, String r -> ((long) defaultString(l).length()) + defaultString(r).length() } as ToLongBiFunction
-        longSupplier(function, arguments(left, right)).getAsLong() == expected
+        longSupplier(function, constantValues(left, right)).getAsLong() == expected
 
         where:
         left   | right  | expected
