@@ -7,7 +7,7 @@ import spock.lang.Unroll
 import java.util.function.BiFunction
 
 import static org.apache.commons.lang3.StringUtils.defaultString
-import static org.hringsak.functions.SupplierUtils.arguments
+import static org.hringsak.functions.SupplierUtils.constantValues
 import static org.hringsak.functions.SupplierUtils.supplier
 
 class SupplierUtilsSpec extends Specification {
@@ -31,7 +31,7 @@ class SupplierUtilsSpec extends Specification {
 
         expect:
         def function = { String l, String r -> defaultString(l) + defaultString(r) } as BiFunction
-        supplier(function, arguments(left, right)).get() == expected
+        supplier(function, constantValues(left, right)).get() == expected
 
         where:
         left   | right  | expected

@@ -46,6 +46,14 @@ public final class PredicateUtils {
         return predicate.negate();
     }
 
+    public static <T, R extends CharSequence> Predicate<T> isStrEmpty(Function<? super T, ? extends R> function) {
+        return t -> t == null  || function.apply(t) == null || function.apply(t).length() == 0;
+    }
+
+    public static <T, R extends CharSequence> Predicate<T> isStrNotEmpty(Function<? super T, ? extends R> function) {
+        return not(isStrEmpty(function));
+    }
+
     public static <T, R> Predicate<T> isEqual(R target, Function<? super T, ? extends R> extractor) {
         return value -> Objects.equals(target, value == null ? null : extractor.apply(value));
     }
@@ -152,12 +160,12 @@ public final class PredicateUtils {
         return target == null ? null : valueExtractor.apply(target);
     }
 
-    public static <T, R> Predicate<T> isEmpty(Function<? super T, ? extends Collection<R>> function) {
+    public static <T, R> Predicate<T> isCollEmpty(Function<? super T, ? extends Collection<R>> function) {
         return t -> t == null || CollectionUtils.isEmpty(function.apply(t));
     }
 
-    public static <T, R> Predicate<T> isNotEmpty(Function<? super T, ? extends Collection<R>> function) {
-        return not(isEmpty(function));
+    public static <T, R> Predicate<T> isCollNotEmpty(Function<? super T, ? extends Collection<R>> function) {
+        return not(isCollEmpty(function));
     }
 
     static <T, U> Predicate<T> extractAndFilter(Function<? super T, ? extends U> transformer, Predicate<? super U> predicate) {

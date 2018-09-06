@@ -19,100 +19,100 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.hringsak.functions.CollectorUtils.toPartitionedList;
-import static org.hringsak.functions.DoubleMapperUtils.pairDoubleWithIndex;
+import static org.hringsak.functions.DblMapperUtils.pairDblWithIndex;
 import static org.hringsak.functions.PredicateUtils.extractAndFilter;
 
-public final class DoubleStreamUtils {
+public final class DblStreamUtils {
 
-    private DoubleStreamUtils() {
+    private DblStreamUtils() {
     }
 
-    public static DoublePredicate doubleDistinctByKey(DoubleFunction<?> keyExtractor) {
+    public static DoublePredicate dblDistinctByKey(DoubleFunction<?> keyExtractor) {
         Set<? super Object> uniqueKeys = new HashSet<>();
         return d -> uniqueKeys.add(keyExtractor.apply(d));
     }
 
-    public static DoublePredicate doubleDistinctByKeyParallel(DoubleFunction<?> keyExtractor) {
+    public static DoublePredicate dblDistinctByKeyParallel(DoubleFunction<?> keyExtractor) {
         Set<? super Object> uniqueKeys = Sets.newConcurrentHashSet();
         return d -> uniqueKeys.add(keyExtractor.apply(d));
     }
 
-    public static double findAnyDoubleDefault(double[] doubles, FindDoubleWithDefault findWithDefault) {
-        return defaultDoubleStream(doubles)
+    public static double findAnyDblDefault(double[] doubles, FindDoubleWithDefault findWithDefault) {
+        return defaultDblStream(doubles)
                 .filter(findWithDefault.getPredicate())
                 .findAny()
                 .orElse(findWithDefault.getDefaultValue());
     }
 
-    public static double findAnyDoubleDefault(double[] doubles, FindDoubleWithDefaultSupplier findWithDefaultSupplier) {
-        return defaultDoubleStream(doubles)
+    public static double findAnyDblDefault(double[] doubles, FindDoubleWithDefaultSupplier findWithDefaultSupplier) {
+        return defaultDblStream(doubles)
                 .filter(findWithDefaultSupplier.getPredicate())
                 .findAny()
                 .orElseGet(findWithDefaultSupplier.getDefaultSupplier());
     }
 
-    public static double findFirstDoubleDefault(double[] doubles, FindDoubleWithDefault findWithDefault) {
-        return defaultDoubleStream(doubles)
+    public static double findFirstDblDefault(double[] doubles, FindDoubleWithDefault findWithDefault) {
+        return defaultDblStream(doubles)
                 .filter(findWithDefault.getPredicate())
                 .findFirst()
                 .orElse(findWithDefault.getDefaultValue());
     }
 
-    public static double findFirstDoubleDefaultSupplier(double[] doubles, FindDoubleWithDefaultSupplier findWithDefaultSupplier) {
-        return defaultDoubleStream(doubles)
+    public static double findFirstDblDefaultSupplier(double[] doubles, FindDoubleWithDefaultSupplier findWithDefaultSupplier) {
+        return defaultDblStream(doubles)
                 .filter(findWithDefaultSupplier.getPredicate())
                 .findFirst()
                 .orElseGet(findWithDefaultSupplier.getDefaultSupplier());
     }
 
-    public static FindDoubleWithDefault findDoubleDefault(DoublePredicate predicate, double defaultValue) {
+    public static FindDoubleWithDefault findDblDefault(DoublePredicate predicate, double defaultValue) {
         return FindDoubleWithDefault.of(predicate, defaultValue);
     }
 
-    public static FindDoubleWithDefaultSupplier findDoubleDefaultSupplier(DoublePredicate predicate, DoubleSupplier defaultSupplier) {
+    public static FindDoubleWithDefaultSupplier findDblDefaultSupplier(DoublePredicate predicate, DoubleSupplier defaultSupplier) {
         return FindDoubleWithDefaultSupplier.of(predicate, defaultSupplier);
     }
 
-    public static int indexOfFirstDouble(double[] doubles, Predicate<Double> predicate) {
-        return defaultDoubleStream(doubles)
-                .mapToObj(pairDoubleWithIndex())
+    public static int indexOfFirstDbl(double[] doubles, Predicate<Double> predicate) {
+        return defaultDblStream(doubles)
+                .mapToObj(pairDblWithIndex())
                 .filter(extractAndFilter(Pair::getLeft, predicate))
                 .mapToInt(Pair::getRight)
                 .findFirst()
                 .orElse(-1);
     }
 
-    public static boolean doubleAnyMatch(double[] doubles, DoublePredicate predicate) {
-        return defaultDoubleStream(doubles).anyMatch(predicate);
+    public static boolean dblAnyMatch(double[] doubles, DoublePredicate predicate) {
+        return defaultDblStream(doubles).anyMatch(predicate);
     }
 
-    public static boolean doubleNoneMatch(double[] doubles, DoublePredicate predicate) {
-        return defaultDoubleStream(doubles).noneMatch(predicate);
+    public static boolean dblNoneMatch(double[] doubles, DoublePredicate predicate) {
+        return defaultDblStream(doubles).noneMatch(predicate);
     }
 
-    public static String doubleJoin(double[] doubles, DoubleFunction<CharSequence> mapper) {
-        return doubleJoin(doubles, mapper, ",");
+    public static String dblJoin(double[] doubles, DoubleFunction<CharSequence> mapper) {
+        return dblJoin(doubles, mapper, ",");
     }
 
-    public static String doubleJoin(double[] doubles, DoubleFunction<CharSequence> mapper, CharSequence delimiter) {
-        return doubleJoin(doubles, mapper, joining(delimiter));
+    public static String dblJoin(double[] doubles, DoubleFunction<CharSequence> mapper, CharSequence delimiter) {
+        return dblJoin(doubles, mapper, joining(delimiter));
     }
 
-    public static String doubleJoin(double[] doubles, DoubleFunction<CharSequence> mapper, Collector<CharSequence, ?, String> joiner) {
-        return defaultDoubleStream(doubles)
+    public static String dblJoin(double[] doubles, DoubleFunction<CharSequence> mapper, Collector<CharSequence, ?, String> joiner) {
+        return defaultDblStream(doubles)
                 .mapToObj(mapper)
                 .collect(joiner);
     }
 
-    public static List<double[]> toPartitionedDoubleList(double[] doubles, int partitionSize) {
-        return defaultDoubleStream(doubles)
+    public static List<double[]> toPartitionedDblList(double[] doubles, int partitionSize) {
+        return defaultDblStream(doubles)
                 .boxed()
-                .collect(toPartitionedList(partitionSize, DoubleStreamUtils::toListOfArrays));
+                .collect(toPartitionedList(partitionSize, DblStreamUtils::toListOfArrays));
     }
 
     private static List<double[]> toListOfArrays(List<List<Double>> partitions) {
         return partitions.stream()
-                .map(DoubleStreamUtils::listToArray)
+                .map(DblStreamUtils::listToArray)
                 .collect(toList());
     }
 
@@ -122,27 +122,27 @@ public final class DoubleStreamUtils {
                 .toArray();
     }
 
-    public static Stream<double[]> toPartitionedDoubleStream(double[] doubles, int partitionSize) {
-        return toPartitionedDoubleList(doubles, partitionSize).stream();
+    public static Stream<double[]> toPartitionedDblStream(double[] doubles, int partitionSize) {
+        return toPartitionedDblList(doubles, partitionSize).stream();
     }
 
     @SuppressWarnings("WeakerAccess")
-    public static DoubleStream defaultDoubleStream(Collection<Double> objects) {
+    public static DoubleStream defaultDblStream(Collection<Double> objects) {
         return objects == null ? DoubleStream.empty() : objects.stream().mapToDouble(Double::doubleValue);
     }
 
     @SuppressWarnings("WeakerAccess")
-    public static DoubleStream defaultDoubleStream(Stream<Double> stream) {
+    public static DoubleStream defaultDblStream(Stream<Double> stream) {
         return stream == null ? DoubleStream.empty() : stream.mapToDouble(Double::doubleValue);
     }
 
     @SuppressWarnings("WeakerAccess")
-    public static DoubleStream defaultDoubleStream(DoubleStream stream) {
+    public static DoubleStream defaultDblStream(DoubleStream stream) {
         return stream == null ? DoubleStream.empty() : stream;
     }
 
     @SuppressWarnings("WeakerAccess")
-    public static DoubleStream defaultDoubleStream(double[] array) {
+    public static DoubleStream defaultDblStream(double[] array) {
         return array == null ? DoubleStream.empty() : Arrays.stream(array);
     }
 }

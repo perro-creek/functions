@@ -7,7 +7,7 @@ import java.util.function.ToIntBiFunction
 
 import static org.apache.commons.lang3.StringUtils.defaultString
 import static org.hringsak.functions.IntSupplierUtils.intSupplier
-import static org.hringsak.functions.SupplierUtils.arguments
+import static org.hringsak.functions.SupplierUtils.constantValues
 
 class IntSupplierUtilsSpec extends Specification {
 
@@ -30,7 +30,7 @@ class IntSupplierUtilsSpec extends Specification {
 
         expect:
         def function = { String l, String r -> defaultString(l).length() + defaultString(r).length() } as ToIntBiFunction
-        intSupplier(function, arguments(left, right)).getAsInt() == expected
+        intSupplier(function, constantValues(left, right)).getAsInt() == expected
 
         where:
         left   | right  | expected

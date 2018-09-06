@@ -13,9 +13,9 @@ import java.util.function.ToDoubleFunction;
  * Methods that build functions to map a target element into another result. This class deals specifically with mapper
  * functions involving primitive <code>double</code> types.
  */
-public final class DoubleMapperUtils {
+public final class DblMapperUtils {
 
-    private DoubleMapperUtils() {
+    private DblMapperUtils() {
     }
 
     /**
@@ -27,9 +27,9 @@ public final class DoubleMapperUtils {
      * convert the primitive to some generic type of object, converting the <code>DoubleStream</code> to an object
      * stream.
      * <p>
-     * Note that the difference between this method and {@link #toDoubleMapper(ToDoubleFunction)} is that the
+     * Note that the difference between this method and {@link #toDblMapper(ToDoubleFunction)} is that the
      * <code>DoubleFunction</code> built from this method takes a <code>double</code> and returns a generic type, where
-     * the <code>ToDoubleFunction</code> built from {@link #toDoubleMapper(ToDoubleFunction)} takes a generic type and
+     * the <code>ToDoubleFunction</code> built from {@link #toDblMapper(ToDoubleFunction)} takes a generic type and
      * returns a <code>double</code>.
      *
      * @param function A method reference to be cast to a DoubleFunction.
@@ -37,7 +37,7 @@ public final class DoubleMapperUtils {
      * @return A method reference cast to a DoubleFunction.
      */
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public static <R> DoubleFunction<R> doubleMapper(DoubleFunction<R> function) {
+    public static <R> DoubleFunction<R> dblMapper(DoubleFunction<R> function) {
         return function;
     }
 
@@ -49,9 +49,9 @@ public final class DoubleMapperUtils {
      * <code>DoubleStream.mapToObj(DoubleFunction mapper)</code> method is called to convert the primitive to some
      * generic type of object, converting the <code>DoubleStream</code> to an object stream.
      * <p>
-     * Note that the difference between this method and {@link #toDoubleMapper(ToDoubleBiFunction, Object)} is that the
+     * Note that the difference between this method and {@link #toDblMapper(ToDoubleBiFunction, Object)} is that the
      * <code>DoubleFunction</code> built from this method takes a <code>double</code> and returns a generic type, where
-     * the <code>ToDoubleFunction</code> built from {@link #toDoubleMapper(ToDoubleBiFunction, Object)} takes a generic
+     * the <code>ToDoubleFunction</code> built from {@link #toDblMapper(ToDoubleBiFunction, Object)} takes a generic
      * type and returns a <code>double</code>.
      *
      * @param biFunction A method reference which is a BiFunction, taking two parameters - the first of type double, and
@@ -66,7 +66,7 @@ public final class DoubleMapperUtils {
      * @param <R>        The type of the result of the DoubleFunction built by this method.
      * @return A DoubleFunction taking a single parameter of type double, and returning a result of type &lt;R&gt;.
      */
-    public static <U, R> DoubleFunction<R> doubleMapper(BiFunction<Double, ? super U, ? extends R> biFunction, U value) {
+    public static <U, R> DoubleFunction<R> dblMapper(BiFunction<Double, ? super U, ? extends R> biFunction, U value) {
         return d -> biFunction.apply(d, value);
     }
 
@@ -78,9 +78,9 @@ public final class DoubleMapperUtils {
      * <code>DoubleStream.mapToObj(DoubleFunction mapper)</code> method is called to convert the primitive to some
      * generic type of object, converting the <code>DoubleStream</code> to an object stream.
      * <p>
-     * Note that the difference between this method and {@link #inverseToDoubleMapper(ToDoubleBiFunction, Object)} is
+     * Note that the difference between this method and {@link #inverseToDblMapper(ToDoubleBiFunction, Object)} is
      * that the <code>DoubleFunction</code> built from this method takes a <code>double</code> and returns a generic
-     * type, where the <code>ToDoubleFunction</code> built from {@link #inverseToDoubleMapper(ToDoubleBiFunction, Object)}
+     * type, where the <code>ToDoubleFunction</code> built from {@link #inverseToDblMapper(ToDoubleBiFunction, Object)}
      * takes a generic type and returns a <code>double</code>.
      *
      * @param biFunction A method reference which is a BiFunction, taking two parameters - the first of type &lt;U&gt;
@@ -95,7 +95,7 @@ public final class DoubleMapperUtils {
      * @param <R>        The type of the result of the DoubleFunction built by this method.
      * @return A DoubleFunction taking a single parameter of type double, and returning a result of type &lt;R&gt;.
      */
-    public static <U, R> DoubleFunction<R> inverseDoubleMapper(BiFunction<? super U, Double, ? extends R> biFunction, U value) {
+    public static <U, R> DoubleFunction<R> inverseDblMapper(BiFunction<? super U, Double, ? extends R> biFunction, U value) {
         return d -> biFunction.apply(value, d);
     }
 
@@ -107,9 +107,9 @@ public final class DoubleMapperUtils {
      * generic object type, and the <code>mapToDouble(ToDoubleFunction mapper)</code> method is called to convert the
      * object to a primitive <code>double</code>, converting the stream to a <code>DoubleStream</code>.
      * <p>
-     * Note that the difference between this method and {@link #doubleMapper(DoubleFunction)} is that the
+     * Note that the difference between this method and {@link #dblMapper(DoubleFunction)} is that the
      * <code>ToDoubleFunction</code> built from this method takes a generic type and returns a <code>double</code>,
-     * where the <code>DoubleFunction</code> built from {@link #doubleMapper(DoubleFunction)} takes a
+     * where the <code>DoubleFunction</code> built from {@link #dblMapper(DoubleFunction)} takes a
      * <code>double</code> and returns a generic type.
      *
      * @param function A method reference to be cast to a ToDoubleFunction.
@@ -117,7 +117,7 @@ public final class DoubleMapperUtils {
      * @return A method reference cast to a ToDoubleFunction.
      */
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public static <T> ToDoubleFunction<T> toDoubleMapper(ToDoubleFunction<T> function) {
+    public static <T> ToDoubleFunction<T> toDblMapper(ToDoubleFunction<T> function) {
         return function;
     }
 
@@ -137,7 +137,7 @@ public final class DoubleMapperUtils {
      * @param <T>          The type of the target element on which the mapper ToDoubleFunction is to be called.
      * @return A ToDoubleFunction taking a single parameter of type &lt;T&gt;, and returning a result of type double.
      */
-    public static <T> ToDoubleFunction<T> toDoubleMapperDefault(ToDoubleFunction<? super T> function, double defaultValue) {
+    public static <T> ToDoubleFunction<T> toDblMapperDefault(ToDoubleFunction<? super T> function, double defaultValue) {
         return t -> t == null ? defaultValue : function.applyAsDouble(t);
     }
 
@@ -149,9 +149,9 @@ public final class DoubleMapperUtils {
      * <code>mapToDouble(ToDoubleFunction mapper)</code> method is called to convert the object to a primitive
      * <code>double</code>, converting the stream to a <code>DoubleStream</code>.
      * <p>
-     * Note that the difference between this method and {@link #doubleMapper(BiFunction, Object)} is that the
+     * Note that the difference between this method and {@link #dblMapper(BiFunction, Object)} is that the
      * <code>ToDoubleFunction</code> built from this method takes a generic type and returns a <code>double</code>,
-     * where the <code>DoubleFunction</code> built from {@link #doubleMapper(BiFunction, Object)} takes a
+     * where the <code>DoubleFunction</code> built from {@link #dblMapper(BiFunction, Object)} takes a
      * <code>double</code> and returns a generic type.
      *
      * @param biFunction A method reference which is a ToDoubleBiFunction, taking two parameters - the first of type
@@ -166,7 +166,7 @@ public final class DoubleMapperUtils {
      *                   biFunction.
      * @return A ToDoubleFunction taking a single parameter of type &lt;T&gt;, and returning a result of type double.
      */
-    public static <T, U> ToDoubleFunction<T> toDoubleMapper(ToDoubleBiFunction<? super T, ? super U> biFunction, U value) {
+    public static <T, U> ToDoubleFunction<T> toDblMapper(ToDoubleBiFunction<? super T, ? super U> biFunction, U value) {
         return t -> biFunction.applyAsDouble(t, value);
     }
 
@@ -178,10 +178,10 @@ public final class DoubleMapperUtils {
      * <code>mapToDouble(ToDoubleFunction mapper)</code> method is called to convert the object to a primitive
      * <code>double</code>, converting the stream to a <code>DoubleStream</code>.
      * <p>
-     * Note that the difference between this method and {@link #inverseDoubleMapper(BiFunction, Object)} is
+     * Note that the difference between this method and {@link #inverseDblMapper(BiFunction, Object)} is
      * that the <code>ToDoubleFunction</code> built from this method takes a generic type and returns a
      * <code>double</code>, where the <code>DoubleFunction</code> built from
-     * {@link #inverseDoubleMapper(BiFunction, Object)} takes a <code>double</code> and returns a generic type.
+     * {@link #inverseDblMapper(BiFunction, Object)} takes a <code>double</code> and returns a generic type.
      *
      * @param biFunction A method reference which is a ToDoubleBiFunction, taking two parameters - the first of type
      *                   &lt;U&gt; which can be any type, and the second of type double. The method reference will be
@@ -195,15 +195,15 @@ public final class DoubleMapperUtils {
      *                   biFunction.
      * @return A ToDoubleFunction taking a single parameter of type &lt;T&gt;, and returning a result of type double.
      */
-    public static <T, U> ToDoubleFunction<T> inverseToDoubleMapper(ToDoubleBiFunction<? super U, ? super T> biFunction, U value) {
+    public static <T, U> ToDoubleFunction<T> inverseToDblMapper(ToDoubleBiFunction<? super U, ? super T> biFunction, U value) {
         return t -> biFunction.applyAsDouble(value, t);
     }
 
-    public static DoubleFunction<Pair<Double, Integer>> pairDoubleWithIndex() {
-        return pairDoubleWithIndex(Double::valueOf);
+    public static DoubleFunction<Pair<Double, Integer>> pairDblWithIndex() {
+        return pairDblWithIndex(Double::valueOf);
     }
 
-    public static <R> DoubleFunction<Pair<R, Integer>> pairDoubleWithIndex(DoubleFunction<? extends R> function) {
+    public static <R> DoubleFunction<Pair<R, Integer>> pairDblWithIndex(DoubleFunction<? extends R> function) {
         AtomicInteger idx = new AtomicInteger();
         return t -> Pair.of(function.apply(t), idx.getAndIncrement());
     }

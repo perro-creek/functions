@@ -34,20 +34,32 @@ public final class IntPredicateUtils {
         return i -> biPredicate.test(value, i);
     }
 
-    public static IntPredicate intPredicateConstant(boolean b) {
+    public static IntPredicate intConstant(boolean b) {
         return i -> b;
     }
 
-    public static IntPredicate not(IntPredicate predicate) {
+    public static IntPredicate fromDblMapper(IntFunction<Boolean> function) {
+        return function::apply;
+    }
+
+    public static IntPredicate notInt(IntPredicate predicate) {
         return predicate.negate();
     }
 
-    public static <R> IntPredicate isEqual(R value, IntFunction<? extends R> extractor) {
+    public static <R extends CharSequence> IntPredicate isIntStrEmpty(IntFunction<? extends R> function) {
+        return d -> { CharSequence seq = function.apply(d); return seq == null || seq.length() == 0; };
+    }
+
+    public static <R extends CharSequence> IntPredicate isIntStrNotEmpty(IntFunction<? extends R> function) {
+        return notInt(isIntStrEmpty(function));
+    }
+
+    public static <R> IntPredicate isIntEqual(R value, IntFunction<? extends R> extractor) {
         return i -> Objects.equals(value, extractor.apply(i));
     }
 
-    public static <R> IntPredicate isNotEqual(R value, IntFunction<? extends R> function) {
-        return not(isEqual(value, function));
+    public static <R> IntPredicate isIntNotEqual(R value, IntFunction<? extends R> function) {
+        return notInt(isIntEqual(value, function));
     }
 
     public static <R> IntPredicate intContains(Collection<? extends R> collection, IntFunction<? extends R> extractor) {
@@ -109,36 +121,36 @@ public final class IntPredicateUtils {
         return i -> StringUtils.endsWithIgnoreCase(extractor.apply(i), suffix);
     }
 
-    public static <R> IntPredicate isNull(IntFunction<? extends R> function) {
+    public static <R> IntPredicate isIntNull(IntFunction<? extends R> function) {
         return i -> Objects.isNull(function.apply(i));
     }
 
-    public static <R> IntPredicate intNotNull(IntFunction<? extends R> function) {
-        return not(isNull(function));
+    public static <R> IntPredicate intNotIntNull(IntFunction<? extends R> function) {
+        return notInt(isIntNull(function));
     }
 
-    public static <R extends Comparable<R>> IntPredicate gt(R compareTo, IntFunction<? extends R> valueExtractor) {
+    public static <R extends Comparable<R>> IntPredicate intGt(R compareTo, IntFunction<? extends R> valueExtractor) {
         return i -> Objects.compare(compareTo, valueExtractor.apply(i), nullsLast(naturalOrder())) > 0;
     }
 
-    public static <R extends Comparable<R>> IntPredicate gte(R compareTo, IntFunction<? extends R> valueExtractor) {
+    public static <R extends Comparable<R>> IntPredicate intGte(R compareTo, IntFunction<? extends R> valueExtractor) {
         return i -> Objects.compare(compareTo, valueExtractor.apply(i), nullsLast(naturalOrder())) >= 0;
     }
 
-    public static <R extends Comparable<R>> IntPredicate lt(R compareTo, IntFunction<? extends R> valueExtractor) {
+    public static <R extends Comparable<R>> IntPredicate intLt(R compareTo, IntFunction<? extends R> valueExtractor) {
         return i -> Objects.compare(compareTo, valueExtractor.apply(i), nullsLast(naturalOrder())) < 0;
     }
 
-    public static <R extends Comparable<R>> IntPredicate lte(R compareTo, IntFunction<? extends R> valueExtractor) {
+    public static <R extends Comparable<R>> IntPredicate intLte(R compareTo, IntFunction<? extends R> valueExtractor) {
         return i -> Objects.compare(compareTo, valueExtractor.apply(i), nullsLast(naturalOrder())) <= 0;
     }
 
-    public static <R> IntPredicate intIsEmpty(IntFunction<? extends Collection<R>> function) {
+    public static <R> IntPredicate isIntCollEmpty(IntFunction<? extends Collection<R>> function) {
         return i -> CollectionUtils.isEmpty(function.apply(i));
     }
 
-    public static <R> IntPredicate intIsNotEmpty(IntFunction<? extends Collection<R>> function) {
-        return not(intIsNotEmpty(function));
+    public static <R> IntPredicate isIntCollNotEmpty(IntFunction<? extends Collection<R>> function) {
+        return notInt(isIntCollEmpty(function));
     }
 
     static <U> IntPredicate extractAndFilter(IntFunction<? extends U> transformer, Predicate<? super U> predicate) {

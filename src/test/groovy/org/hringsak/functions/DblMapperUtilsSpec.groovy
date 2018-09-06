@@ -6,16 +6,16 @@ import spock.lang.Unroll
 import java.util.function.ToDoubleBiFunction
 
 import static org.apache.commons.lang3.StringUtils.defaultString
-import static org.hringsak.functions.DoubleMapperUtils.*
+import static DblMapperUtils.*
 
-class DoubleMapperUtilsSpec extends Specification {
+class DblMapperUtilsSpec extends Specification {
 
     @Unroll
     def 'double mapper for bi-function passing values "#constantValue" returns #expected'() {
 
         expect:
         def mapper = { d, s -> "double: $d, string: $s" }
-        doubleMapper(mapper, constantValue).apply(1.0D) == expected
+        dblMapper(mapper, constantValue).apply(1.0D) == expected
 
         where:
         constantValue || expected
@@ -29,7 +29,7 @@ class DoubleMapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { s, d -> "double: $d, string: $s" }
-        inverseDoubleMapper(mapper, constantValue).apply(1.0D) == expected
+        inverseDblMapper(mapper, constantValue).apply(1.0D) == expected
 
         where:
         constantValue || expected
@@ -43,7 +43,7 @@ class DoubleMapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { s -> (double) s.length() }
-        toDoubleMapperDefault(mapper, -1).applyAsDouble(value) == expected
+        toDblMapperDefault(mapper, -1).applyAsDouble(value) == expected
 
         where:
         value  | expected
@@ -57,7 +57,7 @@ class DoubleMapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { String a, String b -> ((double) defaultString(a).length()) + defaultString(b).length() } as ToDoubleBiFunction<String, String>
-        toDoubleMapper(mapper, paramOne).applyAsDouble(paramTwo) == expected
+        toDblMapper(mapper, paramOne).applyAsDouble(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
@@ -73,7 +73,7 @@ class DoubleMapperUtilsSpec extends Specification {
 
         expect:
         def mapper = { String a, String b -> ((double) defaultString(a).length()) + defaultString(b).length() } as ToDoubleBiFunction<String, String>
-        inverseToDoubleMapper(mapper, paramOne).applyAsDouble(paramTwo) == expected
+        inverseToDblMapper(mapper, paramOne).applyAsDouble(paramTwo) == expected
 
         where:
         paramOne | paramTwo | expected
