@@ -50,7 +50,7 @@ public final class MapperUtils {
      */
     @SuppressWarnings({"unused", "WeakerAccess"})
     public static <T, R> Function<T, R> mapper(Function<T, R> function) {
-        return function;
+        return t -> t == null ? null : function.apply(t);
     }
 
     /**

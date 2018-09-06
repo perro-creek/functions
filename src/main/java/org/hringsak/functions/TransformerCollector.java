@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Collector;
 
+import static org.hringsak.functions.MapperUtils.mapper;
+
 class TransformerCollector<T, U, C extends Collection<U>> {
 
     private final Function<T, U> transformer;
@@ -19,7 +21,7 @@ class TransformerCollector<T, U, C extends Collection<U>> {
     }
 
     Function<T, U> getTransformer() {
-        return transformer;
+        return mapper(transformer);
     }
 
     Collector<U, ?, C> getCollector() {

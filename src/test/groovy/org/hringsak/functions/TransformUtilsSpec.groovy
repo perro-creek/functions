@@ -12,7 +12,6 @@ import static org.hringsak.functions.CollectorUtils.toEnumSet
 import static org.hringsak.functions.MapperUtils.keyValueMapper
 import static org.hringsak.functions.TransformUtils.transformAndThen
 import static org.hringsak.functions.TransformUtils.transformToMap
-import static org.hringsak.functions.TransformUtils.transformToMap
 
 class TransformUtilsSpec extends Specification {
 
@@ -26,15 +25,16 @@ class TransformUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'generic transform returns empty list for #scenario parameter'() {
+    def 'generic transform returns #expected for #scenario parameter'() {
 
         expect:
-        TransformUtils.transform(collection, identity()) == []
+        TransformUtils.transform(collection, identity()) == expected
 
         where:
-        scenario | collection
-        'empty'  | []
-        'null'   | null
+        scenario                     | collection || expected
+        'empty'                      | []         || []
+        'null'                       | null       || []
+        'collection containing null' | [null]     || [null]
     }
 
     def 'transform to set returns expected results'() {
@@ -47,15 +47,16 @@ class TransformUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'transform to set returns empty list for #scenario parameter'() {
+    def 'transform to set returns #expected for #scenario parameter'() {
 
         expect:
-        TransformUtils.transformToSet(collection, identity()) == [] as Set
+        TransformUtils.transformToSet(collection, identity()) == expected as Set
 
         where:
-        scenario | collection
-        'empty'  | []
-        'null'   | null
+        scenario                     | collection || expected
+        'empty'                      | []         || []
+        'null'                       | null       || []
+        'collection containing null' | [null]     || [null]
     }
 
     def 'transform with collector returns expected results'() {
@@ -72,15 +73,16 @@ class TransformUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'transform with collector returns empty list for #scenario parameter'() {
+    def 'transform with collector returns #expected for #scenario parameter'() {
 
         expect:
-        TransformUtils.transform(collection, toList()) == []
+        TransformUtils.transform(collection, toList()) == expected
 
         where:
-        scenario | collection
-        'empty'  | []
-        'null'   | null
+        scenario                     | collection || expected
+        'empty'                      | []         || []
+        'null'                       | null       || []
+        'collection containing null' | [null]     || [null]
     }
 
     def 'transform with mapping and collector returns expected results'() {
@@ -98,15 +100,16 @@ class TransformUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'transform with mapping and collector returns empty list for #scenario parameter'() {
+    def 'transform with mapping and collector returns #expected for #scenario parameter'() {
 
         expect:
-        TransformUtils.transform(collection, transformAndThen(identity(), toList())) == []
+        TransformUtils.transform(collection, transformAndThen(identity(), toList())) == expected
 
         where:
-        scenario | collection
-        'empty'  | []
-        'null'   | null
+        scenario                     | collection || expected
+        'empty'                      | []         || []
+        'null'                       | null       || []
+        'collection containing null' | [null]     || [null]
     }
 
     def 'transform distinct returns expected results'() {
@@ -115,15 +118,16 @@ class TransformUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'transform distinct returns empty list for #scenario parameter'() {
+    def 'transform distinct returns #expected for #scenario parameter'() {
 
         expect:
-        TransformUtils.transformDistinct(collection, identity()) == []
+        TransformUtils.transformDistinct(collection, identity()) == expected
 
         where:
-        scenario | collection
-        'empty'  | []
-        'null'   | null
+        scenario                     | collection || expected
+        'empty'                      | []         || []
+        'null'                       | null       || []
+        'collection containing null' | [null]     || [null]
     }
 
     def 'transform to map returns expected'() {

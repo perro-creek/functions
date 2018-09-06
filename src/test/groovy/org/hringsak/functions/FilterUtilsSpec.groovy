@@ -16,15 +16,16 @@ class FilterUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'generic filter returns empty list for #scenario parameter'() {
+    def 'generic filter returns #expected for #scenario parameter'() {
 
         expect:
-        FilterUtils.filter(contents, PredicateUtils.predicateConstant(false)) == []
+        FilterUtils.filter(contents, PredicateUtils.predicateConstant(true)) == expected
 
         where:
-        scenario | contents
-        'empty'  | []
-        'null'   | null
+        scenario                     | contents || expected
+        'empty'                      | []       || []
+        'null'                       | null     || []
+        'collection containing null' | [null]   || [null]
     }
 
     def 'filter to set returns expected results'() {
@@ -33,15 +34,16 @@ class FilterUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'filter to set returns empty list for #scenario parameter'() {
+    def 'filter to set returns #expected for #scenario parameter'() {
 
         expect:
-        FilterUtils.filterToSet(collection, PredicateUtils.predicateConstant(true)) == [] as Set
+        FilterUtils.filterToSet(collection, PredicateUtils.predicateConstant(true)) == expected as Set
 
         where:
-        scenario | collection
-        'empty'  | []
-        'null'   | null
+        scenario                     | collection || expected
+        'empty'                      | []         || []
+        'null'                       | null       || []
+        'collection containing null' | [null]     || [null]
     }
 
     def 'filter with predicate and collector returns expected results'() {
@@ -55,16 +57,17 @@ class FilterUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'filter with predicate and collector returns empty list for #scenario parameter'() {
+    def 'filter with predicate and collector returns #expected for #scenario parameter'() {
 
         expect:
         def predicate = PredicateUtils.predicateConstant(true) as Predicate
-        FilterUtils.filter(collection, filterAndThen(predicate, toList())) == []
+        FilterUtils.filter(collection, filterAndThen(predicate, toList())) == expected
 
         where:
-        scenario | collection
-        'empty'  | []
-        'null'   | null
+        scenario                     | collection || expected
+        'empty'                      | []         || []
+        'null'                       | null       || []
+        'collection containing null' | [null]     || [null]
     }
 
     def 'filter distinct returns list with distinct values'() {
@@ -73,14 +76,15 @@ class FilterUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'filter distinct returns empty list for #scenario parameter'() {
+    def 'filter distinct returns #expected for #scenario parameter'() {
 
         expect:
-        FilterUtils.filterDistinct(collection, PredicateUtils.predicateConstant(true)) == []
+        FilterUtils.filterDistinct(collection, PredicateUtils.predicateConstant(true)) == expected
 
         where:
-        scenario | collection
-        'empty'  | []
-        'null'   | null
+        scenario                     | collection || expected
+        'empty'                      | []         || []
+        'null'                       | null       || []
+        'collection containing null' | [null]     || [null]
     }
 }

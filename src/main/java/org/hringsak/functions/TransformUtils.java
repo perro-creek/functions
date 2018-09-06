@@ -11,6 +11,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.hringsak.functions.MapperUtils.mapper;
 import static org.hringsak.functions.StreamUtils.defaultStream;
 
 public final class TransformUtils {
@@ -32,7 +33,7 @@ public final class TransformUtils {
 
     public static <T, R> List<R> transformDistinct(Collection<T> objects, Function<T, R> transformer) {
         return defaultStream(objects)
-                .map(transformer)
+                .map(mapper(transformer))
                 .distinct()
                 .collect(toList());
     }

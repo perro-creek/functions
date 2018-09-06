@@ -8,6 +8,7 @@ import java.util.stream.Collector;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static org.hringsak.functions.PredicateUtils.predicate;
 import static org.hringsak.functions.StreamUtils.defaultStream;
 
 /**
@@ -23,7 +24,8 @@ public final class FilterUtils {
      * Filters a collection of objects, based a predicate, into a list.
      *
      * @param objects   A collection of objects of type &lt;T&gt; to be filtered.
-     * @param predicate A predicate with which to filter the objects collection.
+     * @param predicate A predicate with which to filter the objects collection. The provided predicate will be made
+     *                  null-safe, and if the target is null, then the predicate will return false.
      * @param <T>       The target element type for the objects collection.
      * @return A list of objects filtered from the objects collection.
      */
@@ -35,7 +37,8 @@ public final class FilterUtils {
      * Filters a collection of objects, based a predicate, into a set.
      *
      * @param objects   A collection of objects of type &lt;T&gt; to be filtered.
-     * @param predicate A predicate with which to filter the objects collection.
+     * @param predicate A predicate with which to filter the objects collection. The provided predicate will be made
+     *                  null-safe, and if the target is null, then the predicate will return false.
      * @param <T>       The target element type for the objects collection.
      * @return A set of objects filtered from the objects collection.
      */
@@ -48,13 +51,14 @@ public final class FilterUtils {
      * <code>Object.equals(Object)</code>).
      *
      * @param objects   A collection of objects of type &lt;T&gt; to be filtered.
-     * @param predicate A predicate with which to filter the objects collection.
+     * @param predicate A predicate with which to filter the objects collection. The provided predicate will be made
+     *                  null-safe, and if the target is null, then the predicate will return false.
      * @param <T>       The target element type for the objects collection.
      * @return A list of objects filtered from the objects collection.
      */
     public static <T> List<T> filterDistinct(Collection<T> objects, Predicate<T> predicate) {
         return defaultStream(objects)
-                .filter(predicate)
+                .filter(predicate(predicate))
                 .distinct()
                 .collect(toList());
     }
@@ -89,7 +93,8 @@ public final class FilterUtils {
      * Builds an object combining a <code>Predicate</code> and a <code>Collector</code> for use in the {@link
      * #filter(Collection, FilterCollector)} method.
      *
-     * @param filter    A Predicate for filtering elements from a collection of objects.
+     * @param filter    A Predicate for filtering elements from a collection of objects. The provided predicate will be
+     *                  made null-safe, and if the target is null, then the predicate will return false.
      * @param collector A <code>Collector</code> to accumulating elements into a <code>Collection</code> of any type.
      * @param <T>       The target element type for a collection to be filtered.
      * @param <C>       The type of the resulting collection.

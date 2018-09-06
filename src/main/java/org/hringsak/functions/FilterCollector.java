@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 
+import static org.hringsak.functions.PredicateUtils.predicate;
+
 class FilterCollector<T, C extends Collection<T>> {
 
     private final Predicate<T> filter;
@@ -19,7 +21,7 @@ class FilterCollector<T, C extends Collection<T>> {
     }
 
     Predicate<T> getFilter() {
-        return filter;
+        return predicate(filter);
     }
 
     Collector<T, ?, C> getCollector() {
