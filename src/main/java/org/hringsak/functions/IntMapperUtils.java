@@ -1,5 +1,8 @@
 package org.hringsak.functions;
 
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -193,5 +196,14 @@ public final class IntMapperUtils {
      */
     public static <T, U> ToIntFunction<T> inverseToIntMapper(ToIntBiFunction<? super U, ? super T> biFunction, U value) {
         return t -> biFunction.applyAsInt(value, t);
+    }
+
+    public static IntFunction<Pair<Integer, Integer>> pairIntWithIndex() {
+        return pairIntWithIndex(Integer::valueOf);
+    }
+
+    public static <R> IntFunction<Pair<R, Integer>> pairIntWithIndex(IntFunction<? extends R> function) {
+        AtomicInteger idx = new AtomicInteger();
+        return t -> Pair.of(function.apply(t), idx.getAndIncrement());
     }
 }

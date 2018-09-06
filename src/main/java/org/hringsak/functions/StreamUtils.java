@@ -38,7 +38,7 @@ public final class StreamUtils {
         return t -> uniqueKeys.add(keyExtractor.apply(t));
     }
 
-    public static <T> Predicate<T> distinctByKeyParallel(Function<? super T, Object> keyExtractor) {
+    public static <T> Predicate<T> distinctByKeyParallel(Function<? super T, ?> keyExtractor) {
         Set<Object> uniqueKeys = Sets.newConcurrentHashSet();
         return t -> uniqueKeys.add(keyExtractor.apply(t));
     }

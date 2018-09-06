@@ -1,5 +1,8 @@
 package org.hringsak.functions;
 
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.DoubleFunction;
 import java.util.function.Function;
@@ -196,4 +199,12 @@ public final class DoubleMapperUtils {
         return t -> biFunction.applyAsDouble(value, t);
     }
 
+    public static DoubleFunction<Pair<Double, Integer>> pairDoubleWithIndex() {
+        return pairDoubleWithIndex(Double::valueOf);
+    }
+
+    public static <R> DoubleFunction<Pair<R, Integer>> pairDoubleWithIndex(DoubleFunction<? extends R> function) {
+        AtomicInteger idx = new AtomicInteger();
+        return t -> Pair.of(function.apply(t), idx.getAndIncrement());
+    }
 }
