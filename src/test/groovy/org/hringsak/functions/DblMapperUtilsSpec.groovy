@@ -1,12 +1,14 @@
 package org.hringsak.functions
 
+import org.apache.commons.lang3.tuple.Pair
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.util.function.Function
 import java.util.function.ToDoubleBiFunction
 
 import static org.apache.commons.lang3.StringUtils.defaultString
-import static DblMapperUtils.*
+import static org.hringsak.functions.DblMapperUtils.*
 
 class DblMapperUtilsSpec extends Specification {
 
@@ -82,5 +84,134 @@ class DblMapperUtilsSpec extends Specification {
         'test'   | 'test'   | 8.0D
         null     | 'test'   | 4.0D
         ''       | 'test'   | 4.0D
+    }
+
+    @Unroll
+    def 'flat double mapper taking function passing value "#target" returns #expected'() {
+
+        expect:
+        Function function = { String param -> [1.0D, 2.0D, 3.0D] }
+        def doubles = flatDoubleMapper(function).apply(target).toArray()
+        doubles == expected as double[]
+
+        where:
+        target || expected
+        'test' || [1.0D, 2.0D, 3.0D]
+        null   || []
+        ''     || [1.0D, 2.0D, 3.0D]
+    }
+
+    @Unroll
+    def 'flat double array mapper taking function passing value "#target" returns #expected'() {
+
+        expect:
+        Function function = { String param -> [1.0D, 2.0D, 3.0D] as double[] }
+        def doubles = flatDoubleArrayMapper(function).apply(target).toArray()
+        doubles == expected as double[]
+
+        where:
+        target || expected
+        'test' || [1.0D, 2.0D, 3.0D]
+        null   || []
+        ''     || [1.0D, 2.0D, 3.0D]
+    }
+
+    @Unroll
+    def 'double pair of with mapper function returning "#right" returns #expected'() {
+
+        expect:
+        def rightFunction = { d -> right }
+        dblPairOf(rightFunction).apply(1.0D) == expected
+
+        where:
+        right   || expected
+        'right' || DoubleObjectPair.of(1.0D, 'right')
+        null    || DoubleObjectPair.of(1.0D, null)
+    }
+
+    @Unroll
+    def 'double pair of passing two mapper functions returning values "#left" and "#right" returns #expected'() {
+
+        expect:
+        def leftFunction = { d -> left }
+        def rightFunction = { d -> right }
+        dblPairOf(leftFunction, rightFunction).apply(1.0D) == expected
+
+        where:
+        left   | right   || expected
+        'left' | 'right' || Pair.of('left', 'right')
+        null   | 'right' || Pair.of(null, 'right')
+        'left' | null    || Pair.of('left', null)
+    }
+
+    @Unroll
+    def 'double pair with list passing values "#listParam" returns #expected'() {
+
+        expect:
+        dblPairWith(listParam).apply(1.0) == expected
+
+        where:
+        listParam     || expected
+        ['listParam'] || DoubleObjectPair.of(1.0D, 'listParam')
+        []            || DoubleObjectPair.of(1.0D, null)
+        null          || DoubleObjectPair.of(1.0D, null)
+    }
+
+    @Unroll
+    def 'double pair with list passing function with values and "#listParam" returns #expected'() {
+
+        expect:
+        dblPairWith({ d -> d }, listParam).apply(1.0D) == expected
+
+        where:
+        listParam     || expected
+        ['listParam'] || Pair.of(1.0D, 'listParam')
+        []            || Pair.of(1.0D, null)
+        null          || Pair.of(1.0D, null)
+    }
+
+    def 'double pair with index calling multiple times returns incremented indexes'() {
+        expect:
+        def mapper = dblPairWithIndex()
+        (0..5).each { d ->
+            with(mapper.apply(1.0D)) {
+                getRight() == d
+            }
+        }
+    }
+
+    def 'double pair with index returns expected'() {
+        expect:
+        dblPairWithIndex().apply(1.0D) == DoubleIndexPair.of(1.0D, 0)
+    }
+
+    @Unroll
+    def 'double pair with index passing function returns #expected'() {
+
+        expect:
+        def dblFunction = { d -> value }
+        dblPairWithIndex(dblFunction).apply(1.0D) == expected
+
+        where:
+        value   | expected
+        'value' | Pair.of('value', 0)
+        null    | Pair.of(null, 0)
+        ''      | Pair.of('', 0)
+    }
+
+    @Unroll
+    def 'double ternary passing target #target expecting "#expected'() {
+
+        expect:
+        def predicate = { d -> d == 1.0D }
+        def trueExtractor = { d -> 'trueValue' }
+        def falseExtractor = { d -> 'falseValue' }
+        def result = dblTernary(predicate, dblTernaryMapper(trueExtractor, falseExtractor)).apply(target)
+        result == expected
+
+        where:
+        target || expected
+        1.0D   || 'trueValue'
+        2.0D   || 'falseValue'
     }
 }

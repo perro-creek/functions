@@ -1,13 +1,23 @@
 package org.hringsak.functions;
 
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.DoubleFunction;
+import java.util.function.DoublePredicate;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.DoubleStream;
+
+import static java.util.function.Function.identity;
+import static org.hringsak.functions.DblStreamUtils.defaultDblStream;
 
 /**
  * Methods that build functions to map a target element into another result. This class deals specifically with mapper
@@ -138,7 +148,7 @@ public final class DblMapperUtils {
      * @return A ToDoubleFunction taking a single parameter of type &lt;T&gt;, and returning a result of type double.
      */
     public static <T> ToDoubleFunction<T> toDblMapperDefault(ToDoubleFunction<? super T> function, double defaultValue) {
-        return t -> t == null ? defaultValue : function.applyAsDouble(t);
+        return d -> d == null ? defaultValue : function.applyAsDouble(d);
     }
 
     /**
@@ -167,7 +177,7 @@ public final class DblMapperUtils {
      * @return A ToDoubleFunction taking a single parameter of type &lt;T&gt;, and returning a result of type double.
      */
     public static <T, U> ToDoubleFunction<T> toDblMapper(ToDoubleBiFunction<? super T, ? super U> biFunction, U value) {
-        return t -> biFunction.applyAsDouble(t, value);
+        return d -> biFunction.applyAsDouble(d, value);
     }
 
     /**
@@ -196,15 +206,59 @@ public final class DblMapperUtils {
      * @return A ToDoubleFunction taking a single parameter of type &lt;T&gt;, and returning a result of type double.
      */
     public static <T, U> ToDoubleFunction<T> inverseToDblMapper(ToDoubleBiFunction<? super U, ? super T> biFunction, U value) {
-        return t -> biFunction.applyAsDouble(value, t);
+        return d -> biFunction.applyAsDouble(value, d);
     }
 
-    public static DoubleFunction<Pair<Double, Integer>> pairDblWithIndex() {
-        return pairDblWithIndex(Double::valueOf);
+    public static <T> Function<T, DoubleStream> flatDoubleMapper(Function<? super T, ? extends Collection<Double>> doubleMapper) {
+        return d -> d == null ? DoubleStream.empty() : defaultDblStream(doubleMapper.apply(d));
     }
 
-    public static <R> DoubleFunction<Pair<R, Integer>> pairDblWithIndex(DoubleFunction<? extends R> function) {
+    public static <T> Function<T, DoubleStream> flatDoubleArrayMapper(Function<? super T, ? extends double[]> doubleMapper) {
+        return d -> d == null ? DoubleStream.empty() : defaultDblStream(doubleMapper.apply(d));
+    }
+
+    public static <U> DoubleFunction<DoubleObjectPair<U>> dblPairOf(DoubleFunction<? extends U> rightFunction) {
+        return d -> DoubleObjectPair.of(d, rightFunction.apply(d));
+    }
+
+    public static <U, V> DoubleFunction<Pair<U, V>> dblPairOf(DoubleFunction<? extends U> leftFunction, DoubleFunction<? extends V> rightFunction) {
+        return d -> Pair.of(leftFunction.apply(d), rightFunction.apply(d));
+    }
+
+    public static <R> DoubleFunction<DoubleObjectPair<R>> dblPairWith(List<R> pairedList) {
+        List<R> nonNullList = ListUtils.emptyIfNull(pairedList);
+        MutableInt idx = new MutableInt();
+        return d -> {
+            int i = idx.getAndIncrement();
+            return (i < nonNullList.size()) ? DoubleObjectPair.of(d, nonNullList.get(i)) : DoubleObjectPair.of(d, null);
+        };
+    }
+
+    public static <U, V> DoubleFunction<Pair<U, V>> dblPairWith(DoubleFunction<? extends U> function, List<V> pairedList) {
+        List<V> nonNullList = ListUtils.emptyIfNull(pairedList);
+        MutableInt idx = new MutableInt();
+        return d -> {
+            U extracted = function.apply(d);
+            int i = idx.getAndIncrement();
+            return (i < nonNullList.size()) ? Pair.of(extracted, nonNullList.get(i)) : Pair.of(extracted, null);
+        };
+    }
+
+    public static DoubleFunction<DoubleIndexPair> dblPairWithIndex() {
         AtomicInteger idx = new AtomicInteger();
-        return t -> Pair.of(function.apply(t), idx.getAndIncrement());
+        return d -> DoubleIndexPair.of(d, idx.getAndIncrement());
+    }
+
+    public static <R> DoubleFunction<Pair<R, Integer>> dblPairWithIndex(DoubleFunction<? extends R> function) {
+        AtomicInteger idx = new AtomicInteger();
+        return d -> Pair.of(function.apply(d), idx.getAndIncrement());
+    }
+
+    public static <R> DoubleFunction<R> dblTernary(DoublePredicate predicate, DoubleTernaryMapper<R> ternaryMapper) {
+        return d -> predicate.test(d) ? ternaryMapper.getTrueMapper().apply(d) : ternaryMapper.getFalseMapper().apply(d);
+    }
+
+    public static <R> DoubleTernaryMapper<R> dblTernaryMapper(DoubleFunction<R> trueExtractor, DoubleFunction<R> falseExtractor) {
+        return DoubleTernaryMapper.of(trueExtractor, falseExtractor);
     }
 }

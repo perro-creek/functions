@@ -3,19 +3,20 @@ package org.hringsak.functions;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class StreamUtilsDefaultObjectStreamTest {
+public class LongStreamUtilsTest {
 
-    private TestValue[] inputArray;
-    private Collection<TestValue> inputCollection;
-    private Stream<TestValue> inputStream;
-    private TestValue inputObject;
-    private Stream<TestValue> result;
+    private long[] inputArray;
+    private Collection<Long> inputCollection;
+    private Stream<Long> inputStream;
+    private LongStream inputPrimitiveStream;
+    private LongStream result;
 
     @Test
     public void testDefaultStreamForNullArray() {
@@ -29,11 +30,11 @@ public class StreamUtilsDefaultObjectStreamTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromArray() {
-        result = StreamUtils.defaultStream(inputArray);
+        result = LongStreamUtils.defaultLongStream(inputArray);
     }
 
-    private void thenExpectStream(TestValue... expected) {
-        assertEquals(Lists.newArrayList(expected), result.collect(toList()));
+    private void thenExpectStream(long... expected) {
+        assertTrue(Arrays.equals(expected, result.toArray()));
     }
 
     @Test
@@ -43,15 +44,15 @@ public class StreamUtilsDefaultObjectStreamTest {
         thenExpectStream();
     }
 
-    private void givenInputArray(TestValue... values) {
+    private void givenInputArray(long... values) {
         inputArray = values;
     }
 
     @Test
     public void testDefaultStreamForPopulatedArray() {
-        givenInputArray(TestValue.ONE, TestValue.TWO);
+        givenInputArray(1L, 2L);
         whenDefaultStreamIsRetrievedFromArray();
-        thenExpectStream(TestValue.ONE, TestValue.TWO);
+        thenExpectStream(1L, 2L);
     }
 
     @Test
@@ -66,7 +67,7 @@ public class StreamUtilsDefaultObjectStreamTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromCollection() {
-        result = StreamUtils.defaultStream(inputCollection);
+        result = LongStreamUtils.defaultLongStream(inputCollection);
     }
 
     @Test
@@ -76,15 +77,15 @@ public class StreamUtilsDefaultObjectStreamTest {
         thenExpectStream();
     }
 
-    private void givenInputCollection(TestValue... values) {
+    private void givenInputCollection(Long... values) {
         inputCollection = Lists.newArrayList(values);
     }
 
     @Test
     public void testDefaultStreamForPopulatedCollection() {
-        givenInputCollection(TestValue.ONE, TestValue.TWO);
+        givenInputCollection(1L, 2L);
         whenDefaultStreamIsRetrievedFromCollection();
-        thenExpectStream(TestValue.ONE, TestValue.TWO);
+        thenExpectStream(1L, 2L);
     }
 
     @Test
@@ -99,7 +100,7 @@ public class StreamUtilsDefaultObjectStreamTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromStream() {
-        result = StreamUtils.defaultStream(inputStream);
+        result = LongStreamUtils.defaultLongStream(inputStream);
     }
 
     @Test
@@ -109,45 +110,47 @@ public class StreamUtilsDefaultObjectStreamTest {
         thenExpectStream();
     }
 
-    private void givenInputStream(TestValue... values) {
+    private void givenInputStream(Long... values) {
         inputStream = Stream.of(values);
     }
 
     @Test
     public void testDefaultStreamForPopulatedStream() {
-        givenInputStream(TestValue.ONE, TestValue.TWO);
+        givenInputStream(1L, 2L);
         whenDefaultStreamIsRetrievedFromStream();
-        thenExpectStream(TestValue.ONE, TestValue.TWO);
+        thenExpectStream(1L, 2L);
     }
 
     @Test
-    public void testDefaultStreamForNullObject() {
-        givenNullInputObject();
-        whenDefaultStreamIsRetrievedFromObject();
+    public void testDefaultStreamForNullPrimitiveStream() {
+        givenNullInputPrimitiveStream();
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
         thenExpectStream();
     }
 
-    private void givenNullInputObject() {
-        inputObject = null;
+    private void givenNullInputPrimitiveStream() {
+        inputPrimitiveStream = null;
     }
 
-    private void whenDefaultStreamIsRetrievedFromObject() {
-        result = StreamUtils.defaultStream(inputObject);
+    private void whenDefaultStreamIsRetrievedFromPrimitiveStream() {
+        result = LongStreamUtils.defaultLongStream(inputPrimitiveStream);
     }
 
     @Test
-    public void testDefaultStreamForPopulatedObject() {
-        givenPopulatedInputObject();
-        whenDefaultStreamIsRetrievedFromObject();
-        thenExpectStream(TestValue.ONE);
+    public void testDefaultStreamForEmptyPrimitiveStream() {
+        givenInputPrimitiveStream();
+        whenDefaultStreamIsRetrievedFromStream();
+        thenExpectStream();
     }
 
-    private void givenPopulatedInputObject() {
-        inputObject = TestValue.ONE;
+    private void givenInputPrimitiveStream(long... values) {
+        inputPrimitiveStream = LongStream.of(values);
     }
 
-    private enum TestValue {
-        ONE,
-        TWO
+    @Test
+    public void testDefaultStreamForPopulatedPrimitiveStream() {
+        givenInputPrimitiveStream(1L, 2L);
+        whenDefaultStreamIsRetrievedFromStream();
+        givenInputPrimitiveStream(1L, 2L);
     }
 }

@@ -6,9 +6,14 @@ import spock.lang.Unroll
 import java.util.function.Function
 
 import static java.util.function.Function.identity
+import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.PredicateUtils.*
 
 class PredicateUtilsSpec extends Specification {
+
+    static final int RAW_LIST_SIZE = 1000
+    static final int DISTINCT_KEY_SIZE = 100
+    def keyExtractor = { obj -> obj.key }
 
     def 'predicate passing null value throws NPE'() {
 
@@ -132,6 +137,20 @@ class PredicateUtilsSpec extends Specification {
         null   | true
         ''     | true
         'test' | false
+    }
+
+    @Unroll
+    def 'is string not empty passing "#target" returns #expected'() {
+
+        expect:
+        def predicate = isStrNotEmpty { String s -> s.reverse() }
+        predicate.test(target) == expected
+
+        where:
+        target | expected
+        null   | false
+        ''     | false
+        'test' | true
     }
 
     @Unroll
@@ -560,11 +579,39 @@ class PredicateUtilsSpec extends Specification {
         []       | false
     }
 
+    def 'distinct by key filters objects with unique key values'() {
+        expect:
+        makeEntriesDistinctByKey().size() == DISTINCT_KEY_SIZE
+    }
+
+    Collection makeEntriesDistinctByKey() {
+        (0..<RAW_LIST_SIZE).stream()
+                .map({ i -> makeKeyValuePair(i) })
+                .filter(distinctByKey(keyExtractor))
+                .collect(toList()) as Collection
+    }
+
+    Object makeKeyValuePair(i) {
+        [key: i % DISTINCT_KEY_SIZE, value: i]
+    }
+
+    def 'distinct by key parallel filters objects with unique key values'() {
+        expect:
+        makeEntriesDistinctByKeyParallel().size() == DISTINCT_KEY_SIZE
+    }
+
+    Collection makeEntriesDistinctByKeyParallel() {
+        (0..<RAW_LIST_SIZE).parallelStream()
+                .map({ i -> makeKeyValuePair(i) })
+                .filter(distinctByKeyParallel(keyExtractor))
+                .collect(toList()) as Collection
+    }
+
     @Unroll
-    def 'extract and filter passing input "#input"'() {
+    def 'map and filter passing input "#input"'() {
 
         expect:
-        def predicate = extractAndFilter({ String s -> s.length() }, isEqual(4, Function.identity()))
+        def predicate = mapAndFilter({ String s -> s.length() }, isEqual(4, Function.identity()))
         predicate.test(input) == expected
 
         where:

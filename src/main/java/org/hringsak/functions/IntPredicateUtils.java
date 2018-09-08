@@ -7,9 +7,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.function.DoubleFunction;
+import java.util.function.DoublePredicate;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
@@ -47,7 +51,7 @@ public final class IntPredicateUtils {
     }
 
     public static <R extends CharSequence> IntPredicate isIntStrEmpty(IntFunction<? extends R> function) {
-        return d -> { CharSequence seq = function.apply(d); return seq == null || seq.length() == 0; };
+        return i -> { CharSequence seq = function.apply(i); return seq == null || seq.length() == 0; };
     }
 
     public static <R extends CharSequence> IntPredicate isIntStrNotEmpty(IntFunction<? extends R> function) {
@@ -153,7 +157,11 @@ public final class IntPredicateUtils {
         return notInt(isIntCollEmpty(function));
     }
 
-    static <U> IntPredicate extractAndFilter(IntFunction<? extends U> transformer, Predicate<? super U> predicate) {
+    public static <T> Predicate<T> mapToIntAndFilter(ToIntFunction<? super T> transformer, IntPredicate predicate) {
+        return i -> predicate.test(transformer.applyAsInt(i));
+    }
+
+    public static <U> IntPredicate intMapAndFilter(IntFunction<? extends U> transformer, Predicate<? super U> predicate) {
         return i -> predicate.test(transformer.apply(i));
     }
 }

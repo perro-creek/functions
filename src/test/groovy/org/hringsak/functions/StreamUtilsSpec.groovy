@@ -15,38 +15,6 @@ import static org.hringsak.functions.StreamUtils.findWithDefault
 
 class StreamUtilsSpec extends Specification {
 
-    static final int RAW_LIST_SIZE = 1000
-    static final int DISTINCT_KEY_SIZE = 100
-    def keyExtractor = { obj -> obj.key }
-
-    def 'distinct by key filters objects with unique key values'() {
-        expect:
-        makeEntriesDistinctByKey().size() == DISTINCT_KEY_SIZE
-    }
-
-    Collection makeEntriesDistinctByKey() {
-        (0..<RAW_LIST_SIZE).stream()
-                .map({ i -> makeKeyValuePair(i) })
-                .filter(StreamUtils.distinctByKey(keyExtractor))
-                .collect(toList()) as Collection
-    }
-
-    Object makeKeyValuePair(i) {
-        [key: i % DISTINCT_KEY_SIZE, value: i]
-    }
-
-    def 'distinct by key parallel filters objects with unique key values'() {
-        expect:
-        makeEntriesDistinctByKeyParallel().size() == DISTINCT_KEY_SIZE
-    }
-
-    Collection makeEntriesDistinctByKeyParallel() {
-        (0..<RAW_LIST_SIZE).parallelStream()
-                .map({ i -> makeKeyValuePair(i) })
-                .filter(StreamUtils.distinctByKeyParallel(keyExtractor))
-                .collect(toList()) as Collection
-    }
-
     @Unroll
     def 'find any returns expected value for string length "#length"'() {
 
@@ -241,19 +209,6 @@ class StreamUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'from iterator returns empty stream for #scenario iterator'() {
-
-        expect:
-        StreamUtils.fromIterator(iterator).collect(toList()) == expectedList
-
-        where:
-        scenario    | iterator             || expectedList
-        'empty'     | [].iterator()        || []
-        'null'      | null                 || []
-        'populated' | [1, 2, 3].iterator() || [1, 2, 3]
-    }
-
-    @Unroll
     def 'to partitioned list returns expected value for #scenario'() {
 
         when:
@@ -283,5 +238,18 @@ class StreamUtilsSpec extends Specification {
         'populated list'  | [1, 2, 3, 4, 5, 6] || [[1, 2], [3, 4], [5, 6]]
         'empty list'      | []                 || []
         'null collection' | null               || []
+    }
+
+    @Unroll
+    def 'from iterator returns empty stream for #scenario iterator'() {
+
+        expect:
+        StreamUtils.fromIterator(iterator).collect(toList()) == expectedList
+
+        where:
+        scenario    | iterator             || expectedList
+        'empty'     | [].iterator()        || []
+        'null'      | null                 || []
+        'populated' | [1, 2, 3].iterator() || [1, 2, 3]
     }
 }

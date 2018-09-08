@@ -8,10 +8,9 @@ import java.util.Collection;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class StreamUtilsDefaultDoubleStreamTest {
+public class DblStreamUtilsTest {
 
     private double[] inputArray;
     private Collection<Double> inputCollection;
@@ -31,7 +30,7 @@ public class StreamUtilsDefaultDoubleStreamTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromArray() {
-        result = StreamUtils.defaultDoubleStream(inputArray);
+        result = DblStreamUtils.defaultDblStream(inputArray);
     }
 
     private void thenExpectStream(double... expected) {
@@ -68,7 +67,7 @@ public class StreamUtilsDefaultDoubleStreamTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromCollection() {
-        result = StreamUtils.defaultDoubleStream(inputCollection);
+        result = DblStreamUtils.defaultDblStream(inputCollection);
     }
 
     @Test
@@ -101,7 +100,7 @@ public class StreamUtilsDefaultDoubleStreamTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromStream() {
-        result = StreamUtils.defaultDoubleStream(inputStream);
+        result = DblStreamUtils.defaultDblStream(inputStream);
     }
 
     @Test
@@ -134,7 +133,7 @@ public class StreamUtilsDefaultDoubleStreamTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromPrimitiveStream() {
-        result = StreamUtils.defaultDoubleStream(inputPrimitiveStream);
+        result = DblStreamUtils.defaultDblStream(inputPrimitiveStream);
     }
 
     @Test

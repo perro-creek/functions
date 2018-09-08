@@ -1,7 +1,6 @@
 package org.hringsak.functions;
 
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,7 +10,6 @@ import java.util.Set;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 import java.util.function.IntSupplier;
-import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -19,8 +17,8 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.hringsak.functions.CollectorUtils.toPartitionedList;
-import static org.hringsak.functions.IntMapperUtils.pairIntWithIndex;
-import static org.hringsak.functions.PredicateUtils.extractAndFilter;
+import static org.hringsak.functions.IntMapperUtils.intPairWithIndex;
+import static org.hringsak.functions.IntPredicateUtils.mapToIntAndFilter;
 
 public final class IntStreamUtils {
 
@@ -73,11 +71,11 @@ public final class IntStreamUtils {
         return FindIntWithDefaultSupplier.of(predicate, defaultSupplier);
     }
 
-    public static int indexOfFirstInt(int[] ints, Predicate<Integer> predicate) {
+    public static int indexOfFirstInt(int[] ints, IntPredicate predicate) {
         return defaultIntStream(ints)
-                .mapToObj(pairIntWithIndex())
-                .filter(extractAndFilter(Pair::getLeft, predicate))
-                .mapToInt(Pair::getRight)
+                .mapToObj(intPairWithIndex())
+                .filter(mapToIntAndFilter(IntIndexPair::getLeft, predicate))
+                .mapToInt(IntIndexPair::getRight)
                 .findFirst()
                 .orElse(-1);
     }

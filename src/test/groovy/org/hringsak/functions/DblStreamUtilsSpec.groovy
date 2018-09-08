@@ -8,15 +8,12 @@ import java.util.stream.IntStream
 import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.DblStreamUtils.dblAnyMatch
-import static org.hringsak.functions.DblStreamUtils.dblDistinctByKey
-import static org.hringsak.functions.DblStreamUtils.dblDistinctByKeyParallel
 import static org.hringsak.functions.DblStreamUtils.dblJoin
 import static org.hringsak.functions.DblStreamUtils.dblNoneMatch
 import static org.hringsak.functions.DblStreamUtils.findAnyDblDefault
 import static org.hringsak.functions.DblStreamUtils.findDblDefault
 import static org.hringsak.functions.DblStreamUtils.findDblDefaultSupplier
 import static org.hringsak.functions.DblStreamUtils.findFirstDblDefault
-import static org.hringsak.functions.DblStreamUtils.findFirstDblDefaultSupplier
 import static org.hringsak.functions.DblStreamUtils.indexOfFirstDbl
 import static org.hringsak.functions.DblStreamUtils.toPartitionedDblList
 import static org.hringsak.functions.DblStreamUtils.toPartitionedDblStream
@@ -97,7 +94,7 @@ class DblStreamUtilsSpec extends Specification {
         expect:
         def predicate = { d -> d > compareValue }
         def supplier = { -1.0D }
-        findFirstDblDefaultSupplier([1.0D, 2.0D, 3.0D] as double[], findDblDefaultSupplier(predicate, supplier)) == expected
+        findFirstDblDefault([1.0D, 2.0D, 3.0D] as double[], findDblDefaultSupplier(predicate, supplier)) == expected
 
         where:
         compareValue | expected
