@@ -6,9 +6,7 @@ import spock.lang.Unroll
 import java.util.function.BiConsumer
 import java.util.function.ObjDoubleConsumer
 
-import static org.hringsak.functions.consumer.DblConsumerUtils.dblConsumer
-import static org.hringsak.functions.consumer.DblConsumerUtils.dblSetter
-import static org.hringsak.functions.consumer.DblConsumerUtils.inverseDblConsumer
+import static org.hringsak.functions.consumer.DblConsumerUtils.*
 
 class DblConsumerUtilsSpec extends Specification {
 

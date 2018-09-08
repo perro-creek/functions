@@ -6,21 +6,23 @@ import org.apache.commons.lang3.tuple.Pair
 import spock.lang.Specification
 
 import java.util.function.Function
+import java.util.function.Predicate
 import java.util.stream.Stream
 
 import static java.util.stream.Collectors.*
+import static org.hringsak.functions.CollectorUtils.*
 
 class CollectorUtilsSpec extends Specification {
 
     def 'conditional group by collector'() {
         given:
         def pairStream = Stream.of(pair(1, null), pair(1, ''), pair(2, 'stringOne'), pair(2, 'stringTwo'))
-        def nonEmptyPredicate = { String str -> !Strings.isNullOrEmpty(str) }
-        Function getLeftFunction = { Pair pair -> pair.getLeft() }
-        Function getRightFunction = { Pair pair -> pair.getRight() }
+        def nonEmptyPredicate = { String str -> !Strings.isNullOrEmpty(str) } as Predicate
+        def leftFunction = { Pair pair -> pair.getLeft() } as Function
+        def rightFunction = { Pair pair -> pair.getRight() } as Function
 
         when:
-        def stringByIntMap = pairStream.collect(groupingBy(getLeftFunction, mapping(getRightFunction, CollectorUtils.conditionalCollector(nonEmptyPredicate))))
+        def stringByIntMap = pairStream.collect(groupingBy(leftFunction, mapping(rightFunction, conditionalCollector(nonEmptyPredicate))))
 
         then:
         with(stringByIntMap) {
@@ -46,7 +48,7 @@ class CollectorUtilsSpec extends Specification {
         def elements = (1..100).collect({ "element${StringUtils.leftPad("$it", 3, '0')}" })
 
         when:
-        def partitions = elements.stream().collect(CollectorUtils.toPartitionedStream(partitionSize)).collect(toList()) as Collection<List>
+        def partitions = elements.stream().collect(toPartitionedStream(partitionSize)).collect(toList()) as Collection<List>
 
         then:
         partitions.size() == 10
@@ -127,7 +129,7 @@ class CollectorUtilsSpec extends Specification {
         def numStream = Stream.of(1, 2, 3)
 
         when:
-        def result = numStream.collect(CollectorUtils.toUnmodifiableList())
+        def result = numStream.collect(toUnmodifiableList())
         result.add(4)
 
         then:
@@ -140,7 +142,7 @@ class CollectorUtilsSpec extends Specification {
         def numStream = Stream.of(1, 2, 3)
 
         when:
-        def result = numStream.collect(CollectorUtils.toUnmodifiableSet())
+        def result = numStream.collect(toUnmodifiableSet())
         result.add(4)
 
         then:
@@ -153,7 +155,7 @@ class CollectorUtilsSpec extends Specification {
         def numStream = Stream.of(1, 2, 3)
 
         when:
-        def result = numStream.collect(CollectorUtils.toUnmodifiableCollection { new LinkedList<>() })
+        def result = numStream.collect(toUnmodifiableCollection { new LinkedList<>() })
         result.add(4)
 
         then:
@@ -166,7 +168,7 @@ class CollectorUtilsSpec extends Specification {
         def numStream = Stream.of(1, 2, 3)
 
         when:
-        def result = numStream.collect(CollectorUtils.toSynchronizedList())
+        def result = numStream.collect(toSynchronizedList())
 
         then:
         result.getClass().getSimpleName() == 'SynchronizedRandomAccessList'
@@ -177,7 +179,7 @@ class CollectorUtilsSpec extends Specification {
         def numStream = Stream.of(1, 2, 3)
 
         when:
-        def result = numStream.collect(CollectorUtils.toSynchronizedSet())
+        def result = numStream.collect(toSynchronizedSet())
 
         then:
         result.getClass().getSimpleName() == 'SynchronizedSet'
@@ -188,7 +190,7 @@ class CollectorUtilsSpec extends Specification {
         def numStream = Stream.of(1, 2, 3)
 
         when:
-        def result = numStream.collect(CollectorUtils.toSynchronizedCollection { new LinkedList<>() })
+        def result = numStream.collect(toSynchronizedCollection { new LinkedList<>() })
 
         then:
         result.getClass().getSimpleName() == 'SynchronizedCollection'

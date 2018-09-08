@@ -1,6 +1,5 @@
 package org.hringsak.functions.stream
 
-import org.hringsak.functions.stream.StreamUtils
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -10,9 +9,7 @@ import java.util.function.Supplier
 import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.predicate.PredicateUtils.isEqual
-import static org.hringsak.functions.stream.StreamUtils.findAnyWithDefault
-import static org.hringsak.functions.stream.StreamUtils.findFirstWithDefault
-import static org.hringsak.functions.stream.StreamUtils.findWithDefault
+import static org.hringsak.functions.stream.StreamUtils.*
 
 class StreamUtilsSpec extends Specification {
 
@@ -20,7 +17,7 @@ class StreamUtilsSpec extends Specification {
     def 'find any returns expected value for string length "#length"'() {
 
         expect:
-        StreamUtils.findAny([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+        findAny([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
 
         where:
         length | expected
@@ -62,7 +59,7 @@ class StreamUtilsSpec extends Specification {
     def 'find first returns expected value for string length "#length"'() {
 
         expect:
-        StreamUtils.findFirst([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+        findFirst([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
 
         where:
         length | expected
@@ -104,7 +101,7 @@ class StreamUtilsSpec extends Specification {
     def 'index of first returns expected value for string length "#length"'() {
 
         expect:
-        StreamUtils.indexOfFirst([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+        indexOfFirst([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
 
         where:
         length | expected
@@ -117,7 +114,7 @@ class StreamUtilsSpec extends Specification {
     def 'any match returns expected value for string length "#length"'() {
 
         expect:
-        StreamUtils.anyMatch([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+        anyMatch([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
 
         where:
         length | expected
@@ -130,7 +127,7 @@ class StreamUtilsSpec extends Specification {
     def 'none match returns expected value for string length "#length"'() {
 
         expect:
-        StreamUtils.noneMatch([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+        noneMatch([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
 
         where:
         length | expected
@@ -145,7 +142,7 @@ class StreamUtilsSpec extends Specification {
         def values = ['m1', 'm2', 'm3']
 
         expect:
-        StreamUtils.join(values, { t -> t }) == 'm1,m2,m3'
+        join(values, { t -> t }) == 'm1,m2,m3'
     }
 
     @Unroll
@@ -170,7 +167,7 @@ class StreamUtilsSpec extends Specification {
         def values = ['m1', 'm2', 'm3']
 
         expect:
-        StreamUtils.join(values, { t -> t }, joining(delimiter, prefix, suffix)) == expectedString
+        join(values, { t -> t }, joining(delimiter, prefix, suffix)) == expectedString
 
         where:
         delimiter | prefix | suffix  || expectedString
@@ -182,7 +179,7 @@ class StreamUtilsSpec extends Specification {
     def 'join returns empty string for #scenario parameter'() {
 
         expect:
-        StreamUtils.join(values, { t -> t }) == ''
+        join(values, { t -> t }) == ''
 
         where:
         scenario | values
@@ -192,14 +189,14 @@ class StreamUtilsSpec extends Specification {
 
     def 'subtract returns expected values'() {
         expect:
-        StreamUtils.subtract([1, 2, 3] as Set, [3, 4, 5] as Set) == [1, 2] as Set
+        subtract([1, 2, 3] as Set, [3, 4, 5] as Set) == [1, 2] as Set
     }
 
     @Unroll
     def 'subtract returns expected set for #scenario'() {
 
         expect:
-        StreamUtils.subtract(from, toSubtract) == expected
+        subtract(from, toSubtract) == expected
 
         where:
         scenario               | from             | toSubtract       || expected
@@ -213,7 +210,7 @@ class StreamUtilsSpec extends Specification {
     def 'to partitioned list returns expected value for #scenario'() {
 
         when:
-        def partitions = StreamUtils.toPartitionedList(inputCollection, 2)
+        def partitions = toPartitionedList(inputCollection, 2)
 
         then:
         partitions == expectedPartitions
@@ -229,7 +226,7 @@ class StreamUtilsSpec extends Specification {
     def 'to partitioned stream returns expected value for #scenario'() {
 
         when:
-        def partitionStream = StreamUtils.toPartitionedStream(inputCollection, 2)
+        def partitionStream = toPartitionedStream(inputCollection, 2)
 
         then:
         partitionStream.collect(toList()) == expectedPartitions
@@ -245,7 +242,7 @@ class StreamUtilsSpec extends Specification {
     def 'from iterator returns empty stream for #scenario iterator'() {
 
         expect:
-        StreamUtils.fromIterator(iterator).collect(toList()) == expectedList
+        fromIterator(iterator).collect(toList()) == expectedList
 
         where:
         scenario    | iterator             || expectedList
