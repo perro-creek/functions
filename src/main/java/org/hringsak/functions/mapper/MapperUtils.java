@@ -187,6 +187,10 @@ public final class MapperUtils {
         return pairOf(identity(), rightFunction);
     }
 
+    public static <T, U, V> Function<T, Pair<U, V>> pairOf(KeyValueMapper<T, U, V> keyValueMapper) {
+        return pairOf(keyValueMapper.getKeyMapper(), keyValueMapper.getValueMapper());
+    }
+
     @SuppressWarnings("WeakerAccess")
     public static <T, U, V> Function<T, Pair<U, V>> pairOf(Function<T, U> leftFunction, Function<? super T, ? extends V> rightFunction) {
         return t -> Pair.of(leftFunction.apply(t), rightFunction.apply(t));

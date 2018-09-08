@@ -1,7 +1,5 @@
 package org.hringsak.functions.supplier;
 
-import org.hringsak.functions.internal.ConstantValues;
-
 import java.util.function.LongSupplier;
 import java.util.function.ToLongBiFunction;
 import java.util.function.ToLongFunction;

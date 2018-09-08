@@ -1,7 +1,5 @@
 package org.hringsak.functions.supplier;
 
-import org.hringsak.functions.internal.ConstantValues;
-
 import java.util.function.IntSupplier;
 import java.util.function.ToIntBiFunction;
 import java.util.function.ToIntFunction;

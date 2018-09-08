@@ -219,6 +219,10 @@ public final class DblMapperUtils {
         return d -> DoubleObjectPair.of(d, rightFunction.apply(d));
     }
 
+    public static <U, V> DoubleFunction<Pair<U, V>> dblPairOf(DblKeyValueMapper<U, V> keyValueMapper) {
+        return dblPairOf(keyValueMapper.getKeyMapper(), keyValueMapper.getValueMapper());
+    }
+
     public static <U, V> DoubleFunction<Pair<U, V>> dblPairOf(DoubleFunction<? extends U> leftFunction, DoubleFunction<? extends V> rightFunction) {
         return d -> Pair.of(leftFunction.apply(d), rightFunction.apply(d));
     }
@@ -258,5 +262,9 @@ public final class DblMapperUtils {
 
     public static <R> DoubleTernaryMapper<R> dblTernaryMapper(DoubleFunction<R> trueExtractor, DoubleFunction<R> falseExtractor) {
         return DoubleTernaryMapper.of(trueExtractor, falseExtractor);
+    }
+
+    public static <K, V> DblKeyValueMapper<K, V> dblKeyValueMapper(DoubleFunction<K> keyMapper, DoubleFunction<V> valueMapper) {
+        return DblKeyValueMapper.of(keyMapper, valueMapper);
     }
 }

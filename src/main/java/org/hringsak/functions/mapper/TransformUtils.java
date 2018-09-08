@@ -9,9 +9,10 @@ import java.util.stream.Collector;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static org.hringsak.functions.CollectorUtils.toMapFromEntry;
 import static org.hringsak.functions.mapper.MapperUtils.mapper;
+import static org.hringsak.functions.mapper.MapperUtils.pairOf;
 import static org.hringsak.functions.stream.StreamUtils.defaultStream;
 
 public final class TransformUtils {
@@ -46,7 +47,8 @@ public final class TransformUtils {
 
     public static <T, K, V> Map<K, V> transformToMap(Collection<T> objects, KeyValueMapper<T, K, V> keyValueMapper) {
         return defaultStream(objects)
-                .collect(toMap(keyValueMapper.getKeyMapper(), keyValueMapper.getValueMapper()));
+                .map(pairOf(keyValueMapper))
+                .collect(toMapFromEntry());
     }
 
     public static <T, U, C extends Collection<U>> TransformerCollector<T, U, C> transformAndThen(Function<T, U> transformer, Collector<U, ?, C> collector) {

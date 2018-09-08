@@ -1,7 +1,5 @@
 package org.hringsak.functions.supplier;
 
-import org.hringsak.functions.internal.ConstantValues;
-
 import java.util.function.DoubleSupplier;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;

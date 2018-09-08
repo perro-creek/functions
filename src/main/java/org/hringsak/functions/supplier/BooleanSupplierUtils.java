@@ -1,8 +1,5 @@
 package org.hringsak.functions.supplier;
 
-import org.hringsak.functions.supplier.SupplierUtils;
-import org.hringsak.functions.internal.ConstantValues;
-
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;

@@ -1,6 +1,6 @@
-package org.hringsak.functions.internal;
+package org.hringsak.functions.supplier;
 
-public class ConstantValues<U, V> {
+class ConstantValues<U, V> {
 
     private final U left;
     private final V right;
@@ -10,15 +10,15 @@ public class ConstantValues<U, V> {
         this.right = right;
     }
 
-    public static <U, V> ConstantValues<U, V> of(U left, V right) {
+    static <U, V> ConstantValues<U, V> of(U left, V right) {
         return new ConstantValues<>(left, right);
     }
 
-    public U getLeft() {
+    U getLeft() {
         return left;
     }
 
-    public V getRight() {
+    V getRight() {
         return right;
     }
 }
