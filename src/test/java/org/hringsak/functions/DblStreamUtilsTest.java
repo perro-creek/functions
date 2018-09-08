@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
+import static org.hringsak.functions.DblStreamUtils.defaultDblStream;
 import static org.junit.Assert.assertTrue;
 
 public class DblStreamUtilsTest {
@@ -30,7 +31,7 @@ public class DblStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromArray() {
-        result = DblStreamUtils.defaultDblStream(inputArray);
+        result = defaultDblStream(inputArray);
     }
 
     private void thenExpectStream(double... expected) {
@@ -67,7 +68,7 @@ public class DblStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromCollection() {
-        result = DblStreamUtils.defaultDblStream(inputCollection);
+        result = defaultDblStream(inputCollection);
     }
 
     @Test
@@ -100,7 +101,7 @@ public class DblStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromStream() {
-        result = DblStreamUtils.defaultDblStream(inputStream);
+        result = defaultDblStream(inputStream);
     }
 
     @Test
@@ -133,7 +134,7 @@ public class DblStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromPrimitiveStream() {
-        result = DblStreamUtils.defaultDblStream(inputPrimitiveStream);
+        result = defaultDblStream(inputPrimitiveStream);
     }
 
     @Test

@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static org.hringsak.functions.IntStreamUtils.defaultIntStream;
 import static org.junit.Assert.assertTrue;
 
 public class IntStreamUtilsTest {
@@ -30,7 +31,7 @@ public class IntStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromArray() {
-        result = IntStreamUtils.defaultIntStream(inputArray);
+        result = defaultIntStream(inputArray);
     }
 
     private void thenExpectStream(int... expected) {
@@ -67,7 +68,7 @@ public class IntStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromCollection() {
-        result = IntStreamUtils.defaultIntStream(inputCollection);
+        result = defaultIntStream(inputCollection);
     }
 
     @Test
@@ -100,7 +101,7 @@ public class IntStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromStream() {
-        result = IntStreamUtils.defaultIntStream(inputStream);
+        result = defaultIntStream(inputStream);
     }
 
     @Test
@@ -133,7 +134,7 @@ public class IntStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromPrimitiveStream() {
-        result = IntStreamUtils.defaultIntStream(inputPrimitiveStream);
+        result = defaultIntStream(inputPrimitiveStream);
     }
 
     @Test
