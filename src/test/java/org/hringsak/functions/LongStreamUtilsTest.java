@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import static org.hringsak.functions.LongStreamUtils.defaultLongStream;
 import static org.junit.Assert.assertTrue;
 
 public class LongStreamUtilsTest {
@@ -30,7 +31,7 @@ public class LongStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromArray() {
-        result = LongStreamUtils.defaultLongStream(inputArray);
+        result = defaultLongStream(inputArray);
     }
 
     private void thenExpectStream(long... expected) {
@@ -67,7 +68,7 @@ public class LongStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromCollection() {
-        result = LongStreamUtils.defaultLongStream(inputCollection);
+        result = defaultLongStream(inputCollection);
     }
 
     @Test
@@ -100,7 +101,7 @@ public class LongStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromStream() {
-        result = LongStreamUtils.defaultLongStream(inputStream);
+        result = defaultLongStream(inputStream);
     }
 
     @Test
@@ -133,7 +134,7 @@ public class LongStreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromPrimitiveStream() {
-        result = LongStreamUtils.defaultLongStream(inputPrimitiveStream);
+        result = defaultLongStream(inputPrimitiveStream);
     }
 
     @Test

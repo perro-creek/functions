@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
+import static org.hringsak.functions.StreamUtils.defaultStream;
 import static org.junit.Assert.assertEquals;
 
 public class StreamUtilsTest {
@@ -29,7 +30,7 @@ public class StreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromArray() {
-        result = StreamUtils.defaultStream(inputArray);
+        result = defaultStream(inputArray);
     }
 
     private void thenExpectStream(TestValue... expected) {
@@ -66,7 +67,7 @@ public class StreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromCollection() {
-        result = StreamUtils.defaultStream(inputCollection);
+        result = defaultStream(inputCollection);
     }
 
     @Test
@@ -99,7 +100,7 @@ public class StreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromStream() {
-        result = StreamUtils.defaultStream(inputStream);
+        result = defaultStream(inputStream);
     }
 
     @Test
@@ -132,7 +133,7 @@ public class StreamUtilsTest {
     }
 
     private void whenDefaultStreamIsRetrievedFromObject() {
-        result = StreamUtils.defaultStream(inputObject);
+        result = defaultStream(inputObject);
     }
 
     @Test
