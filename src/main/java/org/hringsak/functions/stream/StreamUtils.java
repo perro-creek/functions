@@ -1,6 +1,7 @@
-package org.hringsak.functions.objects;
+package org.hringsak.functions.stream;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.hringsak.functions.CollectorUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,10 +19,10 @@ import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
-import static org.hringsak.functions.objects.MapperUtils.pairWithIndex;
-import static org.hringsak.functions.objects.PredicateUtils.contains;
-import static org.hringsak.functions.objects.PredicateUtils.mapAndFilter;
-import static org.hringsak.functions.objects.PredicateUtils.not;
+import static org.hringsak.functions.mapper.MapperUtils.pairWithIndex;
+import static org.hringsak.functions.predicate.PredicateUtils.contains;
+import static org.hringsak.functions.predicate.PredicateUtils.mapAndFilter;
+import static org.hringsak.functions.predicate.PredicateUtils.not;
 
 public final class StreamUtils {
 
