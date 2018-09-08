@@ -34,7 +34,7 @@ public final class BooleanSupplierUtils {
      * retrieve the flag from the database. In that case, you would want to do that only if the value was actually null,
      * so you pass a supplier which only gets invoked when necessary:
      * <pre>
-     *     private boolean getCustomerDiscount() {
+     *     public boolean getCustomerDiscount() {
      *         Map&lt;String, Boolean&gt; discountByCustId = ...
      *         String customerId = ...
      *         BooleanSupplier flagSupplier = BooleanSupplierUtils.booleanSupplier(this::getDiscountFlag, customerId);
@@ -85,11 +85,12 @@ public final class BooleanSupplierUtils {
      * retrieve the flag from the database. In that case, you would want to do that only if the value was actually null,
      * so you pass a supplier which only gets invoked when necessary:
      * <pre>
-     *     private boolean getCustomerDiscount() {
+     *     public boolean getCustomerDiscount() {
      *         Map&lt;String, Boolean&gt; discountByCustId = ...
      *         String customerId = ...
      *         String purchaseOrderId = ...
-     *         BooleanSupplier flagSupplier = BooleanSupplierUtils.booleanSupplier(this::getDiscountFlag, SupplierUtils.constantValues(customerId, purchaseOrderId));
+     *         BooleanSupplier flagSupplier = BooleanSupplierUtils.booleanSupplier(this::getDiscountFlag,
+     *                 SupplierUtils.constantValues(customerId, purchaseOrderId));
      *         return BooleanUtils.getFlagWithDefault(discountByCustId.get(custId), flagSupplier);
      *     }
      *
@@ -111,12 +112,13 @@ public final class BooleanSupplierUtils {
      *
      * @param biFunction A method reference which is a Function, taking a parameter of type &lt;T&gt;, and returning a
      *                   Boolean.
-     * @param constants  A pair of constant values, in that it will be passed to every invocation of the passed function as the
-     *                   first and second parameters to it, and will have the same value for each of them.
+     * @param constants  A pair of constant values, in that they will be passed to every invocation of the passed
+     *                   function as the first and second parameters to it, and will have the same value for each of
+     *                   them.
      * @param <T>        The type of the first constant value to be passed as the first parameter to each invocation of
      *                   biFunction.
-     * @param <U>        The type of the second constant value to be passed as the second parameter to each invocation of
-     *                   biFunction.
+     * @param <U>        The type of the second constant value to be passed as the second parameter to each invocation
+     *                   of biFunction.
      * @return A BooleanSupplier taking two parameters of type &lt;T&gt; and &lt;U&gt;, and returning a result of type
      * Boolean.
      */

@@ -6,9 +6,14 @@ import spock.lang.Unroll
 import java.util.function.Function
 
 import static java.util.function.Function.identity
+import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.PredicateUtils.*
 
 class PredicateUtilsSpec extends Specification {
+
+    static final int RAW_LIST_SIZE = 1000
+    static final int DISTINCT_KEY_SIZE = 100
+    def keyExtractor = { obj -> obj.key }
 
     def 'predicate passing null value throws NPE'() {
 
@@ -558,6 +563,34 @@ class PredicateUtilsSpec extends Specification {
         ['test'] | true
         null     | false
         []       | false
+    }
+
+    def 'distinct by key filters objects with unique key values'() {
+        expect:
+        makeEntriesDistinctByKey().size() == DISTINCT_KEY_SIZE
+    }
+
+    Collection makeEntriesDistinctByKey() {
+        (0..<RAW_LIST_SIZE).stream()
+                .map({ i -> makeKeyValuePair(i) })
+                .filter(distinctByKey(keyExtractor))
+                .collect(toList()) as Collection
+    }
+
+    Object makeKeyValuePair(i) {
+        [key: i % DISTINCT_KEY_SIZE, value: i]
+    }
+
+    def 'distinct by key parallel filters objects with unique key values'() {
+        expect:
+        makeEntriesDistinctByKeyParallel().size() == DISTINCT_KEY_SIZE
+    }
+
+    Collection makeEntriesDistinctByKeyParallel() {
+        (0..<RAW_LIST_SIZE).parallelStream()
+                .map({ i -> makeKeyValuePair(i) })
+                .filter(distinctByKeyParallel(keyExtractor))
+                .collect(toList()) as Collection
     }
 
     @Unroll

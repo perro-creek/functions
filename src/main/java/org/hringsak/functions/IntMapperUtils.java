@@ -1,13 +1,21 @@
 package org.hringsak.functions;
 
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.DoublePredicate;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.ToIntBiFunction;
 import java.util.function.ToIntFunction;
+import java.util.stream.IntStream;
+
+import static org.hringsak.functions.IntStreamUtils.defaultIntStream;
 
 /**
  * Methods that build functions to map a target element into another result. This class deals specifically with mapper
@@ -198,12 +206,56 @@ public final class IntMapperUtils {
         return t -> biFunction.applyAsInt(value, t);
     }
 
-    public static IntFunction<Pair<Integer, Integer>> pairIntWithIndex() {
-        return pairIntWithIndex(Integer::valueOf);
+    public static <T> Function<T, IntStream> flatIntMapper(Function<? super T, ? extends Collection<Integer>> intMapper) {
+        return t -> t == null ? IntStream.empty() : defaultIntStream(intMapper.apply(t));
     }
 
-    public static <R> IntFunction<Pair<R, Integer>> pairIntWithIndex(IntFunction<? extends R> function) {
+    public static <T> Function<T, IntStream> flatIntArrayMapper(Function<? super T, ? extends int[]> intMapper) {
+        return t -> t == null ? IntStream.empty() : defaultIntStream(intMapper.apply(t));
+    }
+
+    public static <U> IntFunction<IntObjectPair<U>> intPairOf(IntFunction<? extends U> rightFunction) {
+        return d -> IntObjectPair.of(d, rightFunction.apply(d));
+    }
+
+    public static <U, V> IntFunction<Pair<U, V>> intPairOf(IntFunction<? extends U> leftFunction, IntFunction<? extends V> rightFunction) {
+        return d -> Pair.of(leftFunction.apply(d), rightFunction.apply(d));
+    }
+
+    public static <R> IntFunction<IntObjectPair<R>> intPairWith(List<R> pairedList) {
+        List<R> nonNullList = ListUtils.emptyIfNull(pairedList);
+        MutableInt idx = new MutableInt();
+        return d -> {
+            int i = idx.getAndIncrement();
+            return (i < nonNullList.size()) ? IntObjectPair.of(d, nonNullList.get(i)) : IntObjectPair.of(d, null);
+        };
+    }
+
+    public static <U, V> IntFunction<Pair<U, V>> intPairWith(IntFunction<? extends U> function, List<V> pairedList) {
+        List<V> nonNullList = ListUtils.emptyIfNull(pairedList);
+        MutableInt idx = new MutableInt();
+        return d -> {
+            U extracted = function.apply(d);
+            int i = idx.getAndIncrement();
+            return (i < nonNullList.size()) ? Pair.of(extracted, nonNullList.get(i)) : Pair.of(extracted, null);
+        };
+    }
+
+    public static IntFunction<IntIndexPair> intPairWithIndex() {
         AtomicInteger idx = new AtomicInteger();
-        return t -> Pair.of(function.apply(t), idx.getAndIncrement());
+        return d -> IntIndexPair.of(d, idx.getAndIncrement());
+    }
+
+    public static <R> IntFunction<Pair<R, Integer>> intPairWithIndex(IntFunction<? extends R> function) {
+        AtomicInteger idx = new AtomicInteger();
+        return d -> Pair.of(function.apply(d), idx.getAndIncrement());
+    }
+
+    public static <R> IntFunction<R> intTernary(DoublePredicate predicate, IntTernaryMapper<R> ternaryMapper) {
+        return d -> predicate.test(d) ? ternaryMapper.getTrueMapper().apply(d) : ternaryMapper.getFalseMapper().apply(d);
+    }
+
+    public static <R> IntTernaryMapper<R> intTernaryMapper(IntFunction<R> trueExtractor, IntFunction<R> falseExtractor) {
+        return IntTernaryMapper.of(trueExtractor, falseExtractor);
     }
 }

@@ -1,7 +1,6 @@
 package org.hringsak.functions;
 
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,7 +10,6 @@ import java.util.Set;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
 import java.util.function.LongSupplier;
-import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -19,8 +17,8 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.hringsak.functions.CollectorUtils.toPartitionedList;
-import static org.hringsak.functions.LongMapperUtils.pairLongWithIndex;
-import static org.hringsak.functions.PredicateUtils.extractAndFilter;
+import static org.hringsak.functions.LongMapperUtils.longPairWithIndex;
+import static org.hringsak.functions.LongPredicateUtils.extractToLongAndFilter;
 
 public final class LongStreamUtils {
 
@@ -73,11 +71,11 @@ public final class LongStreamUtils {
         return FindLongWithDefaultSupplier.of(predicate, defaultSupplier);
     }
 
-    public static long indexOfFirstLong(long[] longs, Predicate<Long> predicate) {
+    public static long indexOfFirstLong(long[] longs, LongPredicate predicate) {
         return defaultLongStream(longs)
-                .mapToObj(pairLongWithIndex())
-                .filter(extractAndFilter(Pair::getLeft, predicate))
-                .mapToLong(Pair::getRight)
+                .mapToObj(longPairWithIndex())
+                .filter(extractToLongAndFilter(LongIndexPair::getLeft, predicate))
+                .mapToLong(LongIndexPair::getRight)
                 .findFirst()
                 .orElse(-1);
     }

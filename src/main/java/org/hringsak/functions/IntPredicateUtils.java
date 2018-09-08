@@ -7,9 +7,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.function.DoubleFunction;
+import java.util.function.DoublePredicate;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
@@ -153,7 +157,11 @@ public final class IntPredicateUtils {
         return notInt(isIntCollEmpty(function));
     }
 
-    static <U> IntPredicate extractAndFilter(IntFunction<? extends U> transformer, Predicate<? super U> predicate) {
-        return i -> predicate.test(transformer.apply(i));
+    public static <T> Predicate<T> extractToIntAndFilter(ToIntFunction<? super T> transformer, IntPredicate predicate) {
+        return t -> predicate.test(transformer.applyAsInt(t));
+    }
+
+    public static <U> IntPredicate intExtractAndFilter(IntFunction<? extends U> transformer, Predicate<? super U> predicate) {
+        return d -> predicate.test(transformer.apply(d));
     }
 }

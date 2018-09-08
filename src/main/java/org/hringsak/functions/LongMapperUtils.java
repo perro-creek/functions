@@ -1,13 +1,21 @@
 package org.hringsak.functions;
 
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.DoublePredicate;
 import java.util.function.Function;
 import java.util.function.LongFunction;
 import java.util.function.ToLongBiFunction;
 import java.util.function.ToLongFunction;
+import java.util.stream.LongStream;
+
+import static org.hringsak.functions.LongStreamUtils.defaultLongStream;
 
 /**
  * Methods that build functions to map a target element into another result. This class deals specifically with mapper
@@ -63,7 +71,7 @@ public final class LongMapperUtils {
      * @param <U>        The type of the constant value to be passed as the second parameter to each invocation of
      *                   biFunction.
      * @param <R>        The type of the result of the LongFunction built by this method.
-     * @return A LongFunction taking a single parameter of type int, and returning a result of type &lt;R&gt;.
+     * @return A LongFunction taking a single parameter of type long, and returning a result of type &lt;R&gt;.
      */
     public static <U, R> LongFunction<R> longMapper(BiFunction<Long, ? super U, ? extends R> biFunction, U value) {
         return l -> biFunction.apply(l, value);
@@ -137,7 +145,7 @@ public final class LongMapperUtils {
      * @return A ToLongFunction taking a single parameter of type &lt;T&gt;, and returning a result of type long.
      */
     public static <T> ToLongFunction<T> toLongMapperDefault(ToLongFunction<? super T> function, long defaultValue) {
-        return t -> t == null ? defaultValue : function.applyAsLong(t);
+        return l -> l == null ? defaultValue : function.applyAsLong(l);
     }
 
     /**
@@ -166,7 +174,7 @@ public final class LongMapperUtils {
      * @return A ToLongFunction taking a single parameter of type &lt;T&gt;, and returning a result of type long.
      */
     public static <T, U> ToLongFunction<T> toLongMapper(ToLongBiFunction<? super T, ? super U> biFunction, U value) {
-        return t -> biFunction.applyAsLong(t, value);
+        return l -> biFunction.applyAsLong(l, value);
     }
 
     /**
@@ -195,15 +203,59 @@ public final class LongMapperUtils {
      * @return A ToLongFunction taking a single parameter of type &lt;T&gt;, and returning a result of type long.
      */
     public static <T, U> ToLongFunction<T> inverseToLongMapper(ToLongBiFunction<? super U, ? super T> biFunction, U value) {
-        return t -> biFunction.applyAsLong(value, t);
+        return l -> biFunction.applyAsLong(value, l);
     }
 
-    public static LongFunction<Pair<Long, Integer>> pairLongWithIndex() {
-        return pairLongWithIndex(Long::valueOf);
+    public static <T> Function<T, LongStream> flatLongMapper(Function<? super T, ? extends Collection<Long>> longMapper) {
+        return l -> l == null ? LongStream.empty() : defaultLongStream(longMapper.apply(l));
     }
 
-    public static <R> LongFunction<Pair<R, Integer>> pairLongWithIndex(LongFunction<? extends R> function) {
+    public static <T> Function<T, LongStream> flatLongArrayMapper(Function<? super T, ? extends long[]> longMapper) {
+        return l -> l == null ? LongStream.empty() : defaultLongStream(longMapper.apply(l));
+    }
+
+    public static <U> LongFunction<LongObjectPair<U>> longPairOf(LongFunction<? extends U> rightFunction) {
+        return l -> LongObjectPair.of(l, rightFunction.apply(l));
+    }
+
+    public static <U, V> LongFunction<Pair<U, V>> longPairOf(LongFunction<? extends U> leftFunction, LongFunction<? extends V> rightFunction) {
+        return l -> Pair.of(leftFunction.apply(l), rightFunction.apply(l));
+    }
+
+    public static <R> LongFunction<LongObjectPair<R>> longPairWith(List<R> pairedList) {
+        List<R> nonNullList = ListUtils.emptyIfNull(pairedList);
+        MutableInt idx = new MutableInt();
+        return l -> {
+            int i = idx.getAndIncrement();
+            return (i < nonNullList.size()) ? LongObjectPair.of(l, nonNullList.get(i)) : LongObjectPair.of(l, null);
+        };
+    }
+
+    public static <U, V> LongFunction<Pair<U, V>> longPairWith(LongFunction<? extends U> function, List<V> pairedList) {
+        List<V> nonNullList = ListUtils.emptyIfNull(pairedList);
+        MutableInt idx = new MutableInt();
+        return l -> {
+            U extracted = function.apply(l);
+            int i = idx.getAndIncrement();
+            return (i < nonNullList.size()) ? Pair.of(extracted, nonNullList.get(i)) : Pair.of(extracted, null);
+        };
+    }
+
+    public static LongFunction<LongIndexPair> longPairWithIndex() {
         AtomicInteger idx = new AtomicInteger();
-        return t -> Pair.of(function.apply(t), idx.getAndIncrement());
+        return l -> LongIndexPair.of(l, idx.getAndIncrement());
+    }
+
+    public static <R> LongFunction<Pair<R, Integer>> longPairWithIndex(LongFunction<? extends R> function) {
+        AtomicInteger idx = new AtomicInteger();
+        return l -> Pair.of(function.apply(l), idx.getAndIncrement());
+    }
+
+    public static <R> LongFunction<R> longTernary(DoublePredicate predicate, LongTernaryMapper<R> ternaryMapper) {
+        return l -> predicate.test(l) ? ternaryMapper.getTrueMapper().apply(l) : ternaryMapper.getFalseMapper().apply(l);
+    }
+
+    public static <R> LongTernaryMapper<R> longTernaryMapper(LongFunction<R> trueExtractor, LongFunction<R> falseExtractor) {
+        return LongTernaryMapper.of(trueExtractor, falseExtractor);
     }
 }

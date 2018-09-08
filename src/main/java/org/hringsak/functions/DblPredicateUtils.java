@@ -1,16 +1,20 @@
 package org.hringsak.functions;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
@@ -152,5 +156,23 @@ public final class DblPredicateUtils {
 
     public static <R> DoublePredicate isDblCollNotEmpty(DoubleFunction<? extends Collection<R>> function) {
         return notDbl(isDblCollEmpty(function));
+    }
+
+    public static DoublePredicate dblDistinctByKey(DoubleFunction<?> keyExtractor) {
+        Set<? super Object> uniqueKeys = new HashSet<>();
+        return d -> uniqueKeys.add(keyExtractor.apply(d));
+    }
+
+    public static DoublePredicate dblDistinctByKeyParallel(DoubleFunction<?> keyExtractor) {
+        Set<? super Object> uniqueKeys = Sets.newConcurrentHashSet();
+        return d -> uniqueKeys.add(keyExtractor.apply(d));
+    }
+
+    public static <T> Predicate<T> extractToDblAndFilter(ToDoubleFunction<? super T> transformer, DoublePredicate predicate) {
+        return t -> predicate.test(transformer.applyAsDouble(t));
+    }
+
+    public static <U> DoublePredicate dblExtractAndFilter(DoubleFunction<? extends U> transformer, Predicate<? super U> predicate) {
+        return d -> predicate.test(transformer.apply(d));
     }
 }

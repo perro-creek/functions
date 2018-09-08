@@ -91,120 +91,60 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'flat mapper taking function passing value "#paramOne" returns #expected'() {
+    def 'flat mapper taking function passing value "#target" returns #expected'() {
 
         expect:
         Function function = { String param -> param.codePoints().boxed().collect(toList()) }
-        def codePoints = flatMapper(function).apply(paramOne).collect(toList())
+        def codePoints = flatMapper(function).apply(target).collect(toList())
         codePoints == expected
 
         where:
-        paramOne || expected
+        target || expected
         'test'   || ['t', 'e', 's', 't']
         null     || []
         ''       || []
     }
 
     @Unroll
-    def 'flat array mapper taking function passing value "#paramOne" returns #expected'() {
+    def 'flat array mapper taking function passing value "#target" returns #expected'() {
 
         expect:
         Function function = { String param -> param.codePoints().boxed().toArray({ i -> new Integer[i] }) }
-        def codePoints = flatArrayMapper(function).apply(paramOne).collect(toList())
+        def codePoints = flatArrayMapper(function).apply(target).collect(toList())
         codePoints == expected
 
         where:
-        paramOne || expected
+        target || expected
         'test'   || ['t', 'e', 's', 't']
         null     || []
         ''       || []
     }
 
     @Unroll
-    def 'flat double mapper taking function passing value "#paramOne" returns #expected'() {
-
-        expect:
-        Function function = { String param -> [1.0D, 2.0D, 3.0D] }
-        def doubles = flatDoubleMapper(function).apply(paramOne).toArray()
-        doubles == expected as double[]
-
-        where:
-        paramOne || expected
-        'test'   || [1.0D, 2.0D, 3.0D]
-        null     || []
-        ''       || [1.0D, 2.0D, 3.0D]
-    }
-
-    @Unroll
-    def 'flat double array mapper taking function passing value "#paramOne" returns #expected'() {
-
-        expect:
-        Function function = { String param -> [1.0D, 2.0D, 3.0D] as double[] }
-        def doubles = flatDoubleArrayMapper(function).apply(paramOne).toArray()
-        doubles == expected as double[]
-
-        where:
-        paramOne || expected
-        'test'   || [1.0D, 2.0D, 3.0D]
-        null     || []
-        ''       || [1.0D, 2.0D, 3.0D]
-    }
-
-    @Unroll
-    def 'flat int mapper taking function passing value "#paramOne" returns #expected'() {
-
-        expect:
-        Function function = { String param -> param.codePoints().boxed().collect(toList()) }
-        def codePoints = flatIntMapper(function).apply(paramOne).toArray()
-        codePoints == expected as int[]
-
-        where:
-        paramOne || expected
-        'test'   || [116, 101, 115, 116]
-        null     || []
-        ''       || []
-    }
-
-    @Unroll
-    def 'flat int array mapper taking function passing value "#paramOne" returns #expected'() {
-
-        expect:
-        Function function = { String param -> param.codePoints().toArray() }
-        def codePoints = flatIntArrayMapper(function).apply(paramOne).toArray()
-        codePoints == expected as int[]
-
-        where:
-        paramOne || expected
-        'test'   || [116, 101, 115, 116]
-        null     || []
-        ''       || []
-    }
-
-    @Unroll
-    def 'flat long mapper taking function passing value "#paramOne" returns #expected'() {
+    def 'flat long mapper taking function passing value "#target" returns #expected'() {
 
         expect:
         Function function = { String param -> [1L, 2L, 3L] }
-        def longs = flatLongMapper(function).apply(paramOne).toArray()
+        def longs = flatLongMapper(function).apply(target).toArray()
         longs == expected as long[]
 
         where:
-        paramOne || expected
+        target || expected
         'test'   || [1L, 2L, 3L]
         null     || []
         ''       || [1L, 2L, 3L]
     }
 
     @Unroll
-    def 'flat long array mapper taking function passing value "#paramOne" returns #expected'() {
+    def 'flat long array mapper taking function passing value "#target" returns #expected'() {
 
         expect:
         Function function = { String param -> [1L, 2L, 3L] as long[] }
-        def longs = flatLongArrayMapper(function).apply(paramOne).toArray()
+        def longs = flatLongArrayMapper(function).apply(target).toArray()
         longs == expected as long[]
 
         where:
-        paramOne || expected
+        target || expected
         'test'   || [1L, 2L, 3L]
         null     || []
         ''       || [1L, 2L, 3L]
@@ -214,9 +154,8 @@ class MapperUtilsSpec extends Specification {
     def 'pair of with values "#target" and "#right" returns #expected'() {
 
         expect:
-        def leftFunction = { t -> t } as Function<String, String>
-        def rightFunction = { t -> right } as Function<String, String>
-        pairOf(leftFunction, rightFunction).apply(target) == expected
+        def rightFunction = { t -> right }
+        pairOf(rightFunction).apply(target) == expected
 
         where:
         target   | right   || expected
@@ -290,18 +229,18 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'ternary passing predicateParameter "#predicateParameter" expecting "#expectedResult'() {
+    def 'ternary passing target "#target" expecting "#expected'() {
 
         expect:
-        def predicate = { String s -> s.isEmpty() } as Predicate
-        def trueExtractor = { s -> trueValue } as Function
-        def falseExtractor = { s -> falseValue } as Function
-        def result = ternary(predicate, ternaryMapper(trueExtractor, falseExtractor)).apply(predicateParameter)
-        result == expectedResult
+        def predicate = { String s -> s.isEmpty() }
+        def trueExtractor = { s -> 'trueValue' }
+        def falseExtractor = { s -> 'falseValue' }
+        def result = ternary(predicate, ternaryMapper(trueExtractor, falseExtractor)).apply(target)
+        result == expected
 
         where:
-        predicateParameter | trueValue   | falseValue   || expectedResult
-        'test'             | 'trueValue' | 'falseValue' || 'falseValue'
-        ''                 | 'trueValue' | 'falseValue' || 'trueValue'
+        target || expected
+        'test' || 'falseValue'
+        ''     || 'trueValue'
     }
 }

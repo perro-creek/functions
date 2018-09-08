@@ -1,11 +1,14 @@
 package org.hringsak.functions;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -166,6 +169,16 @@ public final class PredicateUtils {
 
     public static <T, R> Predicate<T> isCollNotEmpty(Function<? super T, ? extends Collection<R>> function) {
         return not(isCollEmpty(function));
+    }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> uniqueKeys = new HashSet<>();
+        return t -> uniqueKeys.add(keyExtractor.apply(t));
+    }
+
+    public static <T> Predicate<T> distinctByKeyParallel(Function<? super T, ?> keyExtractor) {
+        Set<Object> uniqueKeys = Sets.newConcurrentHashSet();
+        return t -> uniqueKeys.add(keyExtractor.apply(t));
     }
 
     static <T, U> Predicate<T> extractAndFilter(Function<? super T, ? extends U> transformer, Predicate<? super U> predicate) {

@@ -11,14 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import static org.hringsak.functions.StreamUtils.defaultDoubleStream;
-import static org.hringsak.functions.StreamUtils.defaultIntStream;
-import static org.hringsak.functions.StreamUtils.defaultLongStream;
+import static java.util.function.Function.identity;
 import static org.hringsak.functions.StreamUtils.defaultStream;
 
 /**
@@ -188,36 +183,17 @@ public final class MapperUtils {
         return t -> t == null ? Stream.empty() : defaultStream(mapper.apply(t));
     }
 
-    public static <T> Function<T, DoubleStream> flatDoubleMapper(Function<? super T, ? extends Collection<Double>> doubleMapper) {
-        return t -> t == null ? DoubleStream.empty() : defaultDoubleStream(doubleMapper.apply(t));
+    public static <T, U> Function<T, Pair<T, U>> pairOf(Function<? super T, ? extends U> rightFunction) {
+        return pairOf(identity(), rightFunction);
     }
 
-    public static <T> Function<T, DoubleStream> flatDoubleArrayMapper(Function<? super T, ? extends double[]> doubleMapper) {
-        return t -> t == null ? DoubleStream.empty() : defaultDoubleStream(doubleMapper.apply(t));
-    }
-
-    public static <T> Function<T, IntStream> flatIntMapper(Function<? super T, ? extends Collection<Integer>> intMapper) {
-        return t -> t == null ? IntStream.empty() : defaultIntStream(intMapper.apply(t));
-    }
-
-    public static <T> Function<T, IntStream> flatIntArrayMapper(Function<? super T, ? extends int[]> intMapper) {
-        return t -> t == null ? IntStream.empty() : defaultIntStream(intMapper.apply(t));
-    }
-
-    public static <T> Function<T, LongStream> flatLongMapper(Function<? super T, ? extends Collection<Long>> longMapper) {
-        return t -> t == null ? LongStream.empty() : defaultLongStream(longMapper.apply(t));
-    }
-
-    public static <T> Function<T, LongStream> flatLongArrayMapper(Function<? super T, ? extends long[]> longMapper) {
-        return t -> t == null ? LongStream.empty() : defaultLongStream(longMapper.apply(t));
-    }
-
+    @SuppressWarnings("WeakerAccess")
     public static <T, U, V> Function<T, Pair<U, V>> pairOf(Function<T, U> leftFunction, Function<? super T, ? extends V> rightFunction) {
         return t -> Pair.of(leftFunction.apply(t), rightFunction.apply(t));
     }
 
     public static <T, R> Function<T, Pair<T, R>> pairWith(List<R> pairedList) {
-        return pairWith(Function.identity(), pairedList);
+        return pairWith(identity(), pairedList);
     }
 
     public static <T, U, V> Function<T, Pair<U, V>> pairWith(Function<? super T, ? extends U> function, List<V> pairedList) {
@@ -231,7 +207,7 @@ public final class MapperUtils {
     }
 
     public static <T> Function<T, Pair<T, Integer>> pairWithIndex() {
-        return pairWithIndex(Function.identity());
+        return pairWithIndex(identity());
     }
 
     public static <T, R> Function<T, Pair<R, Integer>> pairWithIndex(Function<? super T, ? extends R> function) {
