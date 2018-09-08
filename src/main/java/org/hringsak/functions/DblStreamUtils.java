@@ -13,7 +13,8 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.hringsak.functions.CollectorUtils.toPartitionedList;
-import static org.hringsak.functions.DblPredicateUtils.extractToDblAndFilter;
+import static org.hringsak.functions.DblMapperUtils.dblPairWithIndex;
+import static org.hringsak.functions.DblPredicateUtils.mapToDblAndFilter;
 
 /**
  * Methods that are shortcuts to creating streams, specifically methods involving primitive double types.
@@ -177,8 +178,8 @@ public final class DblStreamUtils {
      */
     public static int indexOfFirstDbl(double[] doubles, DoublePredicate predicate) {
         return defaultDblStream(doubles)
-                .mapToObj(DblMapperUtils.dblPairWithIndex())
-                .filter(extractToDblAndFilter(DoubleIndexPair::getLeft, predicate))
+                .mapToObj(dblPairWithIndex())
+                .filter(mapToDblAndFilter(DoubleIndexPair::getLeft, predicate))
                 .mapToInt(DoubleIndexPair::getRight)
                 .findFirst()
                 .orElse(-1);

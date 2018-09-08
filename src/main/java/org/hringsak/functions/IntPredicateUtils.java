@@ -51,7 +51,7 @@ public final class IntPredicateUtils {
     }
 
     public static <R extends CharSequence> IntPredicate isIntStrEmpty(IntFunction<? extends R> function) {
-        return d -> { CharSequence seq = function.apply(d); return seq == null || seq.length() == 0; };
+        return i -> { CharSequence seq = function.apply(i); return seq == null || seq.length() == 0; };
     }
 
     public static <R extends CharSequence> IntPredicate isIntStrNotEmpty(IntFunction<? extends R> function) {
@@ -157,11 +157,11 @@ public final class IntPredicateUtils {
         return notInt(isIntCollEmpty(function));
     }
 
-    public static <T> Predicate<T> extractToIntAndFilter(ToIntFunction<? super T> transformer, IntPredicate predicate) {
-        return t -> predicate.test(transformer.applyAsInt(t));
+    public static <T> Predicate<T> mapToIntAndFilter(ToIntFunction<? super T> transformer, IntPredicate predicate) {
+        return i -> predicate.test(transformer.applyAsInt(i));
     }
 
-    public static <U> IntPredicate intExtractAndFilter(IntFunction<? extends U> transformer, Predicate<? super U> predicate) {
-        return d -> predicate.test(transformer.apply(d));
+    public static <U> IntPredicate intMapAndFilter(IntFunction<? extends U> transformer, Predicate<? super U> predicate) {
+        return i -> predicate.test(transformer.apply(i));
     }
 }

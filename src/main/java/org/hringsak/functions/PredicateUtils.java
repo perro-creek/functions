@@ -181,7 +181,7 @@ public final class PredicateUtils {
         return t -> uniqueKeys.add(keyExtractor.apply(t));
     }
 
-    static <T, U> Predicate<T> extractAndFilter(Function<? super T, ? extends U> transformer, Predicate<? super U> predicate) {
+    static <T, U> Predicate<T> mapAndFilter(Function<? super T, ? extends U> transformer, Predicate<? super U> predicate) {
         return t -> t != null && predicate.test(transformer.apply(t));
     }
 }

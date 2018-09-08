@@ -145,7 +145,7 @@ public final class IntMapperUtils {
      * @return A ToIntFunction taking a single parameter of type &lt;T&gt;, and returning a result of type int.
      */
     public static <T> ToIntFunction<T> toIntMapperDefault(ToIntFunction<? super T> function, int defaultValue) {
-        return t -> t == null ? defaultValue : function.applyAsInt(t);
+        return i -> i == null ? defaultValue : function.applyAsInt(i);
     }
 
     /**
@@ -174,7 +174,7 @@ public final class IntMapperUtils {
      * @return A ToIntFunction taking a single parameter of type &lt;T&gt;, and returning a result of type int.
      */
     public static <T, U> ToIntFunction<T> toIntMapper(ToIntBiFunction<? super T, ? super U> biFunction, U value) {
-        return t -> biFunction.applyAsInt(t, value);
+        return i -> biFunction.applyAsInt(i, value);
     }
 
     /**
@@ -203,56 +203,56 @@ public final class IntMapperUtils {
      * @return A ToIntFunction taking a single parameter of type &lt;T&gt;, and returning a result of type int.
      */
     public static <T, U> ToIntFunction<T> inverseToIntMapper(ToIntBiFunction<? super U, ? super T> biFunction, U value) {
-        return t -> biFunction.applyAsInt(value, t);
+        return i -> biFunction.applyAsInt(value, i);
     }
 
     public static <T> Function<T, IntStream> flatIntMapper(Function<? super T, ? extends Collection<Integer>> intMapper) {
-        return t -> t == null ? IntStream.empty() : defaultIntStream(intMapper.apply(t));
+        return i -> i == null ? IntStream.empty() : defaultIntStream(intMapper.apply(i));
     }
 
     public static <T> Function<T, IntStream> flatIntArrayMapper(Function<? super T, ? extends int[]> intMapper) {
-        return t -> t == null ? IntStream.empty() : defaultIntStream(intMapper.apply(t));
+        return i -> i == null ? IntStream.empty() : defaultIntStream(intMapper.apply(i));
     }
 
     public static <U> IntFunction<IntObjectPair<U>> intPairOf(IntFunction<? extends U> rightFunction) {
-        return d -> IntObjectPair.of(d, rightFunction.apply(d));
+        return i -> IntObjectPair.of(i, rightFunction.apply(i));
     }
 
     public static <U, V> IntFunction<Pair<U, V>> intPairOf(IntFunction<? extends U> leftFunction, IntFunction<? extends V> rightFunction) {
-        return d -> Pair.of(leftFunction.apply(d), rightFunction.apply(d));
+        return i -> Pair.of(leftFunction.apply(i), rightFunction.apply(i));
     }
 
     public static <R> IntFunction<IntObjectPair<R>> intPairWith(List<R> pairedList) {
         List<R> nonNullList = ListUtils.emptyIfNull(pairedList);
         MutableInt idx = new MutableInt();
-        return d -> {
-            int i = idx.getAndIncrement();
-            return (i < nonNullList.size()) ? IntObjectPair.of(d, nonNullList.get(i)) : IntObjectPair.of(d, null);
+        return i -> {
+            int j = idx.getAndIncrement();
+            return (j < nonNullList.size()) ? IntObjectPair.of(i, nonNullList.get(j)) : IntObjectPair.of(i, null);
         };
     }
 
     public static <U, V> IntFunction<Pair<U, V>> intPairWith(IntFunction<? extends U> function, List<V> pairedList) {
         List<V> nonNullList = ListUtils.emptyIfNull(pairedList);
         MutableInt idx = new MutableInt();
-        return d -> {
-            U extracted = function.apply(d);
-            int i = idx.getAndIncrement();
-            return (i < nonNullList.size()) ? Pair.of(extracted, nonNullList.get(i)) : Pair.of(extracted, null);
+        return i -> {
+            U extracted = function.apply(i);
+            int j = idx.getAndIncrement();
+            return (j < nonNullList.size()) ? Pair.of(extracted, nonNullList.get(j)) : Pair.of(extracted, null);
         };
     }
 
     public static IntFunction<IntIndexPair> intPairWithIndex() {
         AtomicInteger idx = new AtomicInteger();
-        return d -> IntIndexPair.of(d, idx.getAndIncrement());
+        return i -> IntIndexPair.of(i, idx.getAndIncrement());
     }
 
     public static <R> IntFunction<Pair<R, Integer>> intPairWithIndex(IntFunction<? extends R> function) {
         AtomicInteger idx = new AtomicInteger();
-        return d -> Pair.of(function.apply(d), idx.getAndIncrement());
+        return i -> Pair.of(function.apply(i), idx.getAndIncrement());
     }
 
     public static <R> IntFunction<R> intTernary(DoublePredicate predicate, IntTernaryMapper<R> ternaryMapper) {
-        return d -> predicate.test(d) ? ternaryMapper.getTrueMapper().apply(d) : ternaryMapper.getFalseMapper().apply(d);
+        return i -> predicate.test(i) ? ternaryMapper.getTrueMapper().apply(i) : ternaryMapper.getFalseMapper().apply(i);
     }
 
     public static <R> IntTernaryMapper<R> intTernaryMapper(IntFunction<R> trueExtractor, IntFunction<R> falseExtractor) {

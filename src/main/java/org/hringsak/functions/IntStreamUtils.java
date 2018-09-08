@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.hringsak.functions.CollectorUtils.toPartitionedList;
 import static org.hringsak.functions.IntMapperUtils.intPairWithIndex;
-import static org.hringsak.functions.IntPredicateUtils.extractToIntAndFilter;
+import static org.hringsak.functions.IntPredicateUtils.mapToIntAndFilter;
 
 public final class IntStreamUtils {
 
@@ -74,7 +74,7 @@ public final class IntStreamUtils {
     public static int indexOfFirstInt(int[] ints, IntPredicate predicate) {
         return defaultIntStream(ints)
                 .mapToObj(intPairWithIndex())
-                .filter(extractToIntAndFilter(IntIndexPair::getLeft, predicate))
+                .filter(mapToIntAndFilter(IntIndexPair::getLeft, predicate))
                 .mapToInt(IntIndexPair::getRight)
                 .findFirst()
                 .orElse(-1);

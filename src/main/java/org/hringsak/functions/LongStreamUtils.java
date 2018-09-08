@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.hringsak.functions.CollectorUtils.toPartitionedList;
 import static org.hringsak.functions.LongMapperUtils.longPairWithIndex;
-import static org.hringsak.functions.LongPredicateUtils.extractToLongAndFilter;
+import static org.hringsak.functions.LongPredicateUtils.mapToLongAndFilter;
 
 public final class LongStreamUtils {
 
@@ -74,7 +74,7 @@ public final class LongStreamUtils {
     public static long indexOfFirstLong(long[] longs, LongPredicate predicate) {
         return defaultLongStream(longs)
                 .mapToObj(longPairWithIndex())
-                .filter(extractToLongAndFilter(LongIndexPair::getLeft, predicate))
+                .filter(mapToLongAndFilter(LongIndexPair::getLeft, predicate))
                 .mapToLong(LongIndexPair::getRight)
                 .findFirst()
                 .orElse(-1);

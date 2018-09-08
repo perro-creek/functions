@@ -48,7 +48,7 @@ public final class LongPredicateUtils {
     }
 
     public static <R extends CharSequence> LongPredicate isLongStrEmpty(LongFunction<? extends R> function) {
-        return d -> { CharSequence seq = function.apply(d); return seq == null || seq.length() == 0; };
+        return l -> { CharSequence seq = function.apply(l); return seq == null || seq.length() == 0; };
     }
 
     public static <R extends CharSequence> LongPredicate isLongStrNotEmpty(LongFunction<? extends R> function) {
@@ -154,11 +154,11 @@ public final class LongPredicateUtils {
         return notLong(isLongCollEmpty(function));
     }
 
-    public static <T> Predicate<T> extractToLongAndFilter(ToLongFunction<? super T> transformer, LongPredicate predicate) {
-        return t -> predicate.test(transformer.applyAsLong(t));
+    public static <T> Predicate<T> mapToLongAndFilter(ToLongFunction<? super T> transformer, LongPredicate predicate) {
+        return l -> predicate.test(transformer.applyAsLong(l));
     }
 
-    public static <U> LongPredicate longExtractAndFilter(LongFunction<? extends U> transformer, Predicate<? super U> predicate) {
-        return d -> predicate.test(transformer.apply(d));
+    public static <U> LongPredicate longMapAndFilter(LongFunction<? extends U> transformer, Predicate<? super U> predicate) {
+        return l -> predicate.test(transformer.apply(l));
     }
 }

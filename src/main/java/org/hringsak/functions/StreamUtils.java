@@ -1,11 +1,9 @@
 package org.hringsak.functions;
 
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -13,9 +11,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -25,7 +20,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
 import static org.hringsak.functions.MapperUtils.pairWithIndex;
 import static org.hringsak.functions.PredicateUtils.contains;
-import static org.hringsak.functions.PredicateUtils.extractAndFilter;
+import static org.hringsak.functions.PredicateUtils.mapAndFilter;
 import static org.hringsak.functions.PredicateUtils.not;
 
 public final class StreamUtils {
@@ -84,7 +79,7 @@ public final class StreamUtils {
     public static <T> int indexOfFirst(Collection<T> objects, Predicate<T> predicate) {
         return defaultStream(objects)
                 .map(pairWithIndex())
-                .filter(extractAndFilter(Pair::getLeft, predicate))
+                .filter(mapAndFilter(Pair::getLeft, predicate))
                 .mapToInt(Pair::getRight)
                 .findFirst()
                 .orElse(-1);

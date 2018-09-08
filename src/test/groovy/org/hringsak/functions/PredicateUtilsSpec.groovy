@@ -140,6 +140,20 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'is string not empty passing "#target" returns #expected'() {
+
+        expect:
+        def predicate = isStrNotEmpty { String s -> s.reverse() }
+        predicate.test(target) == expected
+
+        where:
+        target | expected
+        null   | false
+        ''     | false
+        'test' | true
+    }
+
+    @Unroll
     def 'is equal passing constantValue #constantValue and target #target returns #expected'() {
 
         expect:
@@ -594,10 +608,10 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'extract and filter passing input "#input"'() {
+    def 'map and filter passing input "#input"'() {
 
         expect:
-        def predicate = extractAndFilter({ String s -> s.length() }, isEqual(4, Function.identity()))
+        def predicate = mapAndFilter({ String s -> s.length() }, isEqual(4, Function.identity()))
         predicate.test(input) == expected
 
         where:

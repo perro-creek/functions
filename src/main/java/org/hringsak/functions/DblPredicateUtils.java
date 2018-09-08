@@ -168,11 +168,11 @@ public final class DblPredicateUtils {
         return d -> uniqueKeys.add(keyExtractor.apply(d));
     }
 
-    public static <T> Predicate<T> extractToDblAndFilter(ToDoubleFunction<? super T> transformer, DoublePredicate predicate) {
+    public static <T> Predicate<T> mapToDblAndFilter(ToDoubleFunction<? super T> transformer, DoublePredicate predicate) {
         return t -> predicate.test(transformer.applyAsDouble(t));
     }
 
-    public static <U> DoublePredicate dblExtractAndFilter(DoubleFunction<? extends U> transformer, Predicate<? super U> predicate) {
+    public static <U> DoublePredicate dblMapAndFilter(DoubleFunction<? extends U> transformer, Predicate<? super U> predicate) {
         return d -> predicate.test(transformer.apply(d));
     }
 }
