@@ -98,7 +98,7 @@ public final class BooleanSupplierUtils {
      *         ...
      *     }
      * </pre>
-     * By making judicious use of static imports, we could reduce the clutter of the call to create the supplier to:
+     * Or, with static imports:
      * <pre>
      *     ...
      *     BooleanSupplier flagSupplier = booleanSupplier(this::getDiscountFlag, constantValues(customerId, purchaseOrderId));

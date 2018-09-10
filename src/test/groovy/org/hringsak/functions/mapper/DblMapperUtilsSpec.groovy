@@ -1,8 +1,6 @@
 package org.hringsak.functions.mapper
 
 import org.apache.commons.lang3.tuple.Pair
-import org.hringsak.functions.mapper.DoubleIndexPair
-import org.hringsak.functions.mapper.DoubleObjectPair
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -129,6 +127,20 @@ class DblMapperUtilsSpec extends Specification {
         right   || expected
         'right' || DoubleObjectPair.of(1.0D, 'right')
         null    || DoubleObjectPair.of(1.0D, null)
+    }
+
+    @Unroll
+    def 'double pair of passing key value mapper with values "#left" and "#right" returns #expected'() {
+
+        expect:
+        def keyValueMapper = dblKeyValueMapper({ d -> left }, { d -> right })
+        dblPairOf(keyValueMapper).apply(1.0D) == expected
+
+        where:
+        left   | right   || expected
+        'left' | 'right' || Pair.of('left', 'right')
+        null   | 'right' || Pair.of(null, 'right')
+        'left' | null    || Pair.of('left', null)
     }
 
     @Unroll

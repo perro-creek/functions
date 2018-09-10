@@ -17,7 +17,7 @@ class StreamUtilsSpec extends Specification {
     def 'find any returns expected value for string length "#length"'() {
 
         expect:
-        findAny([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+        findAny([null, '', 'test', ''], isEqual({ String s -> s.length() }, length)) == expected
 
         where:
         length | expected
@@ -30,7 +30,7 @@ class StreamUtilsSpec extends Specification {
     def 'find any with default returns expected value for string length "#length"'() {
 
         expect:
-        def predicate = isEqual(length, { String s -> s.length() })
+        def predicate = isEqual({ String s -> s.length() }, length)
         findAnyWithDefault([null, '', 'test', ''], findWithDefault(predicate, 'default')) == expected
 
         where:
@@ -44,7 +44,7 @@ class StreamUtilsSpec extends Specification {
     def 'find any with default supplier returns expected value for string length "#length"'() {
 
         expect:
-        def predicate = isEqual(length, { String s -> s.length() }) as Predicate<String>
+        def predicate = isEqual({ String s -> s.length() }, length) as Predicate<String>
         def supplier = { 'default' } as Supplier<String>
         findAnyWithDefault([null, '', 'test', ''], findWithDefault(predicate, supplier)) == expected
 
@@ -59,7 +59,7 @@ class StreamUtilsSpec extends Specification {
     def 'find first returns expected value for string length "#length"'() {
 
         expect:
-        findFirst([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+        findFirst([null, '', 'test', ''], isEqual({ String s -> s.length() }, length)) == expected
 
         where:
         length | expected
@@ -72,7 +72,7 @@ class StreamUtilsSpec extends Specification {
     def 'find first with default returns expected value for string length "#length"'() {
 
         expect:
-        def predicate = isEqual(length, { String s -> s.length() })
+        def predicate = isEqual({ String s -> s.length() }, length)
         findFirstWithDefault([null, '', 'test', ''], findWithDefault(predicate, 'default')) == expected
 
         where:
@@ -86,7 +86,7 @@ class StreamUtilsSpec extends Specification {
     def 'find first with default supplier returns expected value for string length "#length"'() {
 
         expect:
-        def predicate = isEqual(length, { String s -> s.length() }) as Predicate<String>
+        def predicate = isEqual({ String s -> s.length() }, length) as Predicate<String>
         def supplier = { 'default' } as Supplier<String>
         findFirstWithDefault([null, '', 'test', ''], findWithDefault(predicate, supplier)) == expected
 
@@ -101,7 +101,7 @@ class StreamUtilsSpec extends Specification {
     def 'index of first returns expected value for string length "#length"'() {
 
         expect:
-        indexOfFirst([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+        indexOfFirst([null, '', 'test', ''], isEqual({ String s -> s.length() }, length)) == expected
 
         where:
         length | expected
@@ -114,7 +114,7 @@ class StreamUtilsSpec extends Specification {
     def 'any match returns expected value for string length "#length"'() {
 
         expect:
-        anyMatch([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+        anyMatch([null, '', 'test', ''], isEqual({ String s -> s.length() }, length)) == expected
 
         where:
         length | expected
@@ -127,7 +127,7 @@ class StreamUtilsSpec extends Specification {
     def 'none match returns expected value for string length "#length"'() {
 
         expect:
-        noneMatch([null, '', 'test', ''], isEqual(length, { String s -> s.length() })) == expected
+        noneMatch([null, '', 'test', ''], isEqual({ String s -> s.length() }, length)) == expected
 
         where:
         length | expected

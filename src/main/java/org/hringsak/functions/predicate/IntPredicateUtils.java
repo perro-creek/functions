@@ -7,12 +7,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiPredicate;
-import java.util.function.DoubleFunction;
-import java.util.function.DoublePredicate;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
-import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
 import static java.util.Comparator.naturalOrder;
@@ -58,8 +55,16 @@ public final class IntPredicateUtils {
         return notInt(isIntStrEmpty(function));
     }
 
+    public static IntPredicate isIntEqual(int value) {
+        return i -> i == value;
+    }
+
     public static <R> IntPredicate isIntEqual(R value, IntFunction<? extends R> extractor) {
         return i -> Objects.equals(value, extractor.apply(i));
+    }
+
+    public static IntPredicate isIntNotEqual(int value) {
+        return notInt(isIntEqual(value));
     }
 
     public static <R> IntPredicate isIntNotEqual(R value, IntFunction<? extends R> function) {
@@ -133,16 +138,32 @@ public final class IntPredicateUtils {
         return notInt(isIntNull(function));
     }
 
+    public static IntPredicate intGt(int compareTo) {
+        return i -> compareTo > i;
+    }
+
     public static <R extends Comparable<R>> IntPredicate intGt(R compareTo, IntFunction<? extends R> valueExtractor) {
         return i -> Objects.compare(compareTo, valueExtractor.apply(i), nullsLast(naturalOrder())) > 0;
+    }
+
+    public static IntPredicate intGte(int compareTo) {
+        return i -> compareTo >= i;
     }
 
     public static <R extends Comparable<R>> IntPredicate intGte(R compareTo, IntFunction<? extends R> valueExtractor) {
         return i -> Objects.compare(compareTo, valueExtractor.apply(i), nullsLast(naturalOrder())) >= 0;
     }
 
+    public static IntPredicate intLt(int compareTo) {
+        return i -> compareTo < i;
+    }
+
     public static <R extends Comparable<R>> IntPredicate intLt(R compareTo, IntFunction<? extends R> valueExtractor) {
         return i -> Objects.compare(compareTo, valueExtractor.apply(i), nullsLast(naturalOrder())) < 0;
+    }
+
+    public static IntPredicate intLte(int compareTo) {
+        return i -> compareTo <= i;
     }
 
     public static <R extends Comparable<R>> IntPredicate intLte(R compareTo, IntFunction<? extends R> valueExtractor) {

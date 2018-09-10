@@ -97,8 +97,7 @@ public final class DblConsumerUtils {
      *         ...
      *     }
      * </pre>
-     * By making judicious use of static imports, we can reduce the clutter in the <code>forEach(...)</code> invocation
-     * to:
+     * Or, with static imports:
      * <pre>
      *         widgets.forEach(setter(Widget::setPrice, mapper(this::calculatePrice, discount)));
      * </pre>

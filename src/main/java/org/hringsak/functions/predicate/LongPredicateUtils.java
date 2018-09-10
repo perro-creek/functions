@@ -55,8 +55,16 @@ public final class LongPredicateUtils {
         return notLong(isLongStrEmpty(function));
     }
 
+    public static LongPredicate isLongEqual(long value) {
+        return l -> l == value;
+    }
+
     public static <R> LongPredicate isLongEqual(R value, LongFunction<? extends R> extractor) {
         return l -> Objects.equals(value, extractor.apply(l));
+    }
+
+    public static LongPredicate isLongNotEqual(long value) {
+        return notLong(isLongEqual(value));
     }
 
     public static <R> LongPredicate isLongNotEqual(R value, LongFunction<? extends R> function) {
@@ -130,16 +138,32 @@ public final class LongPredicateUtils {
         return notLong(isLongNull(function));
     }
 
+    public static LongPredicate longGt(long compareTo) {
+        return l -> compareTo > l;
+    }
+
     public static <R extends Comparable<R>> LongPredicate longGt(R compareTo, LongFunction<? extends R> valueExtractor) {
         return l -> Objects.compare(compareTo, valueExtractor.apply(l), nullsLast(naturalOrder())) > 0;
+    }
+
+    public static LongPredicate longGte(long compareTo) {
+        return l -> compareTo >= l;
     }
 
     public static <R extends Comparable<R>> LongPredicate longGte(R compareTo, LongFunction<? extends R> valueExtractor) {
         return l -> Objects.compare(compareTo, valueExtractor.apply(l), nullsLast(naturalOrder())) >= 0;
     }
 
+    public static LongPredicate longLt(long compareTo) {
+        return l -> compareTo < l;
+    }
+
     public static <R extends Comparable<R>> LongPredicate longLt(R compareTo, LongFunction<? extends R> valueExtractor) {
         return l -> Objects.compare(compareTo, valueExtractor.apply(l), nullsLast(naturalOrder())) < 0;
+    }
+
+    public static LongPredicate longLte(long compareTo) {
+        return l -> compareTo <= l;
     }
 
     public static <R extends Comparable<R>> LongPredicate longLte(R compareTo, LongFunction<? extends R> valueExtractor) {

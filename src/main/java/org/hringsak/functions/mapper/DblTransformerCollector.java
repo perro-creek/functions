@@ -16,7 +16,7 @@ class DblTransformerCollector<U, C extends Collection<U>> {
         this.collector = collector;
     }
 
-    static <T, U, C extends Collection<U>> DblTransformerCollector<U, C> of(DoubleFunction<U> transformer, Collector<U, ?, C> collector) {
+    static <U, C extends Collection<U>> DblTransformerCollector<U, C> of(DoubleFunction<U> transformer, Collector<U, ?, C> collector) {
         return new DblTransformerCollector<>(transformer, collector);
     }
 

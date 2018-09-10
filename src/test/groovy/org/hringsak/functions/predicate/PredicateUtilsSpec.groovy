@@ -85,7 +85,7 @@ class PredicateUtilsSpec extends Specification {
     def 'predicate constant passing parameter "#booleanParameter" and target "#target" returns #expected'() {
 
         expect:
-        def predicate = predicateConstant booleanParameter
+        def predicate = constant booleanParameter
         predicate.test(target) == expected
 
         where:
@@ -158,7 +158,7 @@ class PredicateUtilsSpec extends Specification {
     def 'is equal passing constantValue #constantValue and target #target returns #expected'() {
 
         expect:
-        def predicate = isEqual(constantValue, { String s -> s.toString() })
+        def predicate = isEqual({ String s -> s.toString() }, constantValue)
         predicate.test(target) == expected
 
         where:
@@ -174,7 +174,7 @@ class PredicateUtilsSpec extends Specification {
     def 'is not equal passing constantValue #constantValue and target #target returns #expected'() {
 
         expect:
-        def predicate = isNotEqual(constantValue, { String s -> s.toString() })
+        def predicate = isNotEqual({ String s -> s.toString() }, constantValue)
         predicate.test(target) == expected
 
         where:
@@ -190,7 +190,7 @@ class PredicateUtilsSpec extends Specification {
     def 'equals ignore case passing constantValue #constantValue and target #target returns #expected'() {
 
         expect:
-        def predicate = equalsIgnoreCase(constantValue, { String s -> s.toString() })
+        def predicate = equalsIgnoreCase({ String s -> s.toString() }, constantValue)
         predicate.test(target) == expected
 
         where:
@@ -208,7 +208,7 @@ class PredicateUtilsSpec extends Specification {
     def 'contains passing collection "#collection" and target "#target" returns "#expected"'() {
 
         expect:
-        def predicate = contains(collection, { String s -> s.toString() })
+        def predicate = contains({ String s -> collection }, target)
         predicate.test(target) == expected
 
         where:
@@ -226,7 +226,7 @@ class PredicateUtilsSpec extends Specification {
     def 'inverse contains passing collection "#collection" and target "#target" returns "#expected"'() {
 
         expect:
-        def predicate = inverseContains({ String s -> collection }, target)
+        def predicate = inverseContains(collection, { String s -> s.toString() })
         predicate.test(target) == expected
 
         where:
@@ -478,78 +478,86 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'gt passing #paramOne and #paramTwo returns #expected'() {
+    def 'gt with "#target" and "#value" returns #expected'() {
         expect:
-        def predicate = gt(paramOne as Comparable, identity())
-        predicate.test(paramTwo) == expected
+        def predicate = gt(identity(), value as Comparable)
+        predicate.test(target) == expected
 
         where:
-        paramOne | paramTwo | expected
-        null     | null     | false
-        'a'      | ''       | true
-        'a'      | 'a'      | false
-        'a'      | 'b'      | false
-        'b'      | 'a'      | true
-        ''       | 'a'      | false
-        1        | 2        | false
-        2        | 1        | true
+        target | value | expected
+        null   | null  | false
+        ''     | 'a'   | false
+        'a'    | 'a'   | false
+        'a'    | null  | false
+        null   | 'a'   | true
+        'b'    | 'a'   | true
+        'a'    | 'b'   | false
+        'a'    | ''    | true
+        2      | 1     | true
+        1      | 2     | false
     }
 
     @Unroll
-    def 'gte passing #paramOne and #paramTwo returns #expected'() {
+    def 'gte with "#target" and "#value" returns #expected'() {
 
         expect:
-        def predicate = gte(paramOne as Comparable, identity())
-        predicate.test(paramTwo) == expected
+        def predicate = gte(identity(), value as Comparable)
+        predicate.test(target) == expected
 
         where:
-        paramOne | paramTwo | expected
-        null     | null     | true
-        'a'      | ''       | true
-        'a'      | 'a'      | true
-        'a'      | 'b'      | false
-        'b'      | 'a'      | true
-        ''       | 'a'      | false
-        1        | 2        | false
-        2        | 1        | true
+        target | value | expected
+        null   | null  | true
+        ''     | 'a'   | false
+        'a'    | 'a'   | true
+        'a'    | null  | false
+        null   | 'a'   | true
+        'b'    | 'a'   | true
+        'a'    | 'b'   | false
+        'a'    | ''    | true
+        2      | 1     | true
+        1      | 2     | false
     }
 
     @Unroll
-    def 'lt passing #paramOne and #paramTwo returns #expected'() {
+    def 'lt with "#target" and "#value" returns #expected'() {
 
         expect:
-        def predicate = lt(paramOne as Comparable, identity())
-        predicate.test(paramTwo) == expected
+        def predicate = lt(identity(), value as Comparable)
+        predicate.test(target) == expected
 
         where:
-        paramOne | paramTwo | expected
-        null     | null     | false
-        'a'      | ''       | false
-        'a'      | 'a'      | false
-        'a'      | 'b'      | true
-        'b'      | 'a'      | false
-        ''       | 'a'      | true
-        1        | 2        | true
-        2        | 1        | false
+        target | value | expected
+        null   | null  | false
+        ''     | 'a'   | true
+        'a'    | 'a'   | false
+        'a'    | null  | true
+        null   | 'a'   | false
+        'b'    | 'a'   | false
+        'a'    | 'b'   | true
+        'a'    | ''    | false
+        2      | 1     | false
+        1      | 2     | true
     }
 
     @Unroll
-    def 'lte passing #paramOne and #paramTwo returns #expected'() {
+    def 'lte with "#target" and "#value" returns #expected'() {
 
         expect:
-        def predicate = lte(paramOne as Comparable, identity())
-        predicate.test(paramTwo) == expected
+        def predicate = lte(identity(), value as Comparable)
+        predicate.test(target) == expected
 
         where:
-        paramOne | paramTwo | expected
-        null     | null     | true
-        'a'      | ''       | false
-        'a'      | 'a'      | true
-        'a'      | 'b'      | true
-        'b'      | 'a'      | false
-        ''       | 'a'      | true
-        1        | 2        | true
-        2        | 1        | false
+        target | value | expected
+        null   | null  | true
+        ''     | 'a'   | true
+        'a'    | 'a'   | true
+        'a'    | null  | true
+        null   | 'a'   | false
+        'b'    | 'a'   | false
+        'a'    | 'b'   | true
+        'a'    | ''    | false
+        2      | 1     | false
+        1      | 2     | true
     }
 
     @Unroll
@@ -612,7 +620,7 @@ class PredicateUtilsSpec extends Specification {
     def 'map and filter passing input "#input"'() {
 
         expect:
-        def predicate = mapAndFilter({ String s -> s.length() }, isEqual(4, Function.identity()))
+        def predicate = mapAndFilter({ String s -> s.length() }, isEqual(Function.identity(), 4))
         predicate.test(input) == expected
 
         where:
