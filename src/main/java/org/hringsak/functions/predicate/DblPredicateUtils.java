@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 
@@ -59,12 +58,20 @@ public final class DblPredicateUtils {
         return notDbl(isDblStrEmpty(function));
     }
 
-    public static <R> DoublePredicate isDblEqual(R value, DoubleFunction<? extends R> function) {
-        return d -> Objects.equals(value, function.apply(d));
+    public static DoublePredicate isDblEqual(double value) {
+        return d -> d == value;
     }
 
-    public static <R> DoublePredicate isDblNotEqual(R value, DoubleFunction<? extends R> function) {
-        return notDbl(isDblEqual(value, function));
+    public static <R> DoublePredicate isDblEqual(DoubleFunction<? extends R> function, R value) {
+        return d -> Objects.equals(function.apply(d), value);
+    }
+
+    public static DoublePredicate isDblNotEqual(double value) {
+        return notDbl(isDblEqual(value));
+    }
+
+    public static <R> DoublePredicate isDblNotEqual(DoubleFunction<? extends R> function, R value) {
+        return notDbl(isDblEqual(function, value));
     }
 
     public static <R> DoublePredicate dblContains(Collection<? extends R> collection, DoubleFunction<? extends R> function) {
@@ -134,20 +141,36 @@ public final class DblPredicateUtils {
         return notDbl(isDblNull(function));
     }
 
-    public static <R extends Comparable<R>> DoublePredicate dblGt(R compareTo, DoubleFunction<? extends R> function) {
-        return d -> Objects.compare(compareTo, function.apply(d), nullsLast(naturalOrder())) > 0;
+    public static DoublePredicate dblGt(double compareTo) {
+        return d ->  d > compareTo;
     }
 
-    public static <R extends Comparable<R>> DoublePredicate dblGte(R compareTo, DoubleFunction<? extends R> function) {
-        return d -> Objects.compare(compareTo, function.apply(d), nullsLast(naturalOrder())) >= 0;
+    public static <R extends Comparable<R>> DoublePredicate dblGt(DoubleFunction<? extends R> function, R compareTo) {
+        return d -> Objects.compare(function.apply(d), compareTo, nullsLast(naturalOrder())) > 0;
     }
 
-    public static <R extends Comparable<R>> DoublePredicate dblLt(R compareTo, DoubleFunction<? extends R> function) {
-        return d -> Objects.compare(compareTo, function.apply(d), nullsLast(naturalOrder())) < 0;
+    public static DoublePredicate dblGte(double compareTo) {
+        return d -> d >= compareTo;
     }
 
-    public static <R extends Comparable<R>> DoublePredicate dblLte(R compareTo, DoubleFunction<? extends R> function) {
-        return d -> Objects.compare(compareTo, function.apply(d), nullsLast(naturalOrder())) <= 0;
+    public static <R extends Comparable<R>> DoublePredicate dblGte(DoubleFunction<? extends R> function, R compareTo) {
+        return d -> Objects.compare(function.apply(d), compareTo, nullsLast(naturalOrder())) >= 0;
+    }
+
+    public static DoublePredicate dblLt(double compareTo) {
+        return d -> d < compareTo;
+    }
+
+    public static <R extends Comparable<R>> DoublePredicate dblLt(DoubleFunction<? extends R> function, R compareTo) {
+        return d -> Objects.compare(function.apply(d), compareTo, nullsLast(naturalOrder())) < 0;
+    }
+
+    public static DoublePredicate dblLte(double compareTo) {
+        return d -> d <= compareTo;
+    }
+
+    public static <R extends Comparable<R>> DoublePredicate dblLte(DoubleFunction<? extends R> function, R compareTo) {
+        return d -> Objects.compare(function.apply(d), compareTo, nullsLast(naturalOrder())) <= 0;
     }
 
     public static <R> DoublePredicate isDblCollEmpty(DoubleFunction<? extends Collection<R>> function) {

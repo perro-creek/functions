@@ -1,8 +1,6 @@
 package org.hringsak.functions.mapper
 
 import org.apache.commons.lang3.tuple.Pair
-import org.hringsak.functions.mapper.LongIndexPair
-import org.hringsak.functions.mapper.LongObjectPair
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -129,6 +127,20 @@ class LongMapperUtilsSpec extends Specification {
         right   || expected
         'right' || LongObjectPair.of(1L, 'right')
         null    || LongObjectPair.of(1L, null)
+    }
+
+    @Unroll
+    def 'long pair of passing key value mapper with values "#left" and "#right" returns #expected'() {
+
+        expect:
+        def keyValueMapper = longKeyValueMapper({ l -> left }, { l -> right })
+        longPairOf(keyValueMapper).apply(1L) == expected
+
+        where:
+        left   | right   || expected
+        'left' | 'right' || Pair.of('left', 'right')
+        null   | 'right' || Pair.of(null, 'right')
+        'left' | null    || Pair.of('left', null)
     }
 
     @Unroll

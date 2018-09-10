@@ -91,7 +91,7 @@ public final class MapperUtils {
      *         ...
      *     }
      * </pre>
-     * By making judicious use of static imports, we can reduce the clutter in the above stream to:
+     * Or, with static imports:
      * <pre>
      *     return Collection&lt;OrderLineItem&gt; orderLineItems = requestLineItems.stream()
      *         .map(mapper(this::createOrderLineItem, orderId))
@@ -139,7 +139,7 @@ public final class MapperUtils {
      * Note how the parameters to the <code>createOrderLineItem(...)</code> are in the inverse order as the ones in the
      * example for the {@link #mapper(BiFunction, Object)} method.
      * <p>
-     * By making judicious use of static imports, we can reduce the clutter in the above stream to:
+     * Or, with static imports:
      * <pre>
      *     return Collection&lt;OrderLineItem&gt; orderLineItems = requestLineItems.stream()
      *         .map(inverseMapper(this::createOrderLineItem, orderId))
@@ -225,6 +225,10 @@ public final class MapperUtils {
 
     public static <T, R> TernaryMapper<T, R> ternaryMapper(Function<T, R> trueExtractor, Function<T, R> falseExtractor) {
         return TernaryMapper.of(trueExtractor, falseExtractor);
+    }
+
+    public static <T, R> R defaultValue(Function<T, R> function, T target) {
+        return mapperDefault(function, null).apply(target);
     }
 
     public static <T, K, V> KeyValueMapper<T, K, V> keyValueMapper(Function<T, K> keyMapper, Function<T, V> valueMapper) {

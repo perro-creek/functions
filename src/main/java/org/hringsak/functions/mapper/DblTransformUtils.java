@@ -5,24 +5,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.DoubleFunction;
-import java.util.function.Function;
 import java.util.stream.Collector;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.hringsak.functions.CollectorUtils.toMapFromEntry;
 import static org.hringsak.functions.mapper.DblMapperUtils.dblMapper;
 import static org.hringsak.functions.mapper.DblMapperUtils.dblPairOf;
 import static org.hringsak.functions.stream.DblStreamUtils.defaultDblStream;
-import static org.hringsak.functions.stream.StreamUtils.defaultStream;
 
 public final class DblTransformUtils {
 
     private DblTransformUtils() {
     }
 
-    public static <T, R> List<R> dblTransform(double[] doubles, DoubleFunction<R> transformer) {
+    public static <R> List<R> dblTransform(double[] doubles, DoubleFunction<R> transformer) {
         return dblTransform(doubles, DblTransformerCollector.of(transformer, toList()));
     }
 

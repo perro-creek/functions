@@ -37,7 +37,7 @@ public final class PredicateUtils {
         return t -> t == null ? defaultIfNull : predicate.test(t);
     }
 
-    public static <T> Predicate<T> predicateConstant(boolean b) {
+    public static <T> Predicate<T> constant(boolean b) {
         return t -> b;
     }
 
@@ -57,23 +57,19 @@ public final class PredicateUtils {
         return not(isStrEmpty(function));
     }
 
-    public static <T, R> Predicate<T> isEqual(R target, Function<? super T, ? extends R> extractor) {
-        return value -> Objects.equals(target, value == null ? null : extractor.apply(value));
+    public static <T, R> Predicate<T> isEqual(Function<? super T, ? extends R> extractor, R value) {
+        return t -> Objects.equals(t == null ? null : extractor.apply(t), value);
     }
 
-    public static <T, R> Predicate<T> isNotEqual(R target, Function<? super T, ? extends R> function) {
-        return not(isEqual(target, function));
+    public static <T, R> Predicate<T> isNotEqual(Function<? super T, ? extends R> function, R value) {
+        return not(isEqual(function, value));
     }
 
-    public static <T> Predicate<T> equalsIgnoreCase(CharSequence target, Function<? super T, ? extends CharSequence> extractor) {
-        return value -> StringUtils.equalsIgnoreCase(target, value == null ? null : extractor.apply(value));
+    public static <T> Predicate<T> equalsIgnoreCase(Function<? super T, ? extends CharSequence> function, CharSequence value) {
+        return t -> StringUtils.equalsIgnoreCase(t == null ? null : function.apply(t), value);
     }
 
-    public static <T, R> Predicate<T> contains(Collection<? extends R> collection, Function<? super T, ? extends R> extractor) {
-        return t -> collection != null && t != null && collection.contains(extractor.apply(t));
-    }
-
-    public static <T, R> Predicate<T> inverseContains(Function<? super T, ? extends Collection<R>> collectionExtractor, R value) {
+    public static <T, R> Predicate<T> contains(Function<? super T, ? extends Collection<R>> collectionExtractor, R value) {
         return t -> {
             if (t != null) {
                 Collection<R> collection = collectionExtractor.apply(t);
@@ -81,6 +77,10 @@ public final class PredicateUtils {
             }
             return false;
         };
+    }
+
+    public static <T, R> Predicate<T> inverseContains(Collection<? extends R> collection, Function<? super T, ? extends R> function) {
+        return t -> collection != null && t != null && collection.contains(function.apply(t));
     }
 
     public static <T, R> Predicate<T> containsKey(Map<R, ?> map, Function<? super T, ? extends R> extractor) {
@@ -139,27 +139,27 @@ public final class PredicateUtils {
         return not(isNull(function));
     }
 
-    public static <T, R extends Comparable<R>> Predicate<T> gt(R compareTo, Function<? super T, ? extends R> valueExtractor) {
-        return target -> getComparisonValue(compareTo, target, valueExtractor) > 0;
+    public static <T, R extends Comparable<R>> Predicate<T> gt(Function<? super T, ? extends R> function, R compareTo) {
+        return target -> getComparisonValue(target, function, compareTo) > 0;
     }
 
-    public static <T, R extends Comparable<R>> Predicate<T> gte(R compareTo, Function<? super T, ? extends R> valueExtractor) {
-        return target -> getComparisonValue(compareTo, target, valueExtractor) >= 0;
+    public static <T, R extends Comparable<R>> Predicate<T> gte(Function<? super T, ? extends R> function, R compareTo) {
+        return target -> getComparisonValue(target, function, compareTo) >= 0;
     }
 
-    public static <T, R extends Comparable<R>> Predicate<T> lt(R compareTo, Function<? super T, ? extends R> valueExtractor) {
-        return target -> getComparisonValue(compareTo, target, valueExtractor) < 0;
+    public static <T, R extends Comparable<R>> Predicate<T> lt(Function<? super T, ? extends R> function, R compareTo) {
+        return target -> getComparisonValue(target, function, compareTo) < 0;
     }
 
-    public static <T, R extends Comparable<R>> Predicate<T> lte(R compareTo, Function<? super T, ? extends R> valueExtractor) {
-        return target -> getComparisonValue(compareTo, target, valueExtractor) <= 0;
+    public static <T, R extends Comparable<R>> Predicate<T> lte(Function<? super T, ? extends R> function, R compareTo) {
+        return target -> getComparisonValue(target, function, compareTo) <= 0;
     }
 
-    private static <T, R extends Comparable<R>> int getComparisonValue(R compareTo, T target, Function<? super T, ? extends R> valueExtractor) {
-        return Objects.compare(compareTo, getValueIfTargetNonNull(target, valueExtractor), nullsLast(naturalOrder()));
+    private static <T, R extends Comparable<R>> int getComparisonValue(T target, Function<? super T, ? extends R> valueExtractor, R compareTo) {
+        return Objects.compare(getValueIfTargetNonNull(valueExtractor, target), compareTo, nullsLast(naturalOrder()));
     }
 
-    private static <T, R extends Comparable<R>> R getValueIfTargetNonNull(T target, Function<? super T, ? extends R> valueExtractor) {
+    private static <T, R extends Comparable<R>> R getValueIfTargetNonNull(Function<? super T, ? extends R> valueExtractor, T target) {
         return target == null ? null : valueExtractor.apply(target);
     }
 

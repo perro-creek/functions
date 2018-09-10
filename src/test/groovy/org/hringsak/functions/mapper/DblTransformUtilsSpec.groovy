@@ -11,7 +11,7 @@ import static org.hringsak.functions.mapper.DblTransformUtils.*
 
 class DblTransformUtilsSpec extends Specification {
 
-    def 'generic transform returns expected results'() {
+    def 'double generic transform returns expected results'() {
         expect:
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         def mapper = { d -> String.valueOf(d) }
@@ -19,7 +19,7 @@ class DblTransformUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'generic transform returns #expected for #scenario parameter'() {
+    def 'double generic transform returns #expected for #scenario parameter'() {
 
         expect:
         def mapper = { double d -> Double.valueOf(d) }
@@ -32,7 +32,7 @@ class DblTransformUtilsSpec extends Specification {
         'collection containing value' | [1.0D] as double[] || [1.0D]
     }
 
-    def 'transform to set returns expected results'() {
+    def 'double transform to set returns expected results'() {
         expect:
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         def mapper = { d -> String.valueOf(d) }
@@ -40,7 +40,7 @@ class DblTransformUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'transform to set returns #expected for #scenario parameter'() {
+    def 'double transform to set returns #expected for #scenario parameter'() {
 
         expect:
         def mapper = { double d -> Double.valueOf(d) }
@@ -53,14 +53,14 @@ class DblTransformUtilsSpec extends Specification {
         'collection containing value' | [1.0D] as double[] || [1.0D]
     }
 
-    def 'transform with collector returns expected results'() {
+    def 'double transform with collector returns expected results'() {
         expect:
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblTransform(doubles, toCollection({ new LinkedList() })) == [1.0D, 2.0D, 3.0D]
     }
 
     @Unroll
-    def 'transform with collector returns #expected for #scenario parameter'() {
+    def 'double transform with collector returns #expected for #scenario parameter'() {
 
         expect:
         dblTransform(doubles, toList()) == expected
@@ -72,7 +72,7 @@ class DblTransformUtilsSpec extends Specification {
         'collection containing value' | [1.0D] as double[] || [1.0D]
     }
 
-    def 'transform with mapping and collector returns expected results'() {
+    def 'double transform with mapping and collector returns expected results'() {
         expect:
         def doubles = [1.0D, 2.0D] as double[]
         def transformer = { double d -> String.valueOf(d) }
@@ -80,7 +80,7 @@ class DblTransformUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'transform with mapping and collector returns #expected for #scenario parameter'() {
+    def 'double transform with mapping and collector returns #expected for #scenario parameter'() {
 
         expect:
         def mapper = { double d -> Double.valueOf(d) }
@@ -93,14 +93,14 @@ class DblTransformUtilsSpec extends Specification {
         'collection containing value' | [1.0D] as double[] || [1.0D]
     }
 
-    def 'transform distinct returns expected results'() {
+    def 'double transform distinct returns expected results'() {
         expect:
         def doubles = [1.0D, 2.0D, 3.0D, 2.0D] as double[]
-        dblTransformDistinct(doubles, { i -> String.valueOf(i) }) == ['1.0', '2.0', '3.0']
+        dblTransformDistinct(doubles, { d -> String.valueOf(d) }) == ['1.0', '2.0', '3.0']
     }
 
     @Unroll
-    def 'transform distinct returns #expected for #scenario parameter'() {
+    def 'double transform distinct returns #expected for #scenario parameter'() {
 
         expect:
         def mapper = { double d -> Double.valueOf(d) }
@@ -113,7 +113,7 @@ class DblTransformUtilsSpec extends Specification {
         'collection containing value' | [1.0D] as double[] || [1.0D]
     }
 
-    def 'transform to map returns expected'() {
+    def 'double transform to map returns expected'() {
         expect:
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         def keyMapper = { double d -> Double.valueOf(d) }
@@ -123,7 +123,7 @@ class DblTransformUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'transform to map returns empty list for #scenario parameter'() {
+    def 'double transform to map returns empty list for #scenario parameter'() {
 
         expect:
         def keyMapper = { double d -> Double.valueOf(d) }

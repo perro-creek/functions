@@ -218,6 +218,10 @@ public final class LongMapperUtils {
         return l -> LongObjectPair.of(l, rightFunction.apply(l));
     }
 
+    public static <U, V> LongFunction<Pair<U, V>> longPairOf(LongKeyValueMapper<U, V> keyValueMapper) {
+        return longPairOf(keyValueMapper.getKeyMapper(), keyValueMapper.getValueMapper());
+    }
+
     public static <U, V> LongFunction<Pair<U, V>> longPairOf(LongFunction<? extends U> leftFunction, LongFunction<? extends V> rightFunction) {
         return l -> Pair.of(leftFunction.apply(l), rightFunction.apply(l));
     }
@@ -257,5 +261,9 @@ public final class LongMapperUtils {
 
     public static <R> LongTernaryMapper<R> longTernaryMapper(LongFunction<R> trueExtractor, LongFunction<R> falseExtractor) {
         return LongTernaryMapper.of(trueExtractor, falseExtractor);
+    }
+
+    public static <K, V> LongKeyValueMapper<K, V> longKeyValueMapper(LongFunction<K> keyMapper, LongFunction<V> valueMapper) {
+        return LongKeyValueMapper.of(keyMapper, valueMapper);
     }
 }

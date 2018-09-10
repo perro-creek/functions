@@ -218,6 +218,10 @@ public final class IntMapperUtils {
         return i -> IntObjectPair.of(i, rightFunction.apply(i));
     }
 
+    public static <U, V> IntFunction<Pair<U, V>> intPairOf(IntKeyValueMapper<U, V> keyValueMapper) {
+        return intPairOf(keyValueMapper.getKeyMapper(), keyValueMapper.getValueMapper());
+    }
+
     public static <U, V> IntFunction<Pair<U, V>> intPairOf(IntFunction<? extends U> leftFunction, IntFunction<? extends V> rightFunction) {
         return i -> Pair.of(leftFunction.apply(i), rightFunction.apply(i));
     }
@@ -257,5 +261,9 @@ public final class IntMapperUtils {
 
     public static <R> IntTernaryMapper<R> intTernaryMapper(IntFunction<R> trueExtractor, IntFunction<R> falseExtractor) {
         return IntTernaryMapper.of(trueExtractor, falseExtractor);
+    }
+
+    public static <K, V> IntKeyValueMapper<K, V> intKeyValueMapper(IntFunction<K> keyMapper, IntFunction<V> valueMapper) {
+        return IntKeyValueMapper.of(keyMapper, valueMapper);
     }
 }

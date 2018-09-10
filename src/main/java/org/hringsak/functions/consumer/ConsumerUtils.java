@@ -131,8 +131,7 @@ public final class ConsumerUtils {
      *         ...
      *     }
      * </pre>
-     * By making judicious use of static imports, we can reduce the clutter in the <code>forEach(...)</code> invocation
-     * to:
+     * Or, with static imports:
      * <pre>
      *         widgets.forEach(setter(Widget::setDescription, mapper(this::buildDescription, productLine)));
      * </pre>

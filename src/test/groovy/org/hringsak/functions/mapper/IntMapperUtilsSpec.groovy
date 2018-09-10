@@ -10,6 +10,8 @@ import java.util.function.Function
 import java.util.function.ToIntBiFunction
 
 import static org.apache.commons.lang3.StringUtils.defaultString
+import static org.hringsak.functions.mapper.DblMapperUtils.dblKeyValueMapper
+import static org.hringsak.functions.mapper.DblMapperUtils.dblPairOf
 import static org.hringsak.functions.mapper.IntMapperUtils.*
 
 class IntMapperUtilsSpec extends Specification {
@@ -129,6 +131,20 @@ class IntMapperUtilsSpec extends Specification {
         right   || expected
         'right' || IntObjectPair.of(1, 'right')
         null    || IntObjectPair.of(1, null)
+    }
+
+    @Unroll
+    def 'int pair of passing key value mapper with values "#left" and "#right" returns #expected'() {
+
+        expect:
+        def keyValueMapper = intKeyValueMapper({ i -> left }, { i -> right })
+        intPairOf(keyValueMapper).apply(1) == expected
+
+        where:
+        left   | right   || expected
+        'left' | 'right' || Pair.of('left', 'right')
+        null   | 'right' || Pair.of(null, 'right')
+        'left' | null    || Pair.of('left', null)
     }
 
     @Unroll
