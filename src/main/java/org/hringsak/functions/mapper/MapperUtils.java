@@ -298,7 +298,7 @@ public final class MapperUtils {
 
     @SuppressWarnings("WeakerAccess")
     public static <T, U, V> Function<T, Pair<U, V>> pairOf(Function<T, U> leftFunction, Function<? super T, ? extends V> rightFunction) {
-        return t -> Pair.of(leftFunction.apply(t), rightFunction.apply(t));
+        return t -> Pair.of(mapper(leftFunction).apply(t), mapper(rightFunction).apply(t));
     }
 
     public static <T, R> Function<T, Pair<T, R>> pairWith(List<R> pairedList) {

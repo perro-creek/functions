@@ -1,8 +1,6 @@
 package org.hringsak.functions.mapper
 
 import org.apache.commons.lang3.tuple.Pair
-import org.hringsak.functions.mapper.IntIndexPair
-import org.hringsak.functions.mapper.IntObjectPair
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -99,6 +97,19 @@ class IntMapperUtilsSpec extends Specification {
         [1, 2, 3] as int[] || [1, 2, 3] as int[]
         [] as int[]        || [] as int[]
         null as int[]      || [] as int[]
+    }
+
+    @Unroll
+    def 'flat mapper to int passing target "#target" returns #expected'() {
+
+        expect:
+        def function = { s -> s.codePoints().toArray() }
+        flatMapperToInt(function).apply(target).toArray() == expected
+
+        where:
+        target || expected
+        'test' || [116, 101, 115, 116] as int[]
+        null   || [] as int[]
     }
 
     @Unroll

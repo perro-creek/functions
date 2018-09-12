@@ -11,6 +11,40 @@ import static org.hringsak.functions.mapper.LongTransformUtils.*
 
 class LongTransformUtilsSpec extends Specification {
 
+    def strToLongArray = { s ->
+        s.codePoints()
+                .mapToLong { int i -> (long) i }
+                .toArray()
+    }
+
+    @Unroll
+    def 'long unary transform passing ints #ints returns #expected'() {
+
+        expect:
+        def operator = { l -> l + 1L }
+        longUnaryTransform(longs, operator) == expected
+
+        where:
+        longs                  || expected
+        [1L, 2L, 3L] as long[] || [2L, 3L, 4L] as long[]
+        [] as long[]           || [] as long[]
+        null as long[]         || [] as long[]
+    }
+
+    @Unroll
+    def 'long unary transform distinct passing ints #ints returns #expected'() {
+
+        expect:
+        def operator = { l -> l + 1L }
+        longUnaryTransformDistinct(longs, operator) == expected
+
+        where:
+        longs                      || expected
+        [1L, 2L, 3L, 2L] as long[] || [2L, 3L, 4L] as long[]
+        [] as long[]               || [] as long[]
+        null as long[]             || [] as long[]
+    }
+
     def 'long generic transform returns expected results'() {
         expect:
         def longs = [1L, 2L, 3L] as long[]
@@ -134,5 +168,61 @@ class LongTransformUtilsSpec extends Specification {
         scenario | longs
         'empty'  | [] as long[]
         'null'   | null as long[]
+    }
+
+    @Unroll
+    def 'long flat map passing longs #longs returns #expected'() {
+
+        expect:
+        def operator = { d -> [d, d + 1L] as long[] }
+        longFlatMap(longs, operator) == expected
+
+        where:
+        longs                  || expected
+        [1L, 2L, 3L] as long[] || [1L, 2L, 2L, 3L, 3L, 4L] as long[]
+        [] as long[]           || [] as long[]
+        null as long[]         || [] as long[]
+    }
+
+    @Unroll
+    def 'long flat map distinct passing longs #longs returns #expected'() {
+
+        expect:
+        def operator = { d -> [d, d + 1L] as long[] }
+        longFlatMapDistinct(longs, operator) == expected
+
+        where:
+        longs                  || expected
+        [1L, 2L, 3L] as long[] || [1L, 2L, 3L, 4L] as long[]
+        [] as long[]           || [] as long[]
+        null as long[]         || [] as long[]
+    }
+
+    @Unroll
+    def 'flat map to long passing objects #objects returns #expected'() {
+
+        expect:
+        flatMapToLong(objects, strToLongArray) == expected
+
+        where:
+        objects  || expected
+        ['test'] || [116L, 101L, 115L, 116L] as long[]
+        [null]   || [] as long[]
+        []       || [] as long[]
+        null     || [] as long[]
+    }
+
+    @Unroll
+    def 'flat map to long distinct passing objects #objects returns #expected'() {
+
+        expect:
+        flatMapToLongDistinct(objects, strToLongArray) == expected
+
+        where:
+        objects  || expected
+        ['test'] || [116L, 101L, 115L] as long[]
+        [null]   || [] as long[]
+        []       || [] as long[]
+        null     || [] as long[]
     }
 }

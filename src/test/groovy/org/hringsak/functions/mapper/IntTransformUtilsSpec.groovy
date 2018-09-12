@@ -11,6 +11,34 @@ import static org.hringsak.functions.mapper.IntTransformUtils.*
 
 class IntTransformUtilsSpec extends Specification {
 
+    @Unroll
+    def 'int unary transform passing ints #ints returns #expected'() {
+
+        expect:
+        def operator = { i -> i + 1 }
+        intUnaryTransform(ints, operator) == expected
+
+        where:
+        ints               || expected
+        [1, 2, 3] as int[] || [2, 3, 4] as int[]
+        [] as int[]        || [] as int[]
+        null as int[]      || [] as int[]
+    }
+
+    @Unroll
+    def 'int unary transform distinct passing ints #ints returns #expected'() {
+
+        expect:
+        def operator = { i -> i + 1 }
+        intUnaryTransformDistinct(ints, operator) == expected
+
+        where:
+        ints                  || expected
+        [1, 2, 3, 2] as int[] || [2, 3, 4] as int[]
+        [] as int[]           || [] as int[]
+        null as int[]         || [] as int[]
+    }
+
     def 'int generic transform returns expected results'() {
         expect:
         def ints = [1, 2, 3] as int[]
@@ -134,5 +162,63 @@ class IntTransformUtilsSpec extends Specification {
         scenario | ints
         'empty'  | [] as int[]
         'null'   | null as int[]
+    }
+
+    @Unroll
+    def 'int flat map passing ints #ints returns #expected'() {
+
+        expect:
+        def operator = { d -> [d, d + 1] as int[] }
+        intFlatMap(ints, operator) == expected
+
+        where:
+        ints               || expected
+        [1, 2, 3] as int[] || [1, 2, 2, 3, 3, 4] as int[]
+        [] as int[]        || [] as int[]
+        null as int[]      || [] as int[]
+    }
+
+    @Unroll
+    def 'int flat map distinct passing ints #ints returns #expected'() {
+
+        expect:
+        def operator = { d -> [d, d + 1] as int[] }
+        intFlatMapDistinct(ints, operator) == expected
+
+        where:
+        ints               || expected
+        [1, 2, 3] as int[] || [1, 2, 3, 4] as int[]
+        [] as int[]        || [] as int[]
+        null as int[]      || [] as int[]
+    }
+
+    @Unroll
+    def 'flat map to int passing objects #objects returns #expected'() {
+
+        expect:
+        def strToIntArray = { s -> s.codePoints().toArray() }
+        flatMapToInt(objects, strToIntArray) == expected
+
+        where:
+        objects  || expected
+        ['test'] || [116, 101, 115, 116] as int[]
+        [null]   || [] as int[]
+        []       || [] as int[]
+        null     || [] as int[]
+    }
+
+    @Unroll
+    def 'flat map to int distinct passing objects #objects returns #expected'() {
+
+        expect:
+        def strToIntArray = { s -> s.codePoints().toArray() }
+        flatMapToIntDistinct(objects, strToIntArray) == expected
+
+        where:
+        objects  || expected
+        ['test'] || [116, 101, 115] as int[]
+        [null]   || [] as int[]
+        []       || [] as int[]
+        null     || [] as int[]
     }
 }

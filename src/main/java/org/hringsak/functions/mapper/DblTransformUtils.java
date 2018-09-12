@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.DoubleFunction;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
@@ -13,8 +14,10 @@ import java.util.stream.DoubleStream;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.hringsak.functions.CollectorUtils.toMapFromEntry;
+import static org.hringsak.functions.mapper.DblMapperUtils.dblFlatMapper;
 import static org.hringsak.functions.mapper.DblMapperUtils.dblMapper;
 import static org.hringsak.functions.mapper.DblMapperUtils.dblPairOf;
+import static org.hringsak.functions.mapper.DblMapperUtils.flatMapperToDbl;
 import static org.hringsak.functions.mapper.MapperUtils.flatMapper;
 import static org.hringsak.functions.stream.DblStreamUtils.defaultDblStream;
 import static org.hringsak.functions.stream.StreamUtils.defaultStream;
@@ -22,6 +25,19 @@ import static org.hringsak.functions.stream.StreamUtils.defaultStream;
 public final class DblTransformUtils {
 
     private DblTransformUtils() {
+    }
+
+    public static double[] dblUnaryTransform(double[] doubles, DoubleUnaryOperator operator) {
+        return defaultDblStream(doubles)
+                .map(operator)
+                .toArray();
+    }
+
+    public static double[] dblUnaryTransformDistinct(double[] doubles, DoubleUnaryOperator operator) {
+        return defaultDblStream(doubles)
+                .map(operator)
+                .distinct()
+                .toArray();
     }
 
     public static <R> List<R> dblTransform(double[] doubles, DoubleFunction<R> transformer) {
@@ -49,27 +65,31 @@ public final class DblTransformUtils {
                 .collect(transformerCollector.getCollector());
     }
 
-//    public static <T, U> double[] flatMap(double[] doubles, Function<T, Collection<U>> function) {
-//        FlatMapCollector<T, U, List<U>> flatMapCollector = FlatMapCollector.of(function, toList());
-//        return flatMap(objects, flatMapCollector);
-//    }
-//
-//    public static <T, R> Set<R> flatMapToSet(double[] doubles, Function<T, Collection<R>> function) {
-//        return flatMap(objects, FlatMapCollector.of(function, toSet()));
-//    }
-//
-//    public static <T, U> List<U> flatMapDistinct(double[] doubles, DoubleFunction<? extends DoubleStream> function) {
-//        return defaultDblStream(doubles)
-//                .flatMap(dblFlatMapper(function))
-//                .distinct()
-//                .collect(toList());
-//    }
-//
-//    public static <T, U, C extends Collection<U>> C flatMap(double[] doubles, FlatMapCollector<T, U, C> flatMapCollector) {
-//        return defaultStream(objects)
-//                .flatMap(flatMapper(flatMapCollector.getFlatMapper()))
-//                .collect(flatMapCollector.getCollector());
-//    }
+    public static double[] dblFlatMap(double[] doubles, DoubleFunction<double[]> function) {
+        return defaultDblStream(doubles)
+                .flatMap(dblFlatMapper(function))
+                .toArray();
+    }
+
+    public static double[] dblFlatMapDistinct(double[] doubles, DoubleFunction<double[]> function) {
+        return defaultDblStream(doubles)
+                .flatMap(dblFlatMapper(function))
+                .distinct()
+                .toArray();
+    }
+
+    public static <T> double[] flatMapToDbl(Collection<T> objects, Function<T, double[]> function) {
+        return defaultStream(objects)
+                .flatMapToDouble(flatMapperToDbl(function))
+                .toArray();
+    }
+
+    public static <T> double[] flatMapToDblDistinct(Collection<T> objects, Function<T, double[]> function) {
+        return defaultStream(objects)
+                .flatMapToDouble(flatMapperToDbl(function))
+                .distinct()
+                .toArray();
+    }
 
     public static <U, C extends Collection<U>> DblTransformerCollector<U, C> dblTransformAndThen(DoubleFunction<U> transformer, Collector<U, ?, C> collector) {
         return DblTransformerCollector.of(transformer, collector);

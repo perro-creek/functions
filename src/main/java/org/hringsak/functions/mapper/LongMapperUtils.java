@@ -4,20 +4,16 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 import java.util.function.LongFunction;
 import java.util.function.ToLongBiFunction;
 import java.util.function.ToLongFunction;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-import static org.hringsak.functions.stream.IntStreamUtils.defaultIntStream;
 import static org.hringsak.functions.stream.LongStreamUtils.defaultLongStream;
 
 /**
@@ -211,6 +207,10 @@ public final class LongMapperUtils {
 
     public static LongFunction<LongStream> longFlatMapper(LongFunction<? extends long[]> longMapper) {
         return l -> defaultLongStream(longMapper.apply(l));
+    }
+
+    public static <T> Function<T, LongStream> flatMapperToLong(Function<? super T, ? extends long[]> toLongArrayMapper) {
+        return t -> t == null ? LongStream.empty() : defaultLongStream(toLongArrayMapper.apply(t));
     }
 
     public static <U> LongFunction<LongObjectPair<U>> longPairOf(LongFunction<? extends U> rightFunction) {
