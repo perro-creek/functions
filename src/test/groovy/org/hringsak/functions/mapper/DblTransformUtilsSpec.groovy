@@ -11,6 +11,40 @@ import static org.hringsak.functions.mapper.DblTransformUtils.*
 
 class DblTransformUtilsSpec extends Specification {
 
+    def strToDoubleArray = { s ->
+        s.codePoints()
+                .mapToDouble { int i -> (double) i }
+                .toArray()
+    }
+
+    @Unroll
+    def 'double unary transform passing doubles #doubles returns #expected'() {
+
+        expect:
+        def operator = { d -> d + 1.0D }
+        dblUnaryTransform(doubles, operator) == expected
+
+        where:
+        doubles                        || expected
+        [1.0D, 2.0D, 3.0D] as double[] || [2.0D, 3.0D, 4.0D] as double[]
+        [] as double[]                 || [] as double[]
+        null as double[]               || [] as double[]
+    }
+
+    @Unroll
+    def 'double unary transform distinct passing doubles #doubles returns #expected'() {
+
+        expect:
+        def operator = { d -> d + 1.0D }
+        dblUnaryTransformDistinct(doubles, operator) == expected
+
+        where:
+        doubles                              || expected
+        [1.0D, 2.0D, 3.0D, 2.0D] as double[] || [2.0D, 3.0D, 4.0D] as double[]
+        [] as double[]                       || [] as double[]
+        null as double[]                     || [] as double[]
+    }
+
     def 'double generic transform returns expected results'() {
         expect:
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
@@ -134,5 +168,61 @@ class DblTransformUtilsSpec extends Specification {
         scenario | doubles
         'empty'  | [] as double[]
         'null'   | null as double[]
+    }
+
+    @Unroll
+    def 'double flat map passing doubles #doubles returns #expected'() {
+
+        expect:
+        def operator = { d -> [d, d + 1.0D] as double[] }
+        dblFlatMap(doubles, operator) == expected
+
+        where:
+        doubles                        || expected
+        [1.0D, 2.0D, 3.0D] as double[] || [1.0D, 2.0D, 2.0D, 3.0D, 3.0D, 4.0D] as double[]
+        [] as double[]                 || [] as double[]
+        null as double[]               || [] as double[]
+    }
+
+    @Unroll
+    def 'double flat map distinct passing doubles #doubles returns #expected'() {
+
+        expect:
+        def operator = { d -> [d, d + 1.0D] as double[] }
+        dblFlatMapDistinct(doubles, operator) == expected
+
+        where:
+        doubles                        || expected
+        [1.0D, 2.0D, 3.0D] as double[] || [1.0D, 2.0D, 3.0D, 4.0D] as double[]
+        [] as double[]                 || [] as double[]
+        null as double[]               || [] as double[]
+    }
+
+    @Unroll
+    def 'flat map to double passing objects #objects returns #expected'() {
+
+        expect:
+        flatMapToDbl(objects, strToDoubleArray) == expected
+
+        where:
+        objects  || expected
+        ['test'] || [116.0D, 101.0D, 115.0D, 116.0D] as double[]
+        [null]   || [] as double[]
+        []       || [] as double[]
+        null     || [] as double[]
+    }
+
+    @Unroll
+    def 'flat map to double distinct passing objects #objects returns #expected'() {
+
+        expect:
+        flatMapToDblDistinct(objects, strToDoubleArray) == expected
+
+        where:
+        objects  || expected
+        ['test'] || [116.0D, 101.0D, 115.0D] as double[]
+        [null]   || [] as double[]
+        []       || [] as double[]
+        null     || [] as double[]
     }
 }

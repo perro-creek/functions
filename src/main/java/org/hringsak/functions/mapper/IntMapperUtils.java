@@ -4,11 +4,9 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
-import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -209,6 +207,10 @@ public final class IntMapperUtils {
 
     public static IntFunction<IntStream> intFlatMapper(IntFunction<? extends int[]> intMapper) {
         return i -> defaultIntStream(intMapper.apply(i));
+    }
+
+    public static <T> Function<T, IntStream> flatMapperToInt(Function<? super T, ? extends int[]> toIntArrayMapper) {
+        return t -> t == null ? IntStream.empty() : defaultIntStream(toIntArrayMapper.apply(t));
     }
 
     public static <U> IntFunction<IntObjectPair<U>> intPairOf(IntFunction<? extends U> rightFunction) {

@@ -100,6 +100,23 @@ class DblMapperUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'flat mapper to double passing target "#target" returns #expected'() {
+
+        expect:
+        def function = { s ->
+            s.codePoints()
+                    .mapToDouble { int i -> (double) i }
+                    .toArray()
+        }
+        flatMapperToDbl(function).apply(target).toArray() == expected
+
+        where:
+        target || expected
+        'test' || [116.0D, 101.0D, 115.0D, 116.0D] as double[]
+        null   || [] as double[]
+    }
+
+    @Unroll
     def 'double pair of with mapper function returning "#right" returns #expected'() {
 
         expect:

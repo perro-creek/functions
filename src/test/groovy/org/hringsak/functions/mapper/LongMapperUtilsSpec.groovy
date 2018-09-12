@@ -100,6 +100,23 @@ class LongMapperUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'flat mapper to long passing target "#target" returns #expected'() {
+
+        expect:
+        def function = { s ->
+            s.codePoints()
+                    .mapToLong { int i -> (long) i }
+                    .toArray()
+        }
+        flatMapperToLong(function).apply(target).toArray() == expected
+
+        where:
+        target || expected
+        'test' || [116L, 101L, 115L, 116L] as long[]
+        null   || [] as long[]
+    }
+
+    @Unroll
     def 'long pair of with mapper function returning "#right" returns #expected'() {
 
         expect:
