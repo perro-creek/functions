@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -206,12 +207,8 @@ public final class IntMapperUtils {
         return i -> biFunction.applyAsInt(value, i);
     }
 
-    public static <T> Function<T, IntStream> flatIntMapper(Function<? super T, ? extends Collection<Integer>> intMapper) {
-        return i -> i == null ? IntStream.empty() : defaultIntStream(intMapper.apply(i));
-    }
-
-    public static <T> Function<T, IntStream> flatIntArrayMapper(Function<? super T, ? extends int[]> intMapper) {
-        return i -> i == null ? IntStream.empty() : defaultIntStream(intMapper.apply(i));
+    public static IntFunction<IntStream> intFlatMapper(IntFunction<? extends int[]> intMapper) {
+        return i -> defaultIntStream(intMapper.apply(i));
     }
 
     public static <U> IntFunction<IntObjectPair<U>> intPairOf(IntFunction<? extends U> rightFunction) {

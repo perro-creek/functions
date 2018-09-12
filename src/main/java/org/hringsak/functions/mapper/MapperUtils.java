@@ -36,7 +36,9 @@ public final class MapperUtils {
      *             .andThen(ProductType::name))
      *         .collect(toList());
      * </pre>
-     * The <code>Function.andThen()</code> method can only be called on the method reference because of the cast.
+     * The <code>Function.andThen()</code> method can only be called on the method reference because of the cast. An
+     * additional benefit of calling this method is the null-checking performed on the target element passed to the
+     * resulting function.
      *
      * @param function A method reference to be cast to a Function.
      * @param <T>      The type of the single parameter to the Function.
@@ -163,24 +165,127 @@ public final class MapperUtils {
         return t -> biFunction.apply(value, t);
     }
 
+    /**
+     * Applies a series to two <code>Function</code> method references, the first taking a parameter of type &lt;T&gt;
+     * and returning a value of type &lt;U&gt;, and the second taking a parameter of type &lt;U&gt; and returning a
+     * value of type &lt;R&gt;. The following example illustrates its usage:
+     * <pre>
+     *     List&lt;ObjectThree&gt; transformed = StreamUtils.transform(objects, MapperUtils.mapper(ObjectOne::getObjectTwo, ObjectTwo::getObjectThree));
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     List&lt;ObjectThree&gt; transformed = transform(objects, mapper(ObjectOne::getObjectTwo, ObjectTwo::getObjectThree));
+     * </pre>
+     * The above are equivalent to:
+     * <pre>
+     *     List&lt;ObjectThree&gt; transformed = StreamUtils.transform(objects, MapperUtils.mapper(ObjectOne::getObjectTwo).andThen(ObjectTwo::getObjectThree));
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     List&lt;ObjectThree&gt; transformed = transform(objects, mapper(ObjectOne::getObjectTwo).andThen(ObjectTwo::getObjectThree));
+     * </pre>
+     * The first example calling this method is slightly more concise, but which of the above is more readable is up to
+     * the individual developer. This method provides an alternative way of accomplishing the above transformation. That
+     * being said, there is an additional benefit of using this method. Not only is there null-checking on the target
+     * element, there is also null-checking on the result of the transformation using the <code>left Function</code>.
+     *
+     * @param left  A Function to perform a first, preliminary transformation.
+     * @param right A Function to perform a second, final transformation.
+     * @param <T>   The type of a target element to be passed to the resulting function.
+     * @param <U>   The type of an interim result from a first transformation.
+     * @param <R>   The type of a final result from a second transformation.
+     * @return A Function transforming an element of type &lt;T&gt; to a result of type &lt;R&gt;. If the target element
+     * is null, or the result of the transformation using the left Function is null, then the Function will return null.
+     */
     public static <T, U, R> Function<T, R> mapper(Function<? super T, ? extends U> left, Function<? super U, ? extends R> right) {
-        return t -> right.apply(left.apply(t));
+        return t -> {
+            U value = t == null ? null : left.apply(t);
+            return value == null ? null : right.apply(value);
+        };
     }
 
-    public static <T, U, R> Function<T, R> getValue(Map<U, R> map, Function<T, U> extractor) {
-        return t -> (map == null || t == null) ? null : map.get(extractor.apply(t));
+    /**
+     * Retrieves a value of type &lt;R&gt; from a <code>Map</code>, using a key retrieved from an element of type
+     * &lt;T&gt; using a passed <code>Function</code>. The following example illustrates its usage:
+     * <pre>
+     *     private List&lt;Customer&gt; getCustomers(Collection&lt;Order&gt; orders) {
+     *         Map&lt;String, Customer&gt; customerById = ...
+     *         return StreamUtils.transform(orders, MapperUtils.getValue(customerById, Order::getCustomerId));
+     *     }
+     * </pre>
+     * Or, using static imports:
+     * <pre>
+     *         return transform(orders, getValue(customerById, Order::getCustomerId));
+     * </pre>
+     *
+     * @param map      A map from which a value will be retrieved.
+     * @param function A Function whose result will be used as a key to retrieve a value from a Map.
+     * @param <T>      The type of the target element on which a Function is to be called to provide a key value.
+     * @param <K>      The type of a key value for a passed Map.
+     * @param <V>      The type of the value to be returned from the Function built by this method.
+     * @return A Function that retrieves a value from a passed Map. If passed map, or the target element passed to this
+     * Function are null, then the result of this Function will be null.
+     */
+    public static <T, K, V> Function<T, V> getValue(Map<K, V> map, Function<T, K> function) {
+        return t -> (map == null || t == null) ? null : map.get(function.apply(t));
     }
 
-    public static <T, R> Function<T, Stream<R>> streamOf(Function<? super T, ? extends R> mapper) {
-        return t -> t == null ? Stream.empty() : Stream.of(mapper.apply(t));
+    /**
+     * Given a <code>Function</code> that returns a <code>Collection</code>, this method builds a <code>Function</code>
+     * that returns a <code>Stream</code> of the same element type. This is useful in the <code>Stream.flatMap()</code>
+     * method. For example, let's say you want to retrieve all the line items from all of a customer's orders, assuming
+     * that <code>Order.getLineItems()</code> returns a <code>Collection</code> of type &lt;R&gt;:
+     * <pre>
+     *     private List&lt;OrderLineItem&gt; getCustomerLineItems(Collection&lt;Order&gt; customerOrders) {
+     *         return customerOrders.stream()
+     *             .flatMap(MapperUtils.flatMapper(Order::getLineItems))
+     *             .collect(Collectors.toList());
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *         return customerOrders.stream()
+     *             .flatMap(flatMapper(Order::getLineItems))
+     *             .collect(toList());
+     * </pre>
+     *
+     * @param function A function that returns a Collection of type &lt;R&gt;.
+     * @param <T>      The type of the target element on which a Function is to be called to provide a Collection.
+     * @param <R>      The type of the element of a Collection returned by the given function.
+     * @return A Function that, given a target element of type &lt;T&gt;, returns a Stream of type &lt;R&gt;. Returns an
+     * empty Stream if the target element is null, or the Collection returned by the given function is null.
+     */
+    public static <T, R> Function<T, Stream<R>> flatMapper(Function<? super T, ? extends Collection<R>> function) {
+        return t -> t == null ? Stream.empty() : defaultStream(function.apply(t));
     }
 
-    public static <T, R> Function<T, Stream<R>> flatMapper(Function<? super T, ? extends Collection<R>> mapper) {
-        return t -> t == null ? Stream.empty() : defaultStream(mapper.apply(t));
-    }
-
-    public static <T, R> Function<T, Stream<R>> flatArrayMapper(Function<? super T, ? extends R[]> mapper) {
-        return t -> t == null ? Stream.empty() : defaultStream(mapper.apply(t));
+    /**
+     * Given a <code>Function</code> that returns an array of type &lt;R&gt;, this method builds a <code>Function</code>
+     * that returns a <code>Stream</code> of the same element type. This is useful in the <code>Stream.flatMap()</code>
+     * method. For example, let's say you want to retrieve all the line items from all of a customer's orders, assuming
+     * that <code>Order.getLineItems()</code> returns an array of OrderLineItem:
+     * <pre>
+     *     private List&lt;OrderLineItem&gt; getCustomerLineItems(Collection&lt;Order&gt; customerOrders) {
+     *         return customerOrders.stream()
+     *             .flatMap(MapperUtils.flatArrayMapper(Order::getLineItems))
+     *             .collect(Collectors.toList());
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *         return customerOrders.stream()
+     *             .flatMap(flatArrayMapper(Order::getLineItems))
+     *             .collect(toList());
+     * </pre>
+     *
+     * @param function A function that returns an array of type &lt;R&gt;.
+     * @param <T>      The type of the target element on which a Function is to be called to provide an array.
+     * @param <R>      The type of the element of an array returned by the given function.
+     * @return A Function that, given a target element of type &lt;T&gt;, returns a Stream of type &lt;R&gt;. Returns an
+     * empty Stream if the target element is null, or the array returned by the given function is null.
+     */
+    public static <T, R> Function<T, Stream<R>> flatArrayMapper(Function<? super T, ? extends R[]> function) {
+        return t -> t == null ? Stream.empty() : defaultStream(function.apply(t));
     }
 
     public static <T, U> Function<T, Pair<T, U>> pairOf(Function<? super T, ? extends U> rightFunction) {

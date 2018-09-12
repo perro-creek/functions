@@ -10,11 +10,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.LongFunction;
 import java.util.function.ToLongBiFunction;
 import java.util.function.ToLongFunction;
+import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
+import static org.hringsak.functions.stream.IntStreamUtils.defaultIntStream;
 import static org.hringsak.functions.stream.LongStreamUtils.defaultLongStream;
 
 /**
@@ -206,12 +209,8 @@ public final class LongMapperUtils {
         return l -> biFunction.applyAsLong(value, l);
     }
 
-    public static <T> Function<T, LongStream> flatLongMapper(Function<? super T, ? extends Collection<Long>> longMapper) {
-        return l -> l == null ? LongStream.empty() : defaultLongStream(longMapper.apply(l));
-    }
-
-    public static <T> Function<T, LongStream> flatLongArrayMapper(Function<? super T, ? extends long[]> longMapper) {
-        return l -> l == null ? LongStream.empty() : defaultLongStream(longMapper.apply(l));
+    public static LongFunction<LongStream> longFlatMapper(LongFunction<? extends long[]> longMapper) {
+        return l -> defaultLongStream(longMapper.apply(l));
     }
 
     public static <U> LongFunction<LongObjectPair<U>> longPairOf(LongFunction<? extends U> rightFunction) {

@@ -5,6 +5,8 @@ import org.hringsak.functions.mapper.MapperUtils;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
+import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.ToDoubleFunction;
 
@@ -102,18 +104,80 @@ public final class DblConsumerUtils {
      *         widgets.forEach(setter(Widget::setPrice, mapper(this::calculatePrice, discount)));
      * </pre>
      *
-     * @param consumer  A setter method reference from the class of the target element. It is a BiConsumer because the
-     *                  first parameter will be the element itself, and the second parameter is the value to be set on
-     *                  it.
-     * @param extractor An extractor function that, given the target element, returns the double value to be set.
-     * @param <T>       The type of the target input element.
+     * @param consumer A setter method reference from the class of the target element. It is a BiConsumer because the
+     *                 first parameter will be the element itself, and the second parameter is the value to be set on
+     *                 it.
+     * @param function A function that, given the target element, returns the double value to be set.
+     * @param <T>      The type of the target input element.
      * @return A Consumer representing the invocation of a setter method on a target element.
      */
-    public static <T> Consumer<T> dblSetter(BiConsumer<? super T, Double> consumer, ToDoubleFunction<T> extractor) {
+    public static <T> Consumer<T> dblSetter(BiConsumer<? super T, Double> consumer, ToDoubleFunction<T> function) {
         return t -> {
             if (t != null) {
-                consumer.accept(t, extractor.applyAsDouble(t));
+                consumer.accept(t, function.applyAsDouble(t));
             }
         };
+    }
+
+    /**
+     * Applies a <code>ToDoubleFunction</code> to a target element, before passing its result to a
+     * <code>DoubleConsumer</code>. For example, let's say that we have a collection of order line items, and we want to
+     * call a validation method to make sure that the discount for the current line item is appropriate for a given
+     * customer (the OrderLineItem.getDiscount() method returns a double):
+     * <pre>
+     *     private void validateLineItems(Collection&lt;OrderLineItem&gt; lineItems, String customerId) {
+     *         lineItems.forEach(DblConsumerUtils.mapToDblAndConsume(OrderLineItem::getDiscount, DblConsumerUtils.dblConsumer(this::validateDiscount, customerId)));
+     *     }
+     *
+     *     private String validateDiscount(double discount, String customerId) {
+     *         ...
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *         lineItems.forEach(mapToDblAndConsume(OrderLineItem::getDiscount, dblConsumer(this::validateDiscount, customerId)));
+     * </pre>
+     * Note that the same thing could be done like this:
+     * <pre>
+     *         lineItems.stream()
+     *             .map(OrderLineItem::getDiscount)
+     *             .forEach(dblConsumer(this::validateDiscount, customerId));
+     * </pre>
+     * Which of the above is more concise and readable is up to the individual developer, but this method provides an
+     * alternative way of accomplishing the above validation.
+     *
+     * @param function A ToDoubleFunction to be applied to a target element.
+     * @param consumer A DoubleConsumer to be applied to the result of a ToDoubleFunction.
+     * @param <T>      The type of the target input element.
+     * @return A Consumer taking a single parameter of type &lt;T&gt;.
+     */
+    public static <T> Consumer<T> mapToDblAndConsume(ToDoubleFunction<? super T> function, DoubleConsumer consumer) {
+        return t -> {
+            if (t != null) {
+                double value = function.applyAsDouble(t);
+                consumer.accept(value);
+            }
+        };
+    }
+
+    /**
+     * Builds a <code>DoubleConsumer</code> from a passed <code>DoubleFunction</code> and a <code>Consumer</code>.
+     * Everything said about the {@link ConsumerUtils#mapAndConsume(Function, Consumer)} method applies here. The
+     * difference is that instead of an element of type &lt;T&gt; being streamed through, it would be a primitive
+     * <code>double</code> instead. Also, this method takes a <code>DoubleFunction</code> rather than a generic
+     * <code>Function</code>. It may be harder to think of a situation where this method would be useful, but it is
+     * included for sake of completeness.
+     * <p>
+     * One note about using the Java <code>DoubleConsumer</code> interface, as it says in the Javadoc documentation for
+     * it, "Unlike most other functional interfaces, DoubleConsumer is expected to operate via side-effects."
+     *
+     * @param function A method reference which is a DoubleFunction, taking a single double parameter, and returning a
+     *                 value of type &lt;U&gt;.
+     * @param consumer A Consumer&lt;U&gt;, which will be passed the result of a DoubleFunction.
+     * @param <U>      The type of the result of a DoubleFunction.
+     * @return A DoubleConsumer taking a single parameter of type double.
+     */
+    public static <U> DoubleConsumer dblMapAndConsume(DoubleFunction<? extends U> function, Consumer<U> consumer) {
+        return d -> consumer.accept(function.apply(d));
     }
 }

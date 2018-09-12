@@ -12,7 +12,7 @@ import static org.hringsak.functions.predicate.DblPredicateUtils.dblPredicate;
 import static org.hringsak.functions.stream.DblStreamUtils.defaultDblStream;
 
 /**
- * Convenience methods for filtering collections of objects, without having to spell out the entire
+ * Convenience methods for filtering arrays of <code>double</code> primitives, without having to spell out the entire
  * stream-&gt;filter-&gt;collect process.
  */
 public final class DblFilterUtils {

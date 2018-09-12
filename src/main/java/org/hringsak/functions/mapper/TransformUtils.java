@@ -11,6 +11,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.hringsak.functions.CollectorUtils.toMapFromEntry;
+import static org.hringsak.functions.mapper.MapperUtils.flatMapper;
 import static org.hringsak.functions.mapper.MapperUtils.mapper;
 import static org.hringsak.functions.mapper.MapperUtils.pairOf;
 import static org.hringsak.functions.stream.StreamUtils.defaultStream;
@@ -51,7 +52,33 @@ public final class TransformUtils {
                 .collect(toMapFromEntry());
     }
 
+    public static <T, U> List<U> flatMap(Collection<T> objects, Function<T, Collection<U>> function) {
+        FlatMapCollector<T, U, List<U>> flatMapCollector = FlatMapCollector.of(function, toList());
+        return flatMap(objects, flatMapCollector);
+    }
+
+    public static <T, R> Set<R> flatMapToSet(Collection<T> objects, Function<T, Collection<R>> function) {
+        return flatMap(objects, FlatMapCollector.of(function, toSet()));
+    }
+
+    public static <T, U> List<U> flatMapDistinct(Collection<T> objects, Function<T, Collection<U>> function) {
+        return defaultStream(objects)
+                .flatMap(flatMapper(function))
+                .distinct()
+                .collect(toList());
+    }
+
+    public static <T, U, C extends Collection<U>> C flatMap(Collection<T> objects, FlatMapCollector<T, U, C> flatMapCollector) {
+        return defaultStream(objects)
+                .flatMap(flatMapper(flatMapCollector.getFlatMapper()))
+                .collect(flatMapCollector.getCollector());
+    }
+
     public static <T, U, C extends Collection<U>> TransformerCollector<T, U, C> transformAndThen(Function<T, U> transformer, Collector<U, ?, C> collector) {
         return TransformerCollector.of(transformer, collector);
+    }
+
+    public static <T, U, C extends Collection<U>> FlatMapCollector<T, U, C> flatMapAndThen(Function<T, Collection<U>> flatMapper, Collector<U, ?, C> collector) {
+        return FlatMapCollector.of(flatMapper, collector);
     }
 }
