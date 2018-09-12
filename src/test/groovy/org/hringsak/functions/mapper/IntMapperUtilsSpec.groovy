@@ -6,12 +6,9 @@ import org.hringsak.functions.mapper.IntObjectPair
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.function.Function
 import java.util.function.ToIntBiFunction
 
 import static org.apache.commons.lang3.StringUtils.defaultString
-import static org.hringsak.functions.mapper.DblMapperUtils.dblKeyValueMapper
-import static org.hringsak.functions.mapper.DblMapperUtils.dblPairOf
 import static org.hringsak.functions.mapper.IntMapperUtils.*
 
 class IntMapperUtilsSpec extends Specification {
@@ -91,33 +88,17 @@ class IntMapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'flat int mapper taking function passing value "#target" returns #expected'() {
+    def 'int flat mapper taking function passing value "#target" returns #expected'() {
 
         expect:
-        Function function = { String param -> [1, 2, 3] }
-        def ints = flatIntMapper(function).apply(target).toArray()
-        ints == expected as int[]
+        def function = { i -> ints }
+        intFlatMapper(function).apply(1).toArray() == expected
 
         where:
-        target || expected
-        'test' || [1, 2, 3]
-        null   || []
-        ''     || [1, 2, 3]
-    }
-
-    @Unroll
-    def 'flat int array mapper taking function passing value "#target" returns #expected'() {
-
-        expect:
-        Function function = { String param -> [1, 2, 3] as int[] }
-        def ints = flatIntArrayMapper(function).apply(target).toArray()
-        ints == expected as int[]
-
-        where:
-        target || expected
-        'test' || [1, 2, 3]
-        null   || []
-        ''     || [1, 2, 3]
+        ints               || expected
+        [1, 2, 3] as int[] || [1, 2, 3] as int[]
+        [] as int[]        || [] as int[]
+        null as int[]      || [] as int[]
     }
 
     @Unroll

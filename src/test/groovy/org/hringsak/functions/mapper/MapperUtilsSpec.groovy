@@ -8,10 +8,7 @@ import spock.lang.Unroll
 import java.util.function.BiFunction
 import java.util.function.Function
 
-import static java.util.function.Function.identity
 import static java.util.stream.Collectors.toList
-import static org.hringsak.functions.mapper.LongMapperUtils.flatLongArrayMapper
-import static org.hringsak.functions.mapper.LongMapperUtils.flatLongMapper
 import static org.hringsak.functions.mapper.MapperUtils.*
 
 class MapperUtilsSpec extends Specification {
@@ -80,19 +77,6 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'stream of passing value "#target" finding first returns "#expected"'() {
-
-        expect:
-        def stream = streamOf(identity()).apply(target)
-        stream.findFirst().orElse(null) == expected
-
-        where:
-        target || expected
-        'test' || 'test'
-        null   || null
-    }
-
-    @Unroll
     def 'flat mapper taking function passing value "#target" returns #expected'() {
 
         expect:
@@ -120,36 +104,6 @@ class MapperUtilsSpec extends Specification {
         'test'   || ['t', 'e', 's', 't']
         null     || []
         ''       || []
-    }
-
-    @Unroll
-    def 'flat long mapper taking function passing value "#target" returns #expected'() {
-
-        expect:
-        Function function = { String param -> [1L, 2L, 3L] }
-        def longs = flatLongMapper(function).apply(target).toArray()
-        longs == expected as long[]
-
-        where:
-        target || expected
-        'test'   || [1L, 2L, 3L]
-        null     || []
-        ''       || [1L, 2L, 3L]
-    }
-
-    @Unroll
-    def 'flat long array mapper taking function passing value "#target" returns #expected'() {
-
-        expect:
-        Function function = { String param -> [1L, 2L, 3L] as long[] }
-        def longs = flatLongArrayMapper(function).apply(target).toArray()
-        longs == expected as long[]
-
-        where:
-        target || expected
-        'test'   || [1L, 2L, 3L]
-        null     || []
-        ''       || [1L, 2L, 3L]
     }
 
     @Unroll

@@ -139,35 +139,35 @@ public final class LongPredicateUtils {
     }
 
     public static LongPredicate longGt(long compareTo) {
-        return l -> compareTo > l;
+        return l -> l > compareTo;
     }
 
     public static <R extends Comparable<R>> LongPredicate longGt(R compareTo, LongFunction<? extends R> valueExtractor) {
-        return l -> Objects.compare(compareTo, valueExtractor.apply(l), nullsLast(naturalOrder())) > 0;
+        return l -> Objects.compare(valueExtractor.apply(l), compareTo, nullsLast(naturalOrder())) > 0;
     }
 
     public static LongPredicate longGte(long compareTo) {
-        return l -> compareTo >= l;
+        return l -> l >= compareTo;
     }
 
     public static <R extends Comparable<R>> LongPredicate longGte(R compareTo, LongFunction<? extends R> valueExtractor) {
-        return l -> Objects.compare(compareTo, valueExtractor.apply(l), nullsLast(naturalOrder())) >= 0;
+        return l -> Objects.compare(valueExtractor.apply(l), compareTo, nullsLast(naturalOrder())) >= 0;
     }
 
     public static LongPredicate longLt(long compareTo) {
-        return l -> compareTo < l;
+        return l -> l < compareTo;
     }
 
     public static <R extends Comparable<R>> LongPredicate longLt(R compareTo, LongFunction<? extends R> valueExtractor) {
-        return l -> Objects.compare(compareTo, valueExtractor.apply(l), nullsLast(naturalOrder())) < 0;
+        return l -> Objects.compare(valueExtractor.apply(l), compareTo, nullsLast(naturalOrder())) < 0;
     }
 
     public static LongPredicate longLte(long compareTo) {
-        return l -> compareTo <= l;
+        return l -> l <= compareTo;
     }
 
     public static <R extends Comparable<R>> LongPredicate longLte(R compareTo, LongFunction<? extends R> valueExtractor) {
-        return l -> Objects.compare(compareTo, valueExtractor.apply(l), nullsLast(naturalOrder())) <= 0;
+        return l -> Objects.compare(valueExtractor.apply(l), compareTo, nullsLast(naturalOrder())) <= 0;
     }
 
     public static <R> LongPredicate isLongCollEmpty(LongFunction<? extends Collection<R>> function) {

@@ -191,11 +191,11 @@ public final class DblPredicateUtils {
         return d -> uniqueKeys.add(keyExtractor.apply(d));
     }
 
-    public static <T> Predicate<T> mapToDblAndFilter(ToDoubleFunction<? super T> transformer, DoublePredicate predicate) {
-        return t -> predicate.test(transformer.applyAsDouble(t));
+    public static <T> Predicate<T> mapToDblAndFilter(ToDoubleFunction<? super T> function, DoublePredicate predicate) {
+        return t -> predicate.test(function.applyAsDouble(t));
     }
 
-    public static <U> DoublePredicate dblMapAndFilter(DoubleFunction<? extends U> transformer, Predicate<? super U> predicate) {
-        return d -> predicate.test(transformer.apply(d));
+    public static <U> DoublePredicate dblMapAndFilter(DoubleFunction<? extends U> function, Predicate<? super U> predicate) {
+        return d -> predicate.test(function.apply(d));
     }
 }

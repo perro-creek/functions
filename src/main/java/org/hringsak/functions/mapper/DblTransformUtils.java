@@ -1,18 +1,23 @@
 package org.hringsak.functions.mapper;
 
 import java.util.Collection;
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.DoubleFunction;
+import java.util.function.Function;
 import java.util.stream.Collector;
+import java.util.stream.DoubleStream;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.hringsak.functions.CollectorUtils.toMapFromEntry;
 import static org.hringsak.functions.mapper.DblMapperUtils.dblMapper;
 import static org.hringsak.functions.mapper.DblMapperUtils.dblPairOf;
+import static org.hringsak.functions.mapper.MapperUtils.flatMapper;
 import static org.hringsak.functions.stream.DblStreamUtils.defaultDblStream;
+import static org.hringsak.functions.stream.StreamUtils.defaultStream;
 
 public final class DblTransformUtils {
 
@@ -43,6 +48,28 @@ public final class DblTransformUtils {
                 .mapToObj(transformerCollector.getTransformer())
                 .collect(transformerCollector.getCollector());
     }
+
+//    public static <T, U> double[] flatMap(double[] doubles, Function<T, Collection<U>> function) {
+//        FlatMapCollector<T, U, List<U>> flatMapCollector = FlatMapCollector.of(function, toList());
+//        return flatMap(objects, flatMapCollector);
+//    }
+//
+//    public static <T, R> Set<R> flatMapToSet(double[] doubles, Function<T, Collection<R>> function) {
+//        return flatMap(objects, FlatMapCollector.of(function, toSet()));
+//    }
+//
+//    public static <T, U> List<U> flatMapDistinct(double[] doubles, DoubleFunction<? extends DoubleStream> function) {
+//        return defaultDblStream(doubles)
+//                .flatMap(dblFlatMapper(function))
+//                .distinct()
+//                .collect(toList());
+//    }
+//
+//    public static <T, U, C extends Collection<U>> C flatMap(double[] doubles, FlatMapCollector<T, U, C> flatMapCollector) {
+//        return defaultStream(objects)
+//                .flatMap(flatMapper(flatMapCollector.getFlatMapper()))
+//                .collect(flatMapCollector.getCollector());
+//    }
 
     public static <U, C extends Collection<U>> DblTransformerCollector<U, C> dblTransformAndThen(DoubleFunction<U> transformer, Collector<U, ?, C> collector) {
         return DblTransformerCollector.of(transformer, collector);

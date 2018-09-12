@@ -4,7 +4,6 @@ import org.apache.commons.lang3.tuple.Pair
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.function.Function
 import java.util.function.ToDoubleBiFunction
 
 import static org.apache.commons.lang3.StringUtils.defaultString
@@ -87,33 +86,17 @@ class DblMapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'flat double mapper taking function passing value "#target" returns #expected'() {
+    def 'double flat mapper taking function passing doubles #doubles returns #expected'() {
 
         expect:
-        Function function = { String param -> [1.0D, 2.0D, 3.0D] }
-        def doubles = flatDoubleMapper(function).apply(target).toArray()
-        doubles == expected as double[]
+        def function = { d -> doubles }
+        dblFlatMapper(function).apply(1.0D).toArray() == expected
 
         where:
-        target || expected
-        'test' || [1.0D, 2.0D, 3.0D]
-        null   || []
-        ''     || [1.0D, 2.0D, 3.0D]
-    }
-
-    @Unroll
-    def 'flat double array mapper taking function passing value "#target" returns #expected'() {
-
-        expect:
-        Function function = { String param -> [1.0D, 2.0D, 3.0D] as double[] }
-        def doubles = flatDoubleArrayMapper(function).apply(target).toArray()
-        doubles == expected as double[]
-
-        where:
-        target || expected
-        'test' || [1.0D, 2.0D, 3.0D]
-        null   || []
-        ''     || [1.0D, 2.0D, 3.0D]
+        doubles                        || expected
+        [1.0D, 2.0D, 3.0D] as double[] || [1.0D, 2.0D, 3.0D] as double[]
+        [] as double[]                 || [] as double[]
+        null as double[]               || [] as double[]
     }
 
     @Unroll

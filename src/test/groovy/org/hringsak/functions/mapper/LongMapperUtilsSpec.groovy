@@ -4,7 +4,6 @@ import org.apache.commons.lang3.tuple.Pair
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.function.Function
 import java.util.function.ToLongBiFunction
 
 import static org.apache.commons.lang3.StringUtils.defaultString
@@ -90,30 +89,14 @@ class LongMapperUtilsSpec extends Specification {
     def 'flat long mapper taking function passing value "#target" returns #expected'() {
 
         expect:
-        Function function = { String param -> [1L, 2L, 3L] }
-        def longs = flatLongMapper(function).apply(target).toArray()
-        longs == expected as long[]
+        def function = { l -> longs }
+        longFlatMapper(function).apply(1L).toArray() == expected
 
         where:
-        target || expected
-        'test' || [1L, 2L, 3L]
-        null   || []
-        ''     || [1L, 2L, 3L]
-    }
-
-    @Unroll
-    def 'flat long array mapper taking function passing value "#target" returns #expected'() {
-
-        expect:
-        Function function = { String param -> [1L, 2L, 3L] as long[] }
-        def longs = flatLongArrayMapper(function).apply(target).toArray()
-        longs == expected as long[]
-
-        where:
-        target || expected
-        'test' || [1L, 2L, 3L]
-        null   || []
-        ''     || [1L, 2L, 3L]
+        longs                        || expected
+        [1.0D, 2.0D, 3.0D] as long[] || [1.0D, 2.0D, 3.0D] as long[]
+        [] as long[]                 || [] as long[]
+        null as long[]               || [] as long[]
     }
 
     @Unroll

@@ -24,6 +24,11 @@ public final class ConsumerUtils {
      *     widgets.forEach(ConsumerUtils.consumer(this::methodOne)
      *             .andThen(this::methodTwo));
      * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     widgets.forEach(consumer(this::methodOne)
+     *             .andThen(this::methodTwo));
+     * </pre>
      * The <code>Consumer.andThen()</code> method can only be called on the method reference because of the cast.
      *
      * @param consumer A method reference to be cast to a Consumer.
@@ -46,9 +51,17 @@ public final class ConsumerUtils {
      * need to be saved to a database. Also assume the <code>WidgetRepository.saveWidget()</code> method takes a <code>
      * Widget</code> as the first parameter, and a <code>String</code> projectId as a second parameter:
      * <pre>
-     *     Collection&lt;Widget&gt; widgets = ...
-     *     String projectId = ...
-     *     widgets.forEach(ConsumerUtils.consumer(widgetRepository::saveWidget, projectId));
+     *     private void saveWidgets(Collection&lt;Widget&gt; widgets, String projectId) {
+     *         widgets.forEach(ConsumerUtils.consumer(widgetRepository::saveWidget, projectId));
+     *     }
+     *
+     *     private void saveWidget(Widget widget, String projectId) {
+     *         ...
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *         widgets.forEach(consumer(widgetRepository::saveWidget, projectId));
      * </pre>
      * In this example, we have each widget to be saved being passed to the save method, along with a projectId, which
      * remains constant for every call.
@@ -85,9 +98,17 @@ public final class ConsumerUtils {
      * they need to be saved to a database. Also assume the <code>WidgetRepository.saveWidget()</code> method takes a
      * <code>String</code> projectId as the first parameter, and a <code>Widget</code> as the second parameter:
      * <pre>
-     *     Collection&lt;Widget&gt; widgets = ...
-     *     String projectId = ...
-     *     widgets.forEach(ConsumerUtils.inverseConsumer(widgetRepository::saveWidget, projectId));
+     *     private void saveWidgets(Collection&lt;Widget&gt; widgets, String projectId) {
+     *         widgets.forEach(ConsumerUtils.inverseConsumer(widgetRepository::saveWidget, projectId));
+     *     }
+     *
+     *     private void saveWidget(String projectId, Widget widget) {
+     *         ...
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *         widgets.forEach(inverseConsumer(widgetRepository::saveWidget, projectId));
      * </pre>
      * This example looks almost exactly the same as the one in {@link #consumer(BiConsumer, Object)}, but the difference
      * is that the order of the parameters in the passed <code>BiConsumer</code> method reference are reversed. So the
@@ -136,18 +157,60 @@ public final class ConsumerUtils {
      *         widgets.forEach(setter(Widget::setDescription, mapper(this::buildDescription, productLine)));
      * </pre>
      *
-     * @param consumer  A setter method reference from the class of the target element. It is a BiConsumer because the
-     *                  first parameter will be the element itself, and the second parameter is the value to be set on
-     *                  it.
-     * @param extractor An extractor function that, given the target element, returns the value to be set.
-     * @param <T>       The type of the target input element.
-     * @param <U>       The type of the parameter to be passed to the setter method.
+     * @param consumer A setter method reference from the class of the target element. It is a BiConsumer because the
+     *                 first parameter will be the element itself, and the second parameter is the value to be set on
+     *                 it.
+     * @param function An extractor function that, given the target element, returns the value to be set.
+     * @param <T>      The type of the target input element.
+     * @param <U>      The type of the parameter to be passed to the setter method.
      * @return A Consumer representing the invocation of a setter method on a target element.
      */
-    public static <T, U> Consumer<T> setter(BiConsumer<? super T, ? super U> consumer, Function<T, U> extractor) {
+    public static <T, U> Consumer<T> setter(BiConsumer<? super T, ? super U> consumer, Function<T, U> function) {
         return t -> {
             if (t != null) {
-                consumer.accept(t, extractor.apply(t));
+                U value = function.apply(t);
+                consumer.accept(t, value);
+            }
+        };
+    }
+
+    /**
+     * Applies a <code>Function</code> to a target element, before passing its result to a <code>Consumer</code>. For
+     * example, let's say that we have a collection of order line items, and we want to call a validation method to make
+     * sure that the current customer is able to order items from the product type of the current line item:
+     * <pre>
+     *     private void validateLineItems(Collection&lt;OrderLineItem&gt; lineItems, String customerId) {
+     *         lineItems.forEach(ConsumerUtils.mapAndConsume(OrderLineItem::getProductType, ConsumerUtils.consumer(this::validateProductType, customerId)));
+     *     }
+     *
+     *     private String validateProductType(ProductType productType, String customerId) {
+     *         ...
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *         lineItems.forEach(mapAndConsume(OrderLineItem::getProductType, consumer(this::validateProductType, customerId)));
+     * </pre>
+     * Note that the same thing could be done like this:
+     * <pre>
+     *         lineItems.stream()
+     *             .map(OrderLineItem::getProductType)
+     *             .forEach(consumer(this::validateProductType, customerId));
+     * </pre>
+     * Which of the above is more concise and readable is up to the individual developer, but this method provides an
+     * alternative way of accomplishing the above validation.
+     *
+     * @param function A Function to be applied to a target element.
+     * @param consumer A Consumer to be applied to the result of a Function.
+     * @param <T>      The type of the target input element.
+     * @param <U>      The type of the result of a Function, which will be passed to a Consumer.
+     * @return A Consumer which will be invoked, passing the result of a Function.
+     */
+    public static <T, U> Consumer<T> mapAndConsume(Function<? super T, ? extends U> function, Consumer<? super U> consumer) {
+        return t -> {
+            if (t != null) {
+                U value = function.apply(t);
+                consumer.accept(value);
             }
         };
     }

@@ -2,7 +2,11 @@ package org.hringsak.functions.consumer;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
 import java.util.function.LongConsumer;
+import java.util.function.LongFunction;
 import java.util.function.ObjLongConsumer;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
@@ -96,5 +100,67 @@ public final class LongConsumerUtils {
                 consumer.accept(t, extractor.applyAsLong(t));
             }
         };
+    }
+
+    /**
+     * Applies a <code>ToLongFunction</code> to a target element, before passing its result to a
+     * <code>LongConsumer</code>. For example, let's say that we have a collection of order line items, and we want to
+     * call a validation method to make sure that the quantity for the current line item is appropriate for a given
+     * customer (the OrderLineItem.getQuantity() method returns a long):
+     * <pre>
+     *     private void validateLineItems(Collection&lt;OrderLineItem&gt; lineItems, String customerId) {
+     *         lineItems.forEach(LongConsumerUtils.mapToLongAndConsume(OrderLineItem::getQuantity, LongConsumerUtils.longConsumer(this::validateQuantity, customerId)));
+     *     }
+     *
+     *     private String validateQuantity(long quantity, String customerId) {
+     *         ...
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *         lineItems.forEach(mapToLongAndConsume(OrderLineItem::getQuantity, longConsumer(this::validateQuantity, customerId)));
+     * </pre>
+     * Note that the same thing could be done like this:
+     * <pre>
+     *         lineItems.stream()
+     *             .map(OrderLineItem::getQuantity)
+     *             .forEach(longConsumer(this::validateQuantity, customerId));
+     * </pre>
+     * Which of the above is more concise and readable is up to the individual developer, but this method provides an
+     * alternative way of accomplishing the above validation.
+     *
+     * @param function A ToLongFunction to be applied to a target element.
+     * @param consumer A LongConsumer to be applied to the result of a ToLongFunction.
+     * @param <T>      The type of the target input element.
+     * @return A Consumer taking a single parameter of type &lt;T&gt;.
+     */
+    public static <T> Consumer<T> mapToLongAndConsume(ToLongFunction<? super T> function, LongConsumer consumer) {
+        return t -> {
+            if (t != null) {
+                long value = function.applyAsLong(t);
+                consumer.accept(value);
+            }
+        };
+    }
+
+    /**
+     * Builds a <code>LongConsumer</code> from a passed <code>LongFunction</code> and a <code>Consumer</code>.
+     * Everything said about the {@link ConsumerUtils#mapAndConsume(Function, Consumer)} method applies here. The
+     * difference is that instead of an element of type &lt;T&gt; being streamed through, it would be a primitive
+     * <code>long</code> instead. Also, this method takes a <code>LongFunction</code> rather than a generic
+     * <code>Function</code>. It may be harder to think of a situation where this method would be useful, but it is
+     * included for sake of completeness.
+     * <p>
+     * One note about using the Java <code>LongConsumer</code> interface, as it says in the Javadoc documentation for
+     * it, "Unlike most other functional interfaces, LongConsumer is expected to operate via side-effects."
+     *
+     * @param function A method reference which is a LongFunction, taking a single long parameter, and returning a value
+     *                 of type &lt;U&gt;.
+     * @param consumer A Consumer&lt;U&gt;, which will be passed the result of a LongFunction.
+     * @param <U>      The type of the result of an LongFunction.
+     * @return A LongConsumer taking a single parameter of type long.
+     */
+    public static <U> LongConsumer longMapAndConsume(LongFunction<? extends U> function, Consumer<U> consumer) {
+        return l -> consumer.accept(function.apply(l));
     }
 }

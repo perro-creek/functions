@@ -207,12 +207,8 @@ public final class DblMapperUtils {
         return d -> biFunction.applyAsDouble(value, d);
     }
 
-    public static <T> Function<T, DoubleStream> flatDoubleMapper(Function<? super T, ? extends Collection<Double>> doubleMapper) {
-        return d -> d == null ? DoubleStream.empty() : defaultDblStream(doubleMapper.apply(d));
-    }
-
-    public static <T> Function<T, DoubleStream> flatDoubleArrayMapper(Function<? super T, ? extends double[]> doubleMapper) {
-        return d -> d == null ? DoubleStream.empty() : defaultDblStream(doubleMapper.apply(d));
+    public static DoubleFunction<DoubleStream> dblFlatMapper(DoubleFunction<? extends double[]> doubleMapper) {
+        return d -> defaultDblStream(doubleMapper.apply(d));
     }
 
     public static <U> DoubleFunction<DoubleObjectPair<U>> dblPairOf(DoubleFunction<? extends U> rightFunction) {

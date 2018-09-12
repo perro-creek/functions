@@ -139,35 +139,35 @@ public final class IntPredicateUtils {
     }
 
     public static IntPredicate intGt(int compareTo) {
-        return i -> compareTo > i;
+        return i -> i > compareTo;
     }
 
     public static <R extends Comparable<R>> IntPredicate intGt(R compareTo, IntFunction<? extends R> valueExtractor) {
-        return i -> Objects.compare(compareTo, valueExtractor.apply(i), nullsLast(naturalOrder())) > 0;
+        return i -> Objects.compare(valueExtractor.apply(i), compareTo, nullsLast(naturalOrder())) > 0;
     }
 
     public static IntPredicate intGte(int compareTo) {
-        return i -> compareTo >= i;
+        return i -> i >= compareTo;
     }
 
     public static <R extends Comparable<R>> IntPredicate intGte(R compareTo, IntFunction<? extends R> valueExtractor) {
-        return i -> Objects.compare(compareTo, valueExtractor.apply(i), nullsLast(naturalOrder())) >= 0;
+        return i -> Objects.compare(valueExtractor.apply(i), compareTo, nullsLast(naturalOrder())) >= 0;
     }
 
     public static IntPredicate intLt(int compareTo) {
-        return i -> compareTo < i;
+        return i -> i < compareTo;
     }
 
     public static <R extends Comparable<R>> IntPredicate intLt(R compareTo, IntFunction<? extends R> valueExtractor) {
-        return i -> Objects.compare(compareTo, valueExtractor.apply(i), nullsLast(naturalOrder())) < 0;
+        return i -> Objects.compare(valueExtractor.apply(i), compareTo, nullsLast(naturalOrder())) < 0;
     }
 
     public static IntPredicate intLte(int compareTo) {
-        return i -> compareTo <= i;
+        return i -> i <= compareTo;
     }
 
     public static <R extends Comparable<R>> IntPredicate intLte(R compareTo, IntFunction<? extends R> valueExtractor) {
-        return i -> Objects.compare(compareTo, valueExtractor.apply(i), nullsLast(naturalOrder())) <= 0;
+        return i -> Objects.compare(valueExtractor.apply(i), compareTo, nullsLast(naturalOrder())) <= 0;
     }
 
     public static <R> IntPredicate isIntCollEmpty(IntFunction<? extends Collection<R>> function) {
