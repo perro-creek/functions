@@ -11,12 +11,6 @@ import static org.hringsak.functions.mapper.DblTransformUtils.*
 
 class DblTransformUtilsSpec extends Specification {
 
-    def strToDoubleArray = { s ->
-        s.codePoints()
-                .mapToDouble { int i -> (double) i }
-                .toArray()
-    }
-
     @Unroll
     def 'double unary transform passing doubles #doubles returns #expected'() {
 
@@ -202,6 +196,7 @@ class DblTransformUtilsSpec extends Specification {
     def 'flat map to double passing objects #objects returns #expected'() {
 
         expect:
+        def strToDoubleArray = { s -> s.codePoints().asDoubleStream().toArray() }
         flatMapToDbl(objects, strToDoubleArray) == expected
 
         where:
@@ -216,6 +211,7 @@ class DblTransformUtilsSpec extends Specification {
     def 'flat map to double distinct passing objects #objects returns #expected'() {
 
         expect:
+        def strToDoubleArray = { s -> s.codePoints().asDoubleStream().toArray() }
         flatMapToDblDistinct(objects, strToDoubleArray) == expected
 
         where:

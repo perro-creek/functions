@@ -1,12 +1,17 @@
 package org.hringsak.functions.predicate;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiPredicate;
+import java.util.function.DoubleFunction;
+import java.util.function.DoublePredicate;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -39,7 +44,7 @@ public final class IntPredicateUtils {
         return i -> b;
     }
 
-    public static IntPredicate fromDblMapper(IntFunction<Boolean> function) {
+    public static IntPredicate fromIntMapper(IntFunction<Boolean> function) {
         return function::apply;
     }
 
@@ -55,31 +60,43 @@ public final class IntPredicateUtils {
         return notInt(isIntStrEmpty(function));
     }
 
+    public static <R extends CharSequence> IntPredicate intEqualsIgnoreCase(IntFunction<? extends R> function, R value) {
+        return i -> StringUtils.equalsIgnoreCase(function.apply(i), value);
+    }
+
     public static IntPredicate isIntEqual(int value) {
         return i -> i == value;
     }
 
-    public static <R> IntPredicate isIntEqual(R value, IntFunction<? extends R> extractor) {
+    public static <R> IntPredicate isIntEqual(IntFunction<? extends R> extractor, R value) {
         return i -> Objects.equals(value, extractor.apply(i));
+    }
+
+    public static <R> IntPredicate isIntMapperEqual(IntFunction<? extends R> function, R value) {
+        return i -> Objects.equals(function.apply(i), value);
     }
 
     public static IntPredicate isIntNotEqual(int value) {
         return notInt(isIntEqual(value));
     }
 
-    public static <R> IntPredicate isIntNotEqual(R value, IntFunction<? extends R> function) {
-        return notInt(isIntEqual(value, function));
+    public static <R> IntPredicate isIntNotEqual(IntFunction<? extends R> function, R value) {
+        return notInt(isIntEqual(function, value));
     }
 
-    public static <R> IntPredicate intContains(Collection<? extends R> collection, IntFunction<? extends R> extractor) {
-        return i -> collection != null && collection.contains(extractor.apply(i));
+    public static <R> IntPredicate isIntMapperNotEqual(IntFunction<? extends R> function, R value) {
+        return notInt(isIntMapperEqual(function, value));
     }
 
-    public static <R> IntPredicate intInverseContains(IntFunction<? extends Collection<R>> collectionExtractor, R value) {
+    public static <R> IntPredicate intContains(IntFunction<? extends Collection<R>> collectionExtractor, R value) {
         return i -> {
             Collection<R> collection = collectionExtractor.apply(i);
             return collection != null && collection.contains(value);
         };
+    }
+
+    public static <R> IntPredicate inverseIntContains(Collection<? extends R> collection, IntFunction<? extends R> extractor) {
+        return i -> collection != null && collection.contains(extractor.apply(i));
     }
 
     public static <R> IntPredicate intContainsKey(Map<R, ?> map, IntFunction<? extends R> extractor) {
@@ -134,7 +151,7 @@ public final class IntPredicateUtils {
         return i -> Objects.isNull(function.apply(i));
     }
 
-    public static <R> IntPredicate intNotIntNull(IntFunction<? extends R> function) {
+    public static <R> IntPredicate isIntNotNull(IntFunction<? extends R> function) {
         return notInt(isIntNull(function));
     }
 
@@ -142,32 +159,32 @@ public final class IntPredicateUtils {
         return i -> i > compareTo;
     }
 
-    public static <R extends Comparable<R>> IntPredicate intGt(R compareTo, IntFunction<? extends R> valueExtractor) {
-        return i -> Objects.compare(valueExtractor.apply(i), compareTo, nullsLast(naturalOrder())) > 0;
+    public static <R extends Comparable<R>> IntPredicate intGt(IntFunction<? extends R> function, R compareTo) {
+        return i -> Objects.compare(function.apply(i), compareTo, nullsLast(naturalOrder())) > 0;
     }
 
     public static IntPredicate intGte(int compareTo) {
         return i -> i >= compareTo;
     }
 
-    public static <R extends Comparable<R>> IntPredicate intGte(R compareTo, IntFunction<? extends R> valueExtractor) {
-        return i -> Objects.compare(valueExtractor.apply(i), compareTo, nullsLast(naturalOrder())) >= 0;
+    public static <R extends Comparable<R>> IntPredicate intGte(IntFunction<? extends R> function, R compareTo) {
+        return i -> Objects.compare(function.apply(i), compareTo, nullsLast(naturalOrder())) >= 0;
     }
 
     public static IntPredicate intLt(int compareTo) {
         return i -> i < compareTo;
     }
 
-    public static <R extends Comparable<R>> IntPredicate intLt(R compareTo, IntFunction<? extends R> valueExtractor) {
-        return i -> Objects.compare(valueExtractor.apply(i), compareTo, nullsLast(naturalOrder())) < 0;
+    public static <R extends Comparable<R>> IntPredicate intLt(IntFunction<? extends R> function, R compareTo) {
+        return i -> Objects.compare(function.apply(i), compareTo, nullsLast(naturalOrder())) < 0;
     }
 
     public static IntPredicate intLte(int compareTo) {
         return i -> i <= compareTo;
     }
 
-    public static <R extends Comparable<R>> IntPredicate intLte(R compareTo, IntFunction<? extends R> valueExtractor) {
-        return i -> Objects.compare(valueExtractor.apply(i), compareTo, nullsLast(naturalOrder())) <= 0;
+    public static <R extends Comparable<R>> IntPredicate intLte(IntFunction<? extends R> function, R compareTo) {
+        return i -> Objects.compare(function.apply(i), compareTo, nullsLast(naturalOrder())) <= 0;
     }
 
     public static <R> IntPredicate isIntCollEmpty(IntFunction<? extends Collection<R>> function) {
@@ -176,6 +193,16 @@ public final class IntPredicateUtils {
 
     public static <R> IntPredicate isIntCollNotEmpty(IntFunction<? extends Collection<R>> function) {
         return notInt(isIntCollEmpty(function));
+    }
+
+    public static IntPredicate intDistinctByKey(IntFunction<?> keyExtractor) {
+        Set<? super Object> uniqueKeys = new HashSet<>();
+        return i -> uniqueKeys.add(keyExtractor.apply(i));
+    }
+
+    public static IntPredicate intDistinctByKeyParallel(IntFunction<?> keyExtractor) {
+        Set<? super Object> uniqueKeys = Sets.newConcurrentHashSet();
+        return i -> uniqueKeys.add(keyExtractor.apply(i));
     }
 
     public static <T> Predicate<T> mapToIntAndFilter(ToIntFunction<? super T> transformer, IntPredicate predicate) {

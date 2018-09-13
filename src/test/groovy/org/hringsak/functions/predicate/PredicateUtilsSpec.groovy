@@ -155,6 +155,24 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'equals ignore case passing constantValue #constantValue and target #target returns #expected'() {
+
+        expect:
+        def predicate = equalsIgnoreCase({ String s -> s.toString() }, constantValue)
+        predicate.test(target) == expected
+
+        where:
+        constantValue | target | expected
+        'test'        | null   | false
+        'test'        | ''     | false
+        'test'        | 'test' | true
+        'test'        | 'TEST' | true
+        'TEST'        | 'test' | true
+        null          | 'test' | false
+        ''            | 'test' | false
+    }
+
+    @Unroll
     def 'is equal passing constantValue #constantValue and target #target returns #expected'() {
 
         expect:
@@ -184,24 +202,6 @@ class PredicateUtilsSpec extends Specification {
         'test'        | 'test' | false
         null          | 'test' | true
         ''            | 'test' | true
-    }
-
-    @Unroll
-    def 'equals ignore case passing constantValue #constantValue and target #target returns #expected'() {
-
-        expect:
-        def predicate = equalsIgnoreCase({ String s -> s.toString() }, constantValue)
-        predicate.test(target) == expected
-
-        where:
-        constantValue | target | expected
-        'test'        | null   | false
-        'test'        | ''     | false
-        'test'        | 'test' | true
-        'test'        | 'TEST' | true
-        'TEST'        | 'test' | true
-        null          | 'test' | false
-        ''            | 'test' | false
     }
 
     @Unroll

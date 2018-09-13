@@ -11,12 +11,6 @@ import static org.hringsak.functions.mapper.LongTransformUtils.*
 
 class LongTransformUtilsSpec extends Specification {
 
-    def strToLongArray = { s ->
-        s.codePoints()
-                .mapToLong { int i -> (long) i }
-                .toArray()
-    }
-
     @Unroll
     def 'long unary transform passing ints #ints returns #expected'() {
 
@@ -202,6 +196,7 @@ class LongTransformUtilsSpec extends Specification {
     def 'flat map to long passing objects #objects returns #expected'() {
 
         expect:
+        def strToLongArray = { s -> s.codePoints().asLongStream().toArray() }
         flatMapToLong(objects, strToLongArray) == expected
 
         where:
@@ -216,6 +211,7 @@ class LongTransformUtilsSpec extends Specification {
     def 'flat map to long distinct passing objects #objects returns #expected'() {
 
         expect:
+        def strToLongArray = { s -> s.codePoints().asLongStream().toArray() }
         flatMapToLongDistinct(objects, strToLongArray) == expected
 
         where:

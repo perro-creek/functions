@@ -27,6 +27,37 @@ public final class DblStreamUtils {
     }
 
     /**
+     * Attempt to find any matching double value in an array of doubles using a predicate, returning <code>null</code>
+     * if one is not found. This method does all filtering with a primitive <code>DoubleStream</code>, boxing the stream
+     * and calling <code>Stream.findAny()</code> only after it has been filtered. Here is a contrived example of how
+     * this method would be called:
+     * <pre>
+     *     {
+     *         ...
+     *         return DblStreamUtils.findAnyDblDefaultNull(doubleArray, DblPredicateUtils.isDblEqual(2.0D, Function.identity()));
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     {
+     *         ...
+     *         return findAnyDblDefaultNull(doubleArray, isDblEqual(2.0D, identity()));
+     *     }
+     * </pre>
+     *
+     * @param doubles   An array of primitive double values.
+     * @param predicate A predicate for finding a Double value.
+     * @return A Double value if one is found, otherwise null.
+     */
+    public static Double findAnyDblDefaultNull(double[] doubles, DoublePredicate predicate) {
+        return defaultDblStream(doubles)
+                .filter(predicate)
+                .boxed()
+                .findAny()
+                .orElse(null);
+    }
+
+    /**
      * Attempt to find any matching double value in an array of doubles using a predicate, returning a default value if
      * one is not found. Here is a contrived example of how this method would be called:
      * <pre>

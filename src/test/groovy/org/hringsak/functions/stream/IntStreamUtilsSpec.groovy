@@ -3,39 +3,11 @@ package org.hringsak.functions.stream
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.stream.IntStream
-
 import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.stream.IntStreamUtils.*
 
 class IntStreamUtilsSpec extends Specification {
-
-    static final int RAW_LIST_SIZE = 1000
-    static final int DISTINCT_KEY_SIZE = 100
-    def keyExtractor = { int i -> Integer.valueOf(i % DISTINCT_KEY_SIZE) }
-
-    def 'int distinct by key filters objects with unique key values'() {
-        expect:
-        makeEntriesDistinctByKey().length == DISTINCT_KEY_SIZE
-    }
-
-    int[] makeEntriesDistinctByKey() {
-        IntStream.range(0, RAW_LIST_SIZE)
-                .filter(intDistinctByKey(keyExtractor))
-                .toArray()
-    }
-
-    def 'int distinct by key parallel filters objects with unique key values'() {
-        expect:
-        makeEntriesDistinctByKeyParallel().size() == DISTINCT_KEY_SIZE
-    }
-
-    Collection makeEntriesDistinctByKeyParallel() {
-        IntStream.range(0, RAW_LIST_SIZE).parallel()
-                .filter(intDistinctByKeyParallel(keyExtractor))
-                .toArray()
-    }
 
     @Unroll
     def 'find any int default returns #expected for compareValue #compareValue'() {

@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.DoublePredicate;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 import java.util.function.IntSupplier;
@@ -26,14 +27,35 @@ public final class IntStreamUtils {
     private IntStreamUtils() {
     }
 
-    public static IntPredicate intDistinctByKey(IntFunction<?> keyExtractor) {
-        Set<? super Object> uniqueKeys = new HashSet<>();
-        return d -> uniqueKeys.add(keyExtractor.apply(d));
-    }
-
-    public static IntPredicate intDistinctByKeyParallel(IntFunction<?> keyExtractor) {
-        Set<? super Object> uniqueKeys = Sets.newConcurrentHashSet();
-        return d -> uniqueKeys.add(keyExtractor.apply(d));
+    /**
+     * Attempt to find any matching int value in an array of ints using a predicate, returning <code>null</code>
+     * if one is not found. This method does all filtering with a primitive <code>IntStream</code>, boxing the stream
+     * and calling <code>Stream.findAny()</code> only after it has been filtered. Here is a contrived example of how
+     * this method would be called:
+     * <pre>
+     *     {
+     *         ...
+     *         return IntStreamUtils.findAnyIntDefaultNull(intArray, IntPredicateUtils.isIntEqual(2, Function.identity()));
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     {
+     *         ...
+     *         return findAnyIntDefaultNull(intArray, isIntEqual(2, identity()));
+     *     }
+     * </pre>
+     *
+     * @param ints   An array of primitive int values.
+     * @param predicate A predicate for finding an Integer value.
+     * @return An Integer value if one is found, otherwise null.
+     */
+    public static Integer findAnyIntDefaultNull(int[] ints, IntPredicate predicate) {
+        return defaultIntStream(ints)
+                .filter(predicate)
+                .boxed()
+                .findAny()
+                .orElse(null);
     }
 
     public static int findAnyIntDefault(int[] ints, FindIntWithDefault findWithDefault) {

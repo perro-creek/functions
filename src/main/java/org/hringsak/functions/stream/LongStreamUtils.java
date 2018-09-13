@@ -26,14 +26,35 @@ public final class LongStreamUtils {
     private LongStreamUtils() {
     }
 
-    public static LongPredicate longDistinctByKey(LongFunction<?> keyExtractor) {
-        Set<? super Object> uniqueKeys = new HashSet<>();
-        return d -> uniqueKeys.add(keyExtractor.apply(d));
-    }
-
-    public static LongPredicate longDistinctByKeyParallel(LongFunction<?> keyExtractor) {
-        Set<? super Object> uniqueKeys = Sets.newConcurrentHashSet();
-        return d -> uniqueKeys.add(keyExtractor.apply(d));
+    /**
+     * Attempt to find any matching long value in an array of longs using a predicate, returning <code>null</code>
+     * if one is not found. This method does all filtering with a primitive <code>LongStream</code>, boxing the stream
+     * and calling <code>Stream.findAny()</code> only after it has been filtered. Here is a contrived example of how
+     * this method would be called:
+     * <pre>
+     *     {
+     *         ...
+     *         return LongStreamUtils.findAnyLongDefaultNull(longArray, LongPredicateUtils.isLongEqual(2L, Function.identity()));
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     {
+     *         ...
+     *         return findAnyLongDefaultNull(longArray, isLongEqual(2L, identity()));
+     *     }
+     * </pre>
+     *
+     * @param longs   An array of primitive long values.
+     * @param predicate A predicate for finding a Long value.
+     * @return A Long value if one is found, otherwise null.
+     */
+    public static Long findAnyLongDefaultNull(long[] longs, LongPredicate predicate) {
+        return defaultLongStream(longs)
+                .filter(predicate)
+                .boxed()
+                .findAny()
+                .orElse(null);
     }
 
     public static long findAnyLongDefault(long[] longs, FindLongWithDefault findWithDefault) {
