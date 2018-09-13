@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 
@@ -34,7 +36,7 @@ public final class DblPredicateUtils {
         return d -> biPredicate.test(d, value);
     }
 
-    public static <U> DoublePredicate inversedblPredicate(BiPredicate<? super U, Double> biPredicate, U value) {
+    public static <U> DoublePredicate inverseDblPredicate(BiPredicate<? super U, Double> biPredicate, U value) {
         return d -> biPredicate.test(value, d);
     }
 
@@ -51,18 +53,29 @@ public final class DblPredicateUtils {
     }
 
     public static <R extends CharSequence> DoublePredicate isDblStrEmpty(DoubleFunction<? extends R> function) {
-        return d -> { CharSequence seq = function.apply(d); return seq == null || seq.length() == 0; };
+        return d -> {
+            CharSequence seq = function.apply(d);
+            return seq == null || seq.length() == 0;
+        };
     }
 
     public static <R extends CharSequence> DoublePredicate isDblStrNotEmpty(DoubleFunction<? extends R> function) {
         return notDbl(isDblStrEmpty(function));
     }
 
+    public static <R extends CharSequence> DoublePredicate dblEqualsIgnoreCase(DoubleFunction<? extends R> function, R value) {
+        return d -> StringUtils.equalsIgnoreCase(function.apply(d), value);
+    }
+
     public static DoublePredicate isDblEqual(double value) {
         return d -> d == value;
     }
 
-    public static <R> DoublePredicate isDblEqual(DoubleFunction<? extends R> function, R value) {
+    public static DoublePredicate isDblEqual(DoubleUnaryOperator operator, double value) {
+        return d -> operator.applyAsDouble(d) == value;
+    }
+
+    public static <R> DoublePredicate isDblMapperEqual(DoubleFunction<? extends R> function, R value) {
         return d -> Objects.equals(function.apply(d), value);
     }
 
@@ -70,19 +83,23 @@ public final class DblPredicateUtils {
         return notDbl(isDblEqual(value));
     }
 
-    public static <R> DoublePredicate isDblNotEqual(DoubleFunction<? extends R> function, R value) {
-        return notDbl(isDblEqual(function, value));
+    public static DoublePredicate isDblNotEqual(DoubleUnaryOperator operator, double value) {
+        return notDbl(isDblEqual(operator, value));
     }
 
-    public static <R> DoublePredicate dblContains(Collection<? extends R> collection, DoubleFunction<? extends R> function) {
-        return d -> collection != null && collection.contains(function.apply(d));
+    public static <R> DoublePredicate isDblMapperNotEqual(DoubleFunction<? extends R> function, R value) {
+        return notDbl(isDblMapperEqual(function, value));
     }
 
-    public static <R> DoublePredicate inverseDblContains(DoubleFunction<? extends Collection<R>> collectionExtractor, R value) {
+    public static <R> DoublePredicate dblContains(DoubleFunction<? extends Collection<R>> collectionExtractor, R value) {
         return d -> {
             Collection<R> collection = collectionExtractor.apply(d);
             return collection != null && collection.contains(value);
         };
+    }
+
+    public static <R> DoublePredicate inverseDblContains(Collection<? extends R> collection, DoubleFunction<? extends R> function) {
+        return d -> collection != null && collection.contains(function.apply(d));
     }
 
     public static <R> DoublePredicate dblContainsKey(Map<R, ?> map, DoubleFunction<? extends R> function) {
@@ -137,12 +154,12 @@ public final class DblPredicateUtils {
         return d -> Objects.isNull(function.apply(d));
     }
 
-    public static <R> DoublePredicate isNotDblNull(DoubleFunction<? extends R> function) {
+    public static <R> DoublePredicate isDblNotNull(DoubleFunction<? extends R> function) {
         return notDbl(isDblNull(function));
     }
 
     public static DoublePredicate dblGt(double compareTo) {
-        return d ->  d > compareTo;
+        return d -> d > compareTo;
     }
 
     public static <R extends Comparable<R>> DoublePredicate dblGt(DoubleFunction<? extends R> function, R compareTo) {

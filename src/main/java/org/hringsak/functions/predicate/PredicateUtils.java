@@ -57,16 +57,16 @@ public final class PredicateUtils {
         return not(isStrEmpty(function));
     }
 
+    public static <T> Predicate<T> equalsIgnoreCase(Function<? super T, ? extends CharSequence> function, CharSequence value) {
+        return t -> StringUtils.equalsIgnoreCase(t == null ? null : function.apply(t), value);
+    }
+
     public static <T, R> Predicate<T> isEqual(Function<? super T, ? extends R> extractor, R value) {
         return t -> Objects.equals(t == null ? null : extractor.apply(t), value);
     }
 
     public static <T, R> Predicate<T> isNotEqual(Function<? super T, ? extends R> function, R value) {
         return not(isEqual(function, value));
-    }
-
-    public static <T> Predicate<T> equalsIgnoreCase(Function<? super T, ? extends CharSequence> function, CharSequence value) {
-        return t -> StringUtils.equalsIgnoreCase(t == null ? null : function.apply(t), value);
     }
 
     public static <T, R> Predicate<T> contains(Function<? super T, ? extends Collection<R>> collectionExtractor, R value) {

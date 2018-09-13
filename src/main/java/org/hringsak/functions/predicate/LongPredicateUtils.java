@@ -1,11 +1,14 @@
 package org.hringsak.functions.predicate;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
@@ -39,7 +42,7 @@ public final class LongPredicateUtils {
         return l -> b;
     }
 
-    public static LongPredicate fromDblMapper(LongFunction<Boolean> function) {
+    public static LongPredicate fromLongMapper(LongFunction<Boolean> function) {
         return function::apply;
     }
 
@@ -55,31 +58,43 @@ public final class LongPredicateUtils {
         return notLong(isLongStrEmpty(function));
     }
 
+    public static <R extends CharSequence> LongPredicate longEqualsIgnoreCase(LongFunction<? extends R> function, R value) {
+        return l -> StringUtils.equalsIgnoreCase(function.apply(l), value);
+    }
+
     public static LongPredicate isLongEqual(long value) {
         return l -> l == value;
     }
 
-    public static <R> LongPredicate isLongEqual(R value, LongFunction<? extends R> extractor) {
-        return l -> Objects.equals(value, extractor.apply(l));
+    public static <R> LongPredicate isLongEqual(LongFunction<? extends R> function, R value) {
+        return l -> Objects.equals(value, function.apply(l));
+    }
+
+    public static <R> LongPredicate isLongMapperEqual(LongFunction<? extends R> function, R value) {
+        return l -> Objects.equals(function.apply(l), value);
     }
 
     public static LongPredicate isLongNotEqual(long value) {
         return notLong(isLongEqual(value));
     }
 
-    public static <R> LongPredicate isLongNotEqual(R value, LongFunction<? extends R> function) {
-        return notLong(isLongEqual(value, function));
+    public static <R> LongPredicate isLongNotEqual(LongFunction<? extends R> function, R value) {
+        return notLong(isLongEqual(function, value));
     }
 
-    public static <R> LongPredicate longContains(Collection<? extends R> collection, LongFunction<? extends R> extractor) {
-        return l -> collection != null && collection.contains(extractor.apply(l));
+    public static <R> LongPredicate isLongMapperNotEqual(LongFunction<? extends R> function, R value) {
+        return notLong(isLongMapperEqual(function, value));
     }
 
-    public static <R> LongPredicate longInverseContains(LongFunction<? extends Collection<R>> collectionExtractor, R value) {
+    public static <R> LongPredicate longContains(LongFunction<? extends Collection<R>> collectionExtractor, R value) {
         return l -> {
             Collection<R> collection = collectionExtractor.apply(l);
             return collection != null && collection.contains(value);
         };
+    }
+
+    public static <R> LongPredicate inverseLongContains(Collection<? extends R> collection, LongFunction<? extends R> function) {
+        return l -> collection != null && collection.contains(function.apply(l));
     }
 
     public static <R> LongPredicate longContainsKey(Map<R, ?> map, LongFunction<? extends R> extractor) {
@@ -134,7 +149,7 @@ public final class LongPredicateUtils {
         return l -> Objects.isNull(function.apply(l));
     }
 
-    public static <R> LongPredicate longNotNull(LongFunction<? extends R> function) {
+    public static <R> LongPredicate isLongNotNull(LongFunction<? extends R> function) {
         return notLong(isLongNull(function));
     }
 
@@ -142,32 +157,32 @@ public final class LongPredicateUtils {
         return l -> l > compareTo;
     }
 
-    public static <R extends Comparable<R>> LongPredicate longGt(R compareTo, LongFunction<? extends R> valueExtractor) {
-        return l -> Objects.compare(valueExtractor.apply(l), compareTo, nullsLast(naturalOrder())) > 0;
+    public static <R extends Comparable<R>> LongPredicate longGt(LongFunction<? extends R> function, R compareTo) {
+        return l -> Objects.compare(function.apply(l), compareTo, nullsLast(naturalOrder())) > 0;
     }
 
     public static LongPredicate longGte(long compareTo) {
         return l -> l >= compareTo;
     }
 
-    public static <R extends Comparable<R>> LongPredicate longGte(R compareTo, LongFunction<? extends R> valueExtractor) {
-        return l -> Objects.compare(valueExtractor.apply(l), compareTo, nullsLast(naturalOrder())) >= 0;
+    public static <R extends Comparable<R>> LongPredicate longGte(LongFunction<? extends R> function, R compareTo) {
+        return l -> Objects.compare(function.apply(l), compareTo, nullsLast(naturalOrder())) >= 0;
     }
 
     public static LongPredicate longLt(long compareTo) {
         return l -> l < compareTo;
     }
 
-    public static <R extends Comparable<R>> LongPredicate longLt(R compareTo, LongFunction<? extends R> valueExtractor) {
-        return l -> Objects.compare(valueExtractor.apply(l), compareTo, nullsLast(naturalOrder())) < 0;
+    public static <R extends Comparable<R>> LongPredicate longLt(LongFunction<? extends R> function, R compareTo) {
+        return l -> Objects.compare(function.apply(l), compareTo, nullsLast(naturalOrder())) < 0;
     }
 
     public static LongPredicate longLte(long compareTo) {
         return l -> l <= compareTo;
     }
 
-    public static <R extends Comparable<R>> LongPredicate longLte(R compareTo, LongFunction<? extends R> valueExtractor) {
-        return l -> Objects.compare(valueExtractor.apply(l), compareTo, nullsLast(naturalOrder())) <= 0;
+    public static <R extends Comparable<R>> LongPredicate longLte(LongFunction<? extends R> function, R compareTo) {
+        return l -> Objects.compare(function.apply(l), compareTo, nullsLast(naturalOrder())) <= 0;
     }
 
     public static <R> LongPredicate isLongCollEmpty(LongFunction<? extends Collection<R>> function) {
@@ -176,6 +191,16 @@ public final class LongPredicateUtils {
 
     public static <R> LongPredicate isLongCollNotEmpty(LongFunction<? extends Collection<R>> function) {
         return notLong(isLongCollEmpty(function));
+    }
+
+    public static LongPredicate longDistinctByKey(LongFunction<?> keyExtractor) {
+        Set<? super Object> uniqueKeys = new HashSet<>();
+        return d -> uniqueKeys.add(keyExtractor.apply(d));
+    }
+
+    public static LongPredicate longDistinctByKeyParallel(LongFunction<?> keyExtractor) {
+        Set<? super Object> uniqueKeys = Sets.newConcurrentHashSet();
+        return d -> uniqueKeys.add(keyExtractor.apply(d));
     }
 
     public static <T> Predicate<T> mapToLongAndFilter(ToLongFunction<? super T> transformer, LongPredicate predicate) {

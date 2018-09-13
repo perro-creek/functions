@@ -3,39 +3,11 @@ package org.hringsak.functions.stream
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.stream.LongStream
-
 import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.stream.LongStreamUtils.*
 
 class LongStreamUtilsSpec extends Specification {
-
-    static final int RAW_LIST_SIZE = 1000
-    static final int DISTINCT_KEY_SIZE = 100
-    def keyExtractor = { long l -> Long.valueOf(l % DISTINCT_KEY_SIZE) }
-
-    def 'long distinct by key filters objects with unique key values'() {
-        expect:
-        makeEntriesDistinctByKey().length == DISTINCT_KEY_SIZE
-    }
-
-    long[] makeEntriesDistinctByKey() {
-        LongStream.range(0, RAW_LIST_SIZE)
-                .filter(longDistinctByKey(keyExtractor))
-                .toArray()
-    }
-
-    def 'long distinct by key parallel filters objects with unique key values'() {
-        expect:
-        makeEntriesDistinctByKeyParallel().size() == DISTINCT_KEY_SIZE
-    }
-
-    Collection makeEntriesDistinctByKeyParallel() {
-        LongStream.range(0, RAW_LIST_SIZE).parallel()
-                .filter(longDistinctByKeyParallel(keyExtractor))
-                .toArray()
-    }
 
     @Unroll
     def 'find any long default returns #expected for compareValue #compareValue'() {
