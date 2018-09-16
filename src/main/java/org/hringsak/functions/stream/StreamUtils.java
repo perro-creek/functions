@@ -1,12 +1,13 @@
 package org.hringsak.functions.stream;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.hringsak.functions.CollectorUtils;
+import org.hringsak.functions.internal.Pair;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static java.util.Collections.emptySet;
+import static java.util.Comparator.naturalOrder;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
@@ -29,12 +31,72 @@ public final class StreamUtils {
     private StreamUtils() {
     }
 
-    public static <T> T findAny(Collection<T> objects, Predicate<T> predicate) {
+    public static <T> boolean allMatch(Collection<T> objects, Predicate<T> predicate) {
+        return objects != null && objects.stream().allMatch(predicate);
+    }
+
+    public static <T> boolean anyMatch(Collection<T> objects, Predicate<T> predicate) {
+        return objects != null && objects.stream().anyMatch(predicate);
+    }
+
+    public static <T> boolean noneMatch(Collection<T> objects, Predicate<T> predicate) {
+        return objects != null && objects.stream().noneMatch(predicate);
+    }
+
+    public static <T> long count(Collection<T> objects, Predicate<T> predicate) {
+        return defaultStream(objects)
+                .filter(Objects::nonNull)
+                .filter(predicate)
+                .count();
+    }
+
+    public static <T extends Comparable<T>> T maxDefault(Collection<T> objects, Predicate<T> predicate) {
+        return maxDefault(objects, findWithDefault(predicate));
+    }
+
+    public static <T extends Comparable<T>> T maxDefault(Collection<T> objects, FindWithDefault<T> findWithDefault) {
+        return defaultStream(objects)
+                .filter(Objects::nonNull)
+                .filter(findWithDefault.getPredicate())
+                .max(naturalOrder())
+                .orElse(findWithDefault.getDefaultValue());
+    }
+
+    public static <T extends Comparable<T>> T maxDefault(Collection<T> objects, FindWithDefaultSupplier<T> findWithDefault) {
+        return defaultStream(objects)
+                .filter(Objects::nonNull)
+                .filter(findWithDefault.getPredicate())
+                .max(naturalOrder())
+                .orElseGet(findWithDefault.getDefaultSupplier());
+    }
+
+    public static <T extends Comparable<T>> T minDefault(Collection<T> objects, Predicate<T> predicate) {
+        return minDefault(objects, findWithDefault(predicate));
+    }
+
+    public static <T extends Comparable<T>> T minDefault(Collection<T> objects, FindWithDefault<T> findWithDefault) {
+        return defaultStream(objects)
+                .filter(Objects::nonNull)
+                .filter(findWithDefault.getPredicate())
+                .min(naturalOrder())
+                .orElse(findWithDefault.getDefaultValue());
+    }
+
+    public static <T extends Comparable<T>> T minDefault(Collection<T> objects, FindWithDefaultSupplier<T> findWithDefault) {
+        return defaultStream(objects)
+                .filter(Objects::nonNull)
+                .filter(findWithDefault.getPredicate())
+                .min(naturalOrder())
+                .orElseGet(findWithDefault.getDefaultSupplier());
+    }
+
+    public static <T> T findAnyDefaultNull(Collection<T> objects, Predicate<T> predicate) {
         return findAnyWithDefault(objects, findWithDefault(predicate));
     }
 
     public static <T> T findAnyWithDefault(Collection<T> objects, FindWithDefault<T> findWithDefault) {
         return defaultStream(objects)
+                .filter(Objects::nonNull)
                 .filter(findWithDefault.getPredicate())
                 .findAny()
                 .orElse(findWithDefault.getDefaultValue());
@@ -42,6 +104,7 @@ public final class StreamUtils {
 
     public static <T> T findAnyWithDefault(Collection<T> objects, FindWithDefaultSupplier<T> findWithDefaultSupplier) {
         return defaultStream(objects)
+                .filter(Objects::nonNull)
                 .filter(findWithDefaultSupplier.getPredicate())
                 .findAny()
                 .orElseGet(findWithDefaultSupplier.getDefaultSupplier());
@@ -53,6 +116,7 @@ public final class StreamUtils {
 
     public static <T> T findFirstWithDefault(Collection<T> objects, FindWithDefault<T> findWithDefault) {
         return defaultStream(objects)
+                .filter(Objects::nonNull)
                 .filter(findWithDefault.getPredicate())
                 .findFirst()
                 .orElse(findWithDefault.getDefaultValue());
@@ -60,6 +124,7 @@ public final class StreamUtils {
 
     public static <T> T findFirstWithDefault(Collection<T> objects, FindWithDefaultSupplier<T> findWithDefaultSupplier) {
         return defaultStream(objects)
+                .filter(Objects::nonNull)
                 .filter(findWithDefaultSupplier.getPredicate())
                 .findFirst()
                 .orElseGet(findWithDefaultSupplier.getDefaultSupplier());
@@ -84,14 +149,6 @@ public final class StreamUtils {
                 .mapToInt(Pair::getRight)
                 .findFirst()
                 .orElse(-1);
-    }
-
-    public static <T> boolean anyMatch(Collection<T> objects, Predicate<T> predicate) {
-        return defaultStream(objects).anyMatch(predicate);
-    }
-
-    public static <T> boolean noneMatch(Collection<T> objects, Predicate<T> predicate) {
-        return defaultStream(objects).noneMatch(predicate);
     }
 
     public static <T> String join(Collection<T> objects, Function<T, CharSequence> mapper) {

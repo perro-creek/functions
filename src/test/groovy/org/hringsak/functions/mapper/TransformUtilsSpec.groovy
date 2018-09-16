@@ -1,6 +1,5 @@
 package org.hringsak.functions.mapper
 
-import com.google.common.collect.Sets
 import org.hringsak.functions.TestValue
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -44,7 +43,7 @@ class TransformUtilsSpec extends Specification {
         def list = [1, 2, 3]
 
         expect:
-        transformToSet(list, { i -> String.valueOf(i) }) == Sets.newHashSet('1', '2', '3')
+        transformToSet(list, { i -> String.valueOf(i) }) == ['1', '2', '3'] as HashSet
     }
 
     @Unroll

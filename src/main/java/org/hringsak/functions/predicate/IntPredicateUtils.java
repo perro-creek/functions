@@ -1,17 +1,16 @@
 package org.hringsak.functions.predicate;
 
-import com.google.common.collect.Sets;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.hringsak.functions.stream.IntStreamUtils;
+import org.hringsak.functions.stream.StreamUtils;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
-import java.util.function.DoubleFunction;
-import java.util.function.DoublePredicate;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
@@ -61,7 +60,7 @@ public final class IntPredicateUtils {
     }
 
     public static <R extends CharSequence> IntPredicate intEqualsIgnoreCase(IntFunction<? extends R> function, R value) {
-        return i -> StringUtils.equalsIgnoreCase(function.apply(i), value);
+        return i -> CharSequenceUtils.equalsIgnoreCase(function.apply(i), value);
     }
 
     public static IntPredicate isIntEqual(int value) {
@@ -88,15 +87,26 @@ public final class IntPredicateUtils {
         return notInt(isIntMapperEqual(function, value));
     }
 
-    public static <R> IntPredicate intContains(IntFunction<? extends Collection<R>> collectionExtractor, R value) {
+    public static <R> IntPredicate intToObjsContains(IntFunction<? extends Collection<R>> collectionExtractor, R value) {
         return i -> {
             Collection<R> collection = collectionExtractor.apply(i);
             return collection != null && collection.contains(value);
         };
     }
 
-    public static <R> IntPredicate inverseIntContains(Collection<? extends R> collection, IntFunction<? extends R> extractor) {
+    public static <T> Predicate<T> objToIntsContains(Function<T, int[]> collectionExtractor, int value) {
+        return t -> {
+            int[] ints = collectionExtractor.apply(t);
+            return IntStreamUtils.intAnyMatch(ints, isIntEqual(value));
+        };
+    }
+
+    public static <R> IntPredicate inverseIntToObjContains(Collection<? extends R> collection, IntFunction<? extends R> extractor) {
         return i -> collection != null && collection.contains(extractor.apply(i));
+    }
+
+    public static <T> Predicate<T> inverseObjToIntContains(int[] ints, ToIntFunction<? super T> function) {
+        return t -> ints != null && IntStreamUtils.intAnyMatch(ints, isIntEqual(function.applyAsInt(t)));
     }
 
     public static <R> IntPredicate intContainsKey(Map<R, ?> map, IntFunction<? extends R> extractor) {
@@ -108,43 +118,43 @@ public final class IntPredicateUtils {
     }
 
     public static IntPredicate intContainsChar(IntFunction<? extends CharSequence> extractor, int searchChar) {
-        return i -> StringUtils.contains(extractor.apply(i), searchChar);
+        return i -> CharSequenceUtils.contains(extractor.apply(i), searchChar);
     }
 
     public static IntPredicate intContainsSequence(IntFunction<? extends CharSequence> extractor, CharSequence searchSeq) {
-        return i -> StringUtils.contains(extractor.apply(i), searchSeq);
+        return i -> CharSequenceUtils.contains(extractor.apply(i), searchSeq);
     }
 
     public static IntPredicate intContainsIgnoreCase(IntFunction<? extends CharSequence> extractor, CharSequence searchSeq) {
-        return i -> StringUtils.containsIgnoreCase(extractor.apply(i), searchSeq);
+        return i -> CharSequenceUtils.containsIgnoreCase(extractor.apply(i), searchSeq);
     }
 
     public static IntPredicate intIsAlpha(IntFunction<? extends CharSequence> extractor) {
-        return i -> StringUtils.isAlpha(extractor.apply(i));
+        return i -> CharSequenceUtils.isAlpha(extractor.apply(i));
     }
 
     public static IntPredicate intIsAlphanumeric(IntFunction<? extends CharSequence> extractor) {
-        return i -> StringUtils.isAlphanumeric(extractor.apply(i));
+        return i -> CharSequenceUtils.isAlphaNumeric(extractor.apply(i));
     }
 
     public static IntPredicate intIsNumeric(IntFunction<? extends CharSequence> extractor) {
-        return i -> StringUtils.isNumeric(extractor.apply(i));
+        return i -> CharSequenceUtils.isNumeric(extractor.apply(i));
     }
 
     public static IntPredicate intStartsWith(IntFunction<? extends CharSequence> extractor, CharSequence prefix) {
-        return i -> StringUtils.startsWith(extractor.apply(i), prefix);
+        return i -> CharSequenceUtils.startsWith(extractor.apply(i), prefix);
     }
 
     public static IntPredicate intStartsWithIgnoreCase(IntFunction<? extends CharSequence> extractor, CharSequence prefix) {
-        return i -> StringUtils.startsWithIgnoreCase(extractor.apply(i), prefix);
+        return i -> CharSequenceUtils.startsWithIgnoreCase(extractor.apply(i), prefix);
     }
 
     public static IntPredicate intEndsWith(IntFunction<? extends CharSequence> extractor, CharSequence suffix) {
-        return i -> StringUtils.endsWith(extractor.apply(i), suffix);
+        return i -> CharSequenceUtils.endsWith(extractor.apply(i), suffix);
     }
 
     public static IntPredicate intEndsWithIgnoreCase(IntFunction<? extends CharSequence> extractor, CharSequence suffix) {
-        return i -> StringUtils.endsWithIgnoreCase(extractor.apply(i), suffix);
+        return i -> CharSequenceUtils.endsWithIgnoreCase(extractor.apply(i), suffix);
     }
 
     public static <R> IntPredicate isIntNull(IntFunction<? extends R> function) {
@@ -195,13 +205,37 @@ public final class IntPredicateUtils {
         return notInt(isIntCollEmpty(function));
     }
 
+    public static <T> Predicate<T> objToIntsAllMatch(Function<T, ? extends int[]> function, IntPredicate predicate) {
+        return t -> t != null && IntStreamUtils.intAllMatch(function.apply(t), predicate);
+    }
+
+    public static <R> IntPredicate intToObjectsAllMatch(IntFunction<? extends Collection<R>> function, Predicate<R> predicate) {
+        return i -> StreamUtils.allMatch(function.apply(i), predicate);
+    }
+
+    public static <T> Predicate<T> objToIntsAnyMatch(Function<T, ? extends int[]> function, IntPredicate predicate) {
+        return t -> t != null && IntStreamUtils.intAnyMatch(function.apply(t), predicate);
+    }
+
+    public static <R> IntPredicate intToObjectsAnyMatch(IntFunction<? extends Collection<R>> function, Predicate<R> predicate) {
+        return i -> StreamUtils.anyMatch(function.apply(i), predicate);
+    }
+
+    public static <T> Predicate<T> objToIntsNoneMatch(Function<T, ? extends int[]> function, IntPredicate predicate) {
+        return t -> t != null && IntStreamUtils.intNoneMatch(function.apply(t), predicate);
+    }
+
+    public static <R> IntPredicate intToObjectsNoneMatch(IntFunction<? extends Collection<R>> function, Predicate<R> predicate) {
+        return i -> StreamUtils.noneMatch(function.apply(i), predicate);
+    }
+
     public static IntPredicate intDistinctByKey(IntFunction<?> keyExtractor) {
         Set<? super Object> uniqueKeys = new HashSet<>();
         return i -> uniqueKeys.add(keyExtractor.apply(i));
     }
 
     public static IntPredicate intDistinctByKeyParallel(IntFunction<?> keyExtractor) {
-        Set<? super Object> uniqueKeys = Sets.newConcurrentHashSet();
+        Set<? super Object> uniqueKeys = Collections.synchronizedSet(new HashSet<>());
         return i -> uniqueKeys.add(keyExtractor.apply(i));
     }
 

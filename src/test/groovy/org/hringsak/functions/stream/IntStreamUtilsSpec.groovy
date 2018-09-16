@@ -10,6 +10,131 @@ import static org.hringsak.functions.stream.IntStreamUtils.*
 class IntStreamUtilsSpec extends Specification {
 
     @Unroll
+    def 'int all match passing ints #ints returns #expected'() {
+
+        expect:
+        def predicate = { i -> i > 1 }
+        intAllMatch(ints, predicate) == expected
+
+        where:
+        ints               | expected
+        [1, 2, 3] as int[] | false
+        [] as int[]        | true
+        null as int[]      | false
+    }
+
+    @Unroll
+    def 'int any match passing ints #ints returns #expected'() {
+
+        expect:
+        def predicate = { i -> i > 1 }
+        intAnyMatch(ints, predicate) == expected
+
+        where:
+        ints               | expected
+        [1, 2, 3] as int[] | true
+        [] as int[]        | false
+        null as int[]      | false
+    }
+
+    @Unroll
+    def 'int none match passing ints #ints returns #expected'() {
+
+        expect:
+        def predicate = { i -> i > 1 }
+        intNoneMatch(ints, predicate) == expected
+
+        where:
+        ints               | expected
+        [1, 2, 3] as int[] | false
+        [] as int[]        | true
+        null as int[]      | false
+    }
+
+    @Unroll
+    def 'int count passing ints #ints returns #expected'() {
+
+        expect:
+        def predicate = { i -> i > 1 }
+        intCount(ints, predicate) == expected
+
+        where:
+        ints               | expected
+        [1, 2, 3] as int[] | 2L
+        [] as int[]        | 0L
+        null as int[]      | 0L
+    }
+
+    @Unroll
+    def 'int max default passing ints #ints returns #expected'() {
+
+        expect:
+        def predicate = { i -> i > 1 }
+        intMaxDefault(ints, findIntDefault(predicate, -1)) == expected
+
+        where:
+        ints               | expected
+        [1, 2, 3] as int[] | 3
+        [] as int[]        | -1
+        null as int[]      | -1
+    }
+
+    @Unroll
+    def 'int max default supplier passing ints #ints returns #expected'() {
+
+        expect:
+        def predicate = { i -> i > 1 }
+        intMaxDefaultSupplier(ints, findIntDefaultSupplier(predicate, { -1 })) == expected
+
+        where:
+        ints               | expected
+        [1, 2, 3] as int[] | 3
+        [] as int[]        | -1
+        null as int[]      | -1
+    }
+
+    @Unroll
+    def 'int min default passing ints #ints returns #expected'() {
+
+        expect:
+        def predicate = { i -> i > 1 }
+        intMinDefault(ints, findIntDefault(predicate, -1)) == expected
+
+        where:
+        ints               | expected
+        [1, 2, 3] as int[] | 2
+        [] as int[]        | -1
+        null as int[]      | -1
+    }
+
+    @Unroll
+    def 'int min default supplier passing ints #ints returns #expected'() {
+
+        expect:
+        def predicate = { i -> i > 1 }
+        intMinDefaultSupplier(ints, findIntDefaultSupplier(predicate, { -1 })) == expected
+
+        where:
+        ints               | expected
+        [1, 2, 3] as int[] | 2
+        [] as int[]        | -1
+        null as int[]      | -1
+    }
+
+    @Unroll
+    def 'find any int default null returns #expected for compareValue #compareValue'() {
+
+        expect:
+        def predicate = { i -> i > compareValue }
+        findAnyIntDefaultNull([1, 2, 3] as int[], predicate) == expected
+
+        where:
+        compareValue | expected
+        2            | 3
+        3            | null
+    }
+
+    @Unroll
     def 'find any int default returns #expected for compareValue #compareValue'() {
 
         expect:
@@ -34,6 +159,19 @@ class IntStreamUtilsSpec extends Specification {
         compareValue | expected
         2            | 3
         3            | -1
+    }
+
+    @Unroll
+    def 'find first int default null returns #expected for compareValue #compareValue'() {
+
+        expect:
+        def predicate = { i -> i > compareValue }
+        findFirstIntDefaultNull([1, 2, 3] as int[], predicate) == expected
+
+        where:
+        compareValue | expected
+        2            | 3
+        3            | null
     }
 
     @Unroll

@@ -1,7 +1,7 @@
 package org.hringsak.functions.mapper
 
-import org.apache.commons.lang3.tuple.Pair
 import org.hringsak.functions.TestValue
+import org.hringsak.functions.internal.Pair
 import spock.lang.Specification
 import spock.lang.Unroll
 

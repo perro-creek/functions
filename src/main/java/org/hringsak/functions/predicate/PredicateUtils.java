@@ -1,10 +1,9 @@
 package org.hringsak.functions.predicate;
 
-import com.google.common.collect.Sets;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.hringsak.functions.stream.StreamUtils;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -58,7 +57,7 @@ public final class PredicateUtils {
     }
 
     public static <T> Predicate<T> equalsIgnoreCase(Function<? super T, ? extends CharSequence> function, CharSequence value) {
-        return t -> StringUtils.equalsIgnoreCase(t == null ? null : function.apply(t), value);
+        return t -> CharSequenceUtils.equalsIgnoreCase(t == null ? null : function.apply(t), value);
     }
 
     public static <T, R> Predicate<T> isEqual(Function<? super T, ? extends R> extractor, R value) {
@@ -92,43 +91,43 @@ public final class PredicateUtils {
     }
 
     public static <T> Predicate<T> containsChar(Function<? super T, ? extends CharSequence> extractor, int searchChar) {
-        return t -> t != null && StringUtils.contains(extractor.apply(t), searchChar);
+        return t -> t != null && CharSequenceUtils.contains(extractor.apply(t), searchChar);
     }
 
     public static <T> Predicate<T> containsSequence(Function<? super T, ? extends CharSequence> extractor, CharSequence searchSeq) {
-        return t -> t != null && StringUtils.contains(extractor.apply(t), searchSeq);
+        return t -> t != null && CharSequenceUtils.contains(extractor.apply(t), searchSeq);
     }
 
     public static <T> Predicate<T> containsIgnoreCase(Function<? super T, ? extends CharSequence> extractor, CharSequence searchSeq) {
-        return t -> t != null && StringUtils.containsIgnoreCase(extractor.apply(t), searchSeq);
+        return t -> t != null && CharSequenceUtils.containsIgnoreCase(extractor.apply(t), searchSeq);
     }
 
     public static <T> Predicate<T> isAlpha(Function<? super T, ? extends CharSequence> extractor) {
-        return t -> t != null && StringUtils.isAlpha(extractor.apply(t));
+        return t -> t != null && CharSequenceUtils.isAlpha(extractor.apply(t));
     }
 
     public static <T> Predicate<T> isAlphanumeric(Function<? super T, ? extends CharSequence> extractor) {
-        return t -> t != null && StringUtils.isAlphanumeric(extractor.apply(t));
+        return t -> t != null && CharSequenceUtils.isAlphaNumeric(extractor.apply(t));
     }
 
     public static <T> Predicate<T> isNumeric(Function<? super T, ? extends CharSequence> extractor) {
-        return t -> t != null && StringUtils.isNumeric(extractor.apply(t));
+        return t -> t != null && CharSequenceUtils.isNumeric(extractor.apply(t));
     }
 
     public static <T> Predicate<T> startsWith(Function<? super T, ? extends CharSequence> extractor, CharSequence prefix) {
-        return t -> t != null && StringUtils.startsWith(extractor.apply(t), prefix);
+        return t -> t != null && CharSequenceUtils.startsWith(extractor.apply(t), prefix);
     }
 
     public static <T> Predicate<T> startsWithIgnoreCase(Function<? super T, ? extends CharSequence> extractor, CharSequence prefix) {
-        return t -> t != null && StringUtils.startsWithIgnoreCase(extractor.apply(t), prefix);
+        return t -> t != null && CharSequenceUtils.startsWithIgnoreCase(extractor.apply(t), prefix);
     }
 
     public static <T> Predicate<T> endsWith(Function<? super T, ? extends CharSequence> extractor, CharSequence suffix) {
-        return t -> t != null && StringUtils.endsWith(extractor.apply(t), suffix);
+        return t -> t != null && CharSequenceUtils.endsWith(extractor.apply(t), suffix);
     }
 
     public static <T> Predicate<T> endsWithIgnoreCase(Function<? super T, ? extends CharSequence> extractor, CharSequence suffix) {
-        return t -> t != null && StringUtils.endsWithIgnoreCase(extractor.apply(t), suffix);
+        return t -> t != null && CharSequenceUtils.endsWithIgnoreCase(extractor.apply(t), suffix);
     }
 
     public static <T, R> Predicate<T> isNull(Function<? super T, ? extends R> function) {
@@ -171,13 +170,25 @@ public final class PredicateUtils {
         return not(isCollEmpty(function));
     }
 
+    public static <T, R> Predicate<T> allMatch(Function<? super T, ? extends Collection<R>> function, Predicate<R> predicate) {
+        return t -> t != null && StreamUtils.allMatch(function.apply(t), predicate);
+    }
+
+    public static <T, R, C extends Collection<R>> Predicate<T> anyMatch(Function<? super T, ? extends C> function, Predicate<R> predicate) {
+        return t -> t != null && StreamUtils.anyMatch(function.apply(t), predicate);
+    }
+
+    public static <T, R, C extends Collection<R>> Predicate<T> noneMatch(Function<? super T, ? extends C> function, Predicate<R> predicate) {
+        return t -> t != null && StreamUtils.noneMatch(function.apply(t), predicate);
+    }
+
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
         Set<Object> uniqueKeys = new HashSet<>();
         return t -> uniqueKeys.add(keyExtractor.apply(t));
     }
 
     public static <T> Predicate<T> distinctByKeyParallel(Function<? super T, ?> keyExtractor) {
-        Set<Object> uniqueKeys = Sets.newConcurrentHashSet();
+        Set<Object> uniqueKeys = Collections.synchronizedSet(new HashSet<>());
         return t -> uniqueKeys.add(keyExtractor.apply(t));
     }
 

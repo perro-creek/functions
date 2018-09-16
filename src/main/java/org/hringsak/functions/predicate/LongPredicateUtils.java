@@ -1,15 +1,16 @@
 package org.hringsak.functions.predicate;
 
-import com.google.common.collect.Sets;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.hringsak.functions.stream.LongStreamUtils;
+import org.hringsak.functions.stream.StreamUtils;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
 import java.util.function.Predicate;
@@ -59,7 +60,7 @@ public final class LongPredicateUtils {
     }
 
     public static <R extends CharSequence> LongPredicate longEqualsIgnoreCase(LongFunction<? extends R> function, R value) {
-        return l -> StringUtils.equalsIgnoreCase(function.apply(l), value);
+        return l -> CharSequenceUtils.equalsIgnoreCase(function.apply(l), value);
     }
 
     public static LongPredicate isLongEqual(long value) {
@@ -86,15 +87,26 @@ public final class LongPredicateUtils {
         return notLong(isLongMapperEqual(function, value));
     }
 
-    public static <R> LongPredicate longContains(LongFunction<? extends Collection<R>> collectionExtractor, R value) {
+    public static <R> LongPredicate longToObjsContains(LongFunction<? extends Collection<R>> collectionExtractor, R value) {
         return l -> {
             Collection<R> collection = collectionExtractor.apply(l);
             return collection != null && collection.contains(value);
         };
     }
 
-    public static <R> LongPredicate inverseLongContains(Collection<? extends R> collection, LongFunction<? extends R> function) {
+    public static <T> Predicate<T> objToLongsContains(Function<T, ? extends long[]> collectionExtractor, long value) {
+        return t -> {
+            long[] longs = collectionExtractor.apply(t);
+            return LongStreamUtils.longAnyMatch(longs, isLongEqual(value));
+        };
+    }
+
+    public static <R> LongPredicate inverseLongToObjContains(Collection<? extends R> collection, LongFunction<? extends R> function) {
         return l -> collection != null && collection.contains(function.apply(l));
+    }
+
+    public static <T> Predicate<T> inverseObjToLongContains(long[] longs, ToLongFunction<? super T> function) {
+        return t -> longs != null && LongStreamUtils.longAnyMatch(longs, isLongEqual(function.applyAsLong(t)));
     }
 
     public static <R> LongPredicate longContainsKey(Map<R, ?> map, LongFunction<? extends R> extractor) {
@@ -106,43 +118,43 @@ public final class LongPredicateUtils {
     }
 
     public static LongPredicate longContainsChar(LongFunction<? extends CharSequence> extractor, int searchChar) {
-        return l -> StringUtils.contains(extractor.apply(l), searchChar);
+        return l -> CharSequenceUtils.contains(extractor.apply(l), searchChar);
     }
 
     public static LongPredicate longContainsSequence(LongFunction<? extends CharSequence> extractor, CharSequence searchSeq) {
-        return l -> StringUtils.contains(extractor.apply(l), searchSeq);
+        return l -> CharSequenceUtils.contains(extractor.apply(l), searchSeq);
     }
 
     public static LongPredicate longContainsIgnoreCase(LongFunction<? extends CharSequence> extractor, CharSequence searchSeq) {
-        return l -> StringUtils.containsIgnoreCase(extractor.apply(l), searchSeq);
+        return l -> CharSequenceUtils.containsIgnoreCase(extractor.apply(l), searchSeq);
     }
 
     public static LongPredicate longIsAlpha(LongFunction<? extends CharSequence> extractor) {
-        return l -> StringUtils.isAlpha(extractor.apply(l));
+        return l -> CharSequenceUtils.isAlpha(extractor.apply(l));
     }
 
     public static LongPredicate longIsAlphanumeric(LongFunction<? extends CharSequence> extractor) {
-        return l -> StringUtils.isAlphanumeric(extractor.apply(l));
+        return l -> CharSequenceUtils.isAlphaNumeric(extractor.apply(l));
     }
 
     public static LongPredicate longIsNumeric(LongFunction<? extends CharSequence> extractor) {
-        return l -> StringUtils.isNumeric(extractor.apply(l));
+        return l -> CharSequenceUtils.isNumeric(extractor.apply(l));
     }
 
     public static LongPredicate longStartsWith(LongFunction<? extends CharSequence> extractor, CharSequence prefix) {
-        return l -> StringUtils.startsWith(extractor.apply(l), prefix);
+        return l -> CharSequenceUtils.startsWith(extractor.apply(l), prefix);
     }
 
     public static LongPredicate longStartsWithIgnoreCase(LongFunction<? extends CharSequence> extractor, CharSequence prefix) {
-        return l -> StringUtils.startsWithIgnoreCase(extractor.apply(l), prefix);
+        return l -> CharSequenceUtils.startsWithIgnoreCase(extractor.apply(l), prefix);
     }
 
     public static LongPredicate longEndsWith(LongFunction<? extends CharSequence> extractor, CharSequence suffix) {
-        return l -> StringUtils.endsWith(extractor.apply(l), suffix);
+        return l -> CharSequenceUtils.endsWith(extractor.apply(l), suffix);
     }
 
     public static LongPredicate longEndsWithIgnoreCase(LongFunction<? extends CharSequence> extractor, CharSequence suffix) {
-        return l -> StringUtils.endsWithIgnoreCase(extractor.apply(l), suffix);
+        return l -> CharSequenceUtils.endsWithIgnoreCase(extractor.apply(l), suffix);
     }
 
     public static <R> LongPredicate isLongNull(LongFunction<? extends R> function) {
@@ -193,13 +205,37 @@ public final class LongPredicateUtils {
         return notLong(isLongCollEmpty(function));
     }
 
+    public static <T> Predicate<T> objToLongsAllMatch(Function<T, ? extends long[]> function, LongPredicate predicate) {
+        return t -> t != null && LongStreamUtils.longAllMatch(function.apply(t), predicate);
+    }
+
+    public static <R> LongPredicate longToObjectsAllMatch(LongFunction<? extends Collection<R>> function, Predicate<R> predicate) {
+        return l -> StreamUtils.allMatch(function.apply(l), predicate);
+    }
+
+    public static <T> Predicate<T> objToLongsAnyMatch(Function<T, ? extends long[]> function, LongPredicate predicate) {
+        return t -> t != null && LongStreamUtils.longAnyMatch(function.apply(t), predicate);
+    }
+
+    public static <R> LongPredicate longToObjectsAnyMatch(LongFunction<? extends Collection<R>> function, Predicate<R> predicate) {
+        return l -> StreamUtils.anyMatch(function.apply(l), predicate);
+    }
+
+    public static <T> Predicate<T> objToLongsNoneMatch(Function<T, ? extends long[]> function, LongPredicate predicate) {
+        return t -> t != null && LongStreamUtils.longNoneMatch(function.apply(t), predicate);
+    }
+
+    public static <R> LongPredicate longToObjectsNoneMatch(LongFunction<? extends Collection<R>> function, Predicate<R> predicate) {
+        return l -> StreamUtils.noneMatch(function.apply(l), predicate);
+    }
+
     public static LongPredicate longDistinctByKey(LongFunction<?> keyExtractor) {
         Set<? super Object> uniqueKeys = new HashSet<>();
         return d -> uniqueKeys.add(keyExtractor.apply(d));
     }
 
     public static LongPredicate longDistinctByKeyParallel(LongFunction<?> keyExtractor) {
-        Set<? super Object> uniqueKeys = Sets.newConcurrentHashSet();
+        Set<? super Object> uniqueKeys = Collections.synchronizedSet(new HashSet<>());
         return d -> uniqueKeys.add(keyExtractor.apply(d));
     }
 

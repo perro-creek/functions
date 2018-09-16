@@ -1,8 +1,7 @@
 package org.hringsak.functions
 
-import com.google.common.base.Strings
-import org.apache.commons.lang3.StringUtils
-import org.apache.commons.lang3.tuple.Pair
+import org.hringsak.functions.internal.Pair
+import org.hringsak.functions.internal.StringUtils
 import spock.lang.Specification
 
 import java.util.function.Function
@@ -17,7 +16,7 @@ class CollectorUtilsSpec extends Specification {
     def 'conditional group by collector'() {
         given:
         def pairStream = Stream.of(pair(1, null), pair(1, ''), pair(2, 'stringOne'), pair(2, 'stringTwo'))
-        def nonEmptyPredicate = { String str -> !Strings.isNullOrEmpty(str) } as Predicate
+        def nonEmptyPredicate = { String str -> !StringUtils.isNullOrEmpty(str) } as Predicate
         def leftFunction = { Pair pair -> pair.getLeft() } as Function
         def rightFunction = { Pair pair -> pair.getRight() } as Function
 
@@ -36,7 +35,7 @@ class CollectorUtilsSpec extends Specification {
         def sourceMap = [keyOne: 'valueOne', keyTwo: 'valueTwo', keyThree: 'valueThree']
 
         when:
-        def actual = sourceMap.entrySet().stream().collect(CollectorUtils.toMapFromEntry())
+        def actual = sourceMap.entrySet().stream().collect(toMapFromEntry())
 
         then:
         actual == sourceMap
@@ -45,7 +44,7 @@ class CollectorUtilsSpec extends Specification {
     def 'to partitioned stream'() {
         given:
         def partitionSize = 10
-        def elements = (1..100).collect({ "element${StringUtils.leftPad("$it", 3, '0')}" })
+        def elements = (1..100).collect({ "element$it" })
 
         when:
         def partitions = elements.stream().collect(toPartitionedStream(partitionSize)).collect(toList()) as Collection<List>
@@ -58,10 +57,10 @@ class CollectorUtilsSpec extends Specification {
     def 'to partitioned list'() {
         given:
         def partitionSize = 10
-        def elements = (1..100).collect({ "element${StringUtils.leftPad("$it", 3, '0')}" })
+        def elements = (1..100).collect({ "element$it" })
 
         when:
-        def partitions = elements.stream().collect(CollectorUtils.toPartitionedList(partitionSize)) as Collection<List>
+        def partitions = elements.stream().collect(toPartitionedList(partitionSize)) as Collection<List>
 
         then:
         partitions.size() == 10
@@ -73,7 +72,7 @@ class CollectorUtilsSpec extends Specification {
         def actual = 'test123'.codePoints()
                 .filter { codePoint -> Character.isDigit(codePoint) }
                 .boxed()
-                .collect(CollectorUtils.toStringBuilder())
+                .collect(toStringBuilder())
                 .toString()
 
         then:
@@ -82,12 +81,12 @@ class CollectorUtilsSpec extends Specification {
 
     def 'to enum set'() {
         expect:
-        Arrays.stream(TestValue.values()).collect(CollectorUtils.toEnumSet(TestValue)) == EnumSet.allOf(TestValue)
+        Arrays.stream(TestValue.values()).collect(toEnumSet(TestValue)) == EnumSet.allOf(TestValue)
     }
 
     def 'to enum set passing null enum class'() {
         when:
-        [].stream().collect(CollectorUtils.toEnumSet(null))
+        [].stream().collect(toEnumSet(null))
 
         then:
         def e = thrown(NullPointerException)
@@ -96,32 +95,32 @@ class CollectorUtilsSpec extends Specification {
 
     def 'to list with default for empty stream'() {
         expect:
-        [].stream().collect(CollectorUtils.toListWithDefault('default')) == ['default']
+        [].stream().collect(toListWithDefault('default')) == ['default']
     }
 
     def 'to list with default for populated stream'() {
         expect:
-        ['test'].stream().collect(CollectorUtils.toListWithDefault('default')) == ['test']
+        ['test'].stream().collect(toListWithDefault('default')) == ['test']
     }
 
     def 'to set with default passing supplier for empty stream'() {
         expect:
-        [].stream().collect(CollectorUtils.toSetWithDefault('default')) == ['default'] as Set
+        [].stream().collect(toSetWithDefault('default')) == ['default'] as Set
     }
 
     def 'to set with default passing supplier for populated stream'() {
         expect:
-        ['test'].stream().collect(CollectorUtils.toSetWithDefault('default')) == ['test'] as Set
+        ['test'].stream().collect(toSetWithDefault('default')) == ['test'] as Set
     }
 
     def 'with default passing supplier for empty stream'() {
         expect:
-        [].stream().collect(CollectorUtils.withDefault('default', { new HashSet<>() })) == ['default'] as Set
+        [].stream().collect(withDefault('default', { new HashSet<>() })) == ['default'] as Set
     }
 
     def 'collect with default passing collector for populated stream'() {
         expect:
-        ['test'].stream().collect(CollectorUtils.withDefault('default', { new HashSet<>() })) == ['test'] as Set
+        ['test'].stream().collect(withDefault('default', { new HashSet<>() })) == ['test'] as Set
     }
 
     def 'to unmodifiable list'() {

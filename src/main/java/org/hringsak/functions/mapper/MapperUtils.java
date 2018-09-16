@@ -1,9 +1,8 @@
 package org.hringsak.functions.mapper;
 
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.commons.lang3.tuple.Pair;
+import org.hringsak.functions.internal.Pair;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -306,8 +305,8 @@ public final class MapperUtils {
     }
 
     public static <T, U, V> Function<T, Pair<U, V>> pairWith(Function<? super T, ? extends U> function, List<V> pairedList) {
-        List<V> nonNullList = ListUtils.emptyIfNull(pairedList);
-        MutableInt idx = new MutableInt();
+        List<V> nonNullList = pairedList == null ? new ArrayList<>() : pairedList;
+        AtomicInteger idx = new AtomicInteger();
         return t -> {
             U extracted = t == null ? null : function.apply(t);
             int i = idx.getAndIncrement();

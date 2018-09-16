@@ -26,6 +26,52 @@ public final class DblStreamUtils {
     private DblStreamUtils() {
     }
 
+    public static boolean dblAllMatch(double[] doubles, DoublePredicate predicate) {
+        return doubles != null && Arrays.stream(doubles).allMatch(predicate);
+    }
+
+    public static boolean dblAnyMatch(double[] doubles, DoublePredicate predicate) {
+        return doubles != null && Arrays.stream(doubles).anyMatch(predicate);
+    }
+
+    public static boolean dblNoneMatch(double[] doubles, DoublePredicate predicate) {
+        return doubles != null && Arrays.stream(doubles).noneMatch(predicate);
+    }
+
+    public static long dblCount(double[] doubles, DoublePredicate predicate) {
+        return defaultDblStream(doubles)
+                .filter(predicate)
+                .count();
+    }
+
+    public static double dblMaxDefault(double[] doubles, FindDoubleWithDefault findWithDefault) {
+        return defaultDblStream(doubles)
+                .filter(findWithDefault.getPredicate())
+                .max()
+                .orElse(findWithDefault.getDefaultValue());
+    }
+
+    public static double dblMaxDefaultSupplier(double[] doubles, FindDoubleWithDefaultSupplier findWithDefault) {
+        return defaultDblStream(doubles)
+                .filter(findWithDefault.getPredicate())
+                .max()
+                .orElseGet(findWithDefault.getDefaultSupplier());
+    }
+
+    public static double dblMinDefault(double[] doubles, FindDoubleWithDefault findWithDefault) {
+        return defaultDblStream(doubles)
+                .filter(findWithDefault.getPredicate())
+                .min()
+                .orElse(findWithDefault.getDefaultValue());
+    }
+
+    public static double dblMinDefaultSupplier(double[] doubles, FindDoubleWithDefaultSupplier findWithDefault) {
+        return defaultDblStream(doubles)
+                .filter(findWithDefault.getPredicate())
+                .min()
+                .orElseGet(findWithDefault.getDefaultSupplier());
+    }
+
     /**
      * Attempt to find any matching double value in an array of doubles using a predicate, returning <code>null</code>
      * if one is not found. This method does all filtering with a primitive <code>DoubleStream</code>, boxing the stream
@@ -114,6 +160,37 @@ public final class DblStreamUtils {
                 .filter(findWithDefaultSupplier.getPredicate())
                 .findAny()
                 .orElseGet(findWithDefaultSupplier.getDefaultSupplier());
+    }
+
+    /**
+     * Attempt to find the first matching double value in an array of doubles using a predicate, returning
+     * <code>null</code> if one is not found. This method does all filtering with a primitive <code>DoubleStream</code>,
+     * boxing the stream and calling <code>Stream.findAny()</code> only after it has been filtered. Here is a contrived
+     * example of how this method would be called:
+     * <pre>
+     *     {
+     *         ...
+     *         return DblStreamUtils.findFirstDblDefaultNull(doubleArray, DblPredicateUtils.isDblEqual(2.0D, Function.identity()));
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     {
+     *         ...
+     *         return findFirstDblDefaultNull(doubleArray, isDblEqual(2.0D, identity()));
+     *     }
+     * </pre>
+     *
+     * @param doubles   An array of primitive double values.
+     * @param predicate A predicate for finding a Double value.
+     * @return A Double value if one is found, otherwise null.
+     */
+    public static Double findFirstDblDefaultNull(double[] doubles, DoublePredicate predicate) {
+        return defaultDblStream(doubles)
+                .filter(predicate)
+                .boxed()
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -216,14 +293,6 @@ public final class DblStreamUtils {
                 .mapToInt(DoubleIndexPair::getRight)
                 .findFirst()
                 .orElse(-1);
-    }
-
-    public static boolean dblAnyMatch(double[] doubles, DoublePredicate predicate) {
-        return defaultDblStream(doubles).anyMatch(predicate);
-    }
-
-    public static boolean dblNoneMatch(double[] doubles, DoublePredicate predicate) {
-        return defaultDblStream(doubles).noneMatch(predicate);
     }
 
     public static String dblJoin(double[] doubles, DoubleFunction<CharSequence> mapper) {

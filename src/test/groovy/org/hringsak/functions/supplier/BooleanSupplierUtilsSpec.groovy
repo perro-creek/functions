@@ -5,7 +5,7 @@ import spock.lang.Unroll
 
 import java.util.function.BiFunction
 
-import static org.apache.commons.lang3.StringUtils.isEmpty
+import static org.hringsak.functions.internal.StringUtils.isNullOrEmpty
 import static org.hringsak.functions.supplier.BooleanSupplierUtils.booleanSupplier
 import static org.hringsak.functions.supplier.SupplierUtils.constantValues
 
@@ -15,7 +15,7 @@ class BooleanSupplierUtilsSpec extends Specification {
     def 'boolean supplier passing value parameter "#value"'() {
 
         expect:
-        def function = { String s -> isEmpty(s) }
+        def function = { String s -> isNullOrEmpty(s) }
         booleanSupplier(function, value).getAsBoolean() == expected
 
         where:
@@ -29,7 +29,7 @@ class BooleanSupplierUtilsSpec extends Specification {
     def 'boolean supplier passing parameters "#left" and "#right"'() {
 
         expect:
-        def function = { String l, String r -> isEmpty(l) && isEmpty(r) } as BiFunction
+        def function = { String left, String right -> isNullOrEmpty(left) && isNullOrEmpty(right) } as BiFunction
         booleanSupplier(function, constantValues(left, right)).getAsBoolean() == expected
 
         where:

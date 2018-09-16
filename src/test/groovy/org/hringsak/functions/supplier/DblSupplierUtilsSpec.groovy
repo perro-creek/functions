@@ -5,7 +5,7 @@ import spock.lang.Unroll
 
 import java.util.function.ToDoubleBiFunction
 
-import static org.apache.commons.lang3.StringUtils.defaultString
+import static org.hringsak.functions.internal.StringUtils.defaultString
 import static org.hringsak.functions.supplier.DblSupplierUtils.dblSupplier
 import static org.hringsak.functions.supplier.SupplierUtils.constantValues
 

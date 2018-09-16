@@ -3,11 +3,12 @@ package org.hringsak.functions.predicate
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.util.function.Function
 import java.util.function.LongFunction
 import java.util.function.LongPredicate
 import java.util.stream.LongStream
 
-import static com.mrll.javelin.cmcs.util.StreamUtils.filter
+import static org.hringsak.functions.predicate.FilterUtils.filter
 import static org.hringsak.functions.predicate.LongFilterUtils.longFilter
 import static org.hringsak.functions.predicate.LongPredicateUtils.*
 
@@ -65,11 +66,19 @@ class LongPredicateUtilsSpec extends Specification {
         longFilter(longs, predicate) == [1L, 3L] as long[]
     }
 
-    def 'is long string empty returns expected value'() {
+    @Unroll
+    def 'is long string empty with function value "#functionValue" returns expected value'() {
+
         expect:
-        def predicate = isLongStrEmpty { l -> l == 2L ? '' : String.valueOf(l) }
+        def predicate = isLongStrEmpty { l -> l == 2L ? functionValue : String.valueOf(l) }
         def longs = [1L, 2L, 3L] as long[]
-        longFilter(longs, predicate) == [2L] as long[]
+        longFilter(longs, predicate) == expected as long[]
+
+        where:
+        functionValue || expected
+        'test'        || []
+        ''            || [2L]
+        null          || [2L]
     }
 
     def 'is long string not empty returns expected value'() {
@@ -128,18 +137,46 @@ class LongPredicateUtilsSpec extends Specification {
         longFilter(longs, predicate) == [1L, 3L] as long[]
     }
 
-    def 'long contains passing function and constant value returns expected value'() {
+    def 'long to objects contains returns expected value'() {
         expect:
-        def predicate = longContains({ l -> [String.valueOf(l)] }, '2')
+        def predicate = longToObjsContains({ l -> l == 1L ? null : [String.valueOf(l)] }, '2')
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == [2L] as long[]
     }
 
-    def 'inverse long contains passing collection and function returns expected value'() {
+    def 'object to longs contains returns expected value'() {
         expect:
-        def predicate = inverseLongContains(['2'], { l -> String.valueOf(l) })
+        def predicate = objToLongsContains({ String s -> [Long.valueOf(s)] as long[] }, 2L)
+        def strings = ['1', '2', '3']
+        filter(strings, predicate) == ['2']
+    }
+
+    def 'inverse long to object contains returns expected value'() {
+        expect:
+        def predicate = inverseLongToObjContains(['2'], { l -> String.valueOf(l) })
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == [2L] as long[]
+    }
+
+    def 'inverse long to object contains passing null collection and function returns expected value'() {
+        expect:
+        def predicate = inverseLongToObjContains(null, { l -> String.valueOf(l) })
+        def longs = [1L, 2L, 3L] as long[]
+        longFilter(longs, predicate) == [] as long[]
+    }
+
+    def 'inverse object to long contains returns expected value'() {
+        expect:
+        def predicate = inverseObjToLongContains([2L] as long[], { String s -> Long.valueOf(s) })
+        def strings = ['1', '2', '3']
+        filter(strings, predicate) == ['2']
+    }
+
+    def 'inverse object to long contains passing null long array returns expected value'() {
+        expect:
+        def predicate = inverseObjToLongContains(null as long[], { String s -> Long.valueOf(s) })
+        def strings = ['1', '2', '3']
+        filter(strings, predicate) == []
     }
 
     def 'long contains key passing map returns expected value'() {
@@ -149,6 +186,13 @@ class LongPredicateUtilsSpec extends Specification {
         longFilter(longs, predicate) == [2L] as long[]
     }
 
+    def 'long contains key passing null map returns expected value'() {
+        expect:
+        def predicate = longContainsKey(null, { l -> String.valueOf(l) })
+        def longs = [1L, 2L, 3L] as long[]
+        longFilter(longs, predicate) == [] as long[]
+    }
+
     def 'long contains value passing map returns expected value'() {
         expect:
         def predicate = longContainsValue([(2L): '2'], { l -> String.valueOf(l) })
@@ -156,6 +200,12 @@ class LongPredicateUtilsSpec extends Specification {
         longFilter(longs, predicate) == [2L] as long[]
     }
 
+    def 'long contains value passing null map returns expected value'() {
+        expect:
+        def predicate = longContainsValue(null, { l -> String.valueOf(l) })
+        def longs = [1L, 2L, 3L] as long[]
+        longFilter(longs, predicate) == [] as long[]
+    }
     def 'long contains char passing function and search char returns expected value'() {
         expect:
         def predicate = longContainsChar({ l -> String.valueOf(l) }, 50)
@@ -312,6 +362,48 @@ class LongPredicateUtilsSpec extends Specification {
         def predicate = isLongCollNotEmpty() { l -> l == 2L ? [] : [String.valueOf(l)] }
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == [1L, 3L] as long[]
+    }
+
+    def 'object to longs all match returns expected value'() {
+        expect:
+        def function = { s -> s.codePoints().asLongStream().toArray() } as Function
+        def predicate = objToLongsAllMatch(function, { l -> l > 100L })
+        filter(['test', ' ', '', null], predicate) == ['test', '']
+    }
+
+    def 'long to objects all match returns expected value'() {
+        expect:
+        def function = { l -> [String.valueOf(l)] }
+        def predicate = longToObjectsAllMatch(function, { s -> s == '2' })
+        longFilter([1L, 2L, 3L] as long[], predicate) == [2L] as long[]
+    }
+
+    def 'object to longs any match returns expected value'() {
+        expect:
+        def function = { s -> s.codePoints().asLongStream().toArray() }
+        def predicate = objToLongsAnyMatch(function, { l -> l == 101L })
+        filter(['test', '', null], predicate) == ['test']
+    }
+
+    def 'long to objects any match returns expected value'() {
+        expect:
+        def function = { l -> [String.valueOf(l)] }
+        def predicate = longToObjectsAnyMatch(function, { s -> s == '2' })
+        longFilter([1L, 2L, 3L] as long[], predicate) == [2L] as long[]
+    }
+
+    def 'object to longs none match returns expected value'() {
+        expect:
+        def function = { s -> s.codePoints().asLongStream().toArray() }
+        def predicate = objToLongsNoneMatch(function, { l -> l > 100L })
+        filter(['test', '', null], predicate) == ['']
+    }
+
+    def 'long to objects none match returns expected value'() {
+        expect:
+        def function = { l -> [String.valueOf(l)] }
+        def predicate = longToObjectsNoneMatch(function, { s -> s == '2' })
+        longFilter([1L, 2L, 3L] as long[], predicate) == [1L, 3L] as long[]
     }
 
     def 'long distinct by key filters objects with unique key values'() {

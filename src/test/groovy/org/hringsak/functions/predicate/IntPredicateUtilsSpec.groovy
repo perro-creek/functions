@@ -3,11 +3,12 @@ package org.hringsak.functions.predicate
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.util.function.Function
 import java.util.function.IntFunction
 import java.util.function.IntPredicate
 import java.util.stream.IntStream
 
-import static com.mrll.javelin.cmcs.util.StreamUtils.filter
+import static org.hringsak.functions.predicate.FilterUtils.filter
 import static org.hringsak.functions.predicate.IntFilterUtils.intFilter
 import static org.hringsak.functions.predicate.IntPredicateUtils.*
 
@@ -65,11 +66,19 @@ class IntPredicateUtilsSpec extends Specification {
         intFilter(ints, predicate) == [1, 3] as int[]
     }
 
-    def 'is int string empty returns expected value'() {
+    @Unroll
+    def 'is int string empty with function value "#functionValue" returns expected value'() {
+
         expect:
-        def predicate = isIntStrEmpty { i -> i == 2 ? '' : String.valueOf(i) }
+        def predicate = isIntStrEmpty { i -> i == 2 ? functionValue : String.valueOf(i) }
         def ints = [1, 2, 3] as int[]
-        intFilter(ints, predicate) == [2] as int[]
+        intFilter(ints, predicate) == expected as int[]
+
+        where:
+        functionValue || expected
+        'test'        || []
+        ''            || [2]
+        null          || [2]
     }
 
     def 'is int string not empty returns expected value'() {
@@ -128,18 +137,46 @@ class IntPredicateUtilsSpec extends Specification {
         intFilter(ints, predicate) == [1, 3] as int[]
     }
 
-    def 'int contains passing function and constant value returns expected value'() {
+    def 'int to objects contains returns expected value'() {
         expect:
-        def predicate = intContains({ i -> [String.valueOf(i)] }, '2')
+        def predicate = intToObjsContains({ i -> i == 1 ? null : [String.valueOf(i)] }, '2')
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [2] as int[]
     }
 
-    def 'inverse int contains passing collection and function returns expected value'() {
+    def 'object to ints contains returns expected value'() {
         expect:
-        def predicate = inverseIntContains(['2'], { i -> String.valueOf(i) })
+        def predicate = objToIntsContains({ String s -> [Integer.valueOf(s)] as int[] }, 2)
+        def strings = ['1', '2', '3']
+        filter(strings, predicate) == ['2']
+    }
+
+    def 'inverse int to object contains returns expected value'() {
+        expect:
+        def predicate = inverseIntToObjContains(['2'], { i -> String.valueOf(i) })
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [2] as int[]
+    }
+
+    def 'inverse int to object contains passing null collection returns expected value'() {
+        expect:
+        def predicate = inverseIntToObjContains(null, { i -> String.valueOf(i) })
+        def ints = [1, 2, 3] as int[]
+        intFilter(ints, predicate) == [] as int[]
+    }
+
+    def 'inverse object to int contains returns expected value'() {
+        expect:
+        def predicate = inverseObjToIntContains([2] as int[], { String s -> Integer.valueOf(s) })
+        def strings = ['1', '2', '3']
+        filter(strings, predicate) == ['2']
+    }
+
+    def 'inverse object to int contains passing null int array returns expected value'() {
+        expect:
+        def predicate = inverseObjToIntContains(null as int[], { String s -> Integer.valueOf(s) })
+        def strings = ['1', '2', '3']
+        filter(strings, predicate) == []
     }
 
     def 'int contains key passing map returns expected value'() {
@@ -149,11 +186,25 @@ class IntPredicateUtilsSpec extends Specification {
         intFilter(ints, predicate) == [2] as int[]
     }
 
+    def 'int contains key passing null map returns expected value'() {
+        expect:
+        def predicate = intContainsKey(null, { i -> String.valueOf(i) })
+        def ints = [1, 2, 3] as int[]
+        intFilter(ints, predicate) == [] as int[]
+    }
+
     def 'int contains value passing map returns expected value'() {
         expect:
         def predicate = intContainsValue([(2): '2'], { i -> String.valueOf(i) })
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [2] as int[]
+    }
+
+    def 'int contains value passing null map returns expected value'() {
+        expect:
+        def predicate = intContainsValue(null, { i -> String.valueOf(i) })
+        def ints = [1, 2, 3] as int[]
+        intFilter(ints, predicate) == [] as int[]
     }
 
     def 'int contains char passing function and search char returns expected value'() {
@@ -312,6 +363,48 @@ class IntPredicateUtilsSpec extends Specification {
         def predicate = isIntCollNotEmpty() { i -> i == 2 ? [] : [String.valueOf(i)] }
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [1, 3] as int[]
+    }
+
+    def 'object to ints all match returns expected value'() {
+        expect:
+        def function = { s -> s.codePoints().toArray() } as Function
+        def predicate = objToIntsAllMatch(function, { i -> i > 100 })
+        filter(['test', ' ', '', null], predicate) == ['test', '']
+    }
+
+    def 'int to objects all match returns expected value'() {
+        expect:
+        def function = { i -> [String.valueOf(i)] }
+        def predicate = intToObjectsAllMatch(function, { s -> s == '2' })
+        intFilter([1, 2, 3] as int[], predicate) == [2] as int[]
+    }
+
+    def 'object to ints any match returns expected value'() {
+        expect:
+        def function = { s -> s.codePoints().toArray() }
+        def predicate = objToIntsAnyMatch(function, { i -> i == 101 })
+        filter(['test', '', null], predicate) == ['test']
+    }
+
+    def 'int to objects any match returns expected value'() {
+        expect:
+        def function = { i -> [String.valueOf(i)] }
+        def predicate = intToObjectsAnyMatch(function, { s -> s == '2' })
+        intFilter([1, 2, 3] as int[], predicate) == [2] as int[]
+    }
+
+    def 'object to ints none match returns expected value'() {
+        expect:
+        def function = { s -> s.codePoints().toArray() }
+        def predicate = objToIntsNoneMatch(function, { i -> i > 100 })
+        filter(['test', '', null], predicate) == ['']
+    }
+
+    def 'int to objects none match returns expected value'() {
+        expect:
+        def function = { i -> [String.valueOf(i)] }
+        def predicate = intToObjectsNoneMatch(function, { s -> s == '2' })
+        intFilter([1, 2, 3] as int[], predicate) == [1, 3] as int[]
     }
 
     def 'int distinct by key filters objects with unique key values'() {

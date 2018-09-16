@@ -1,12 +1,12 @@
 package org.hringsak.functions.supplier
 
-import org.apache.commons.lang3.StringUtils
+import org.hringsak.functions.internal.StringUtils
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.function.BiFunction
 
-import static org.apache.commons.lang3.StringUtils.defaultString
+import static org.hringsak.functions.internal.StringUtils.defaultString
 import static org.hringsak.functions.supplier.SupplierUtils.constantValues
 import static org.hringsak.functions.supplier.SupplierUtils.supplier
 
@@ -16,14 +16,14 @@ class SupplierUtilsSpec extends Specification {
     def 'supplier passing value parameter "#value"'() {
 
         expect:
-        def function = { String -> StringUtils.reverse(value) }
+        def function = { String -> StringUtils.toUpperCase(value) }
         supplier(function, value).get() == expected
 
         where:
         value  | expected
         null   | null
         ''     | ''
-        'test' | 'tset'
+        'test' | 'TEST'
     }
 
     @Unroll

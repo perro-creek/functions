@@ -8,16 +8,158 @@ import java.util.function.Supplier
 
 import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
+import static org.hringsak.functions.predicate.PredicateUtils.constant
 import static org.hringsak.functions.predicate.PredicateUtils.isEqual
 import static org.hringsak.functions.stream.StreamUtils.*
 
 class StreamUtilsSpec extends Specification {
 
     @Unroll
-    def 'find any returns expected value for string length "#length"'() {
+    def 'all match passing collection #collection and predicate returns #expected'() {
 
         expect:
-        findAny([null, '', 'test', ''], isEqual({ String s -> s.length() }, length)) == expected
+        allMatch(collection, isEqual({ String s -> s.length() }, 4)) == expected
+
+        where:
+        collection         | expected
+        ['test', '', null] | false
+        ['test']           | true
+        [null]             | false
+        []                 | true
+        null               | false
+    }
+
+    @Unroll
+    def 'any match passing collection #collection and predicate returns #expected'() {
+
+        expect:
+        anyMatch(collection, isEqual({ String s -> s.length() }, 4)) == expected
+
+        where:
+        collection         | expected
+        ['test', '', null] | true
+        ['test']           | true
+        [null]             | false
+        []                 | false
+        null               | false
+    }
+
+    @Unroll
+    def 'none match passing collection #collection and predicate returns #expected'() {
+
+        expect:
+        noneMatch(collection, isEqual({ String s -> s.length() }, 4)) == expected
+
+        where:
+        collection         | expected
+        ['test', '', null] | false
+        ['test']           | false
+        [null]             | true
+        []                 | true
+        null               | false
+    }
+
+    @Unroll
+    def 'count passing collection #collection and predicate returns #expected'() {
+
+        expect:
+        count(collection, isEqual({ String s -> s.length() }, 4)) == expected
+
+        where:
+        collection         | expected
+        ['test', '', null] | 1L
+        ['test']           | 1L
+        [null]             | 0L
+        []                 | 0L
+        null               | 0L
+    }
+
+    @Unroll
+    def 'max default passing collection #collection and predicate returns #expected'() {
+
+        expect:
+        maxDefault(collection, constant(true)) == expected
+
+        where:
+        collection         | expected
+        ['', null, 'test'] | 'test'
+        ['test']           | 'test'
+        []                 | null
+        null               | null
+    }
+
+    @Unroll
+    def 'max default passing collection #collection and find with default returns #expected'() {
+
+        expect:
+        maxDefault(collection, findWithDefault(constant(true), 'default')) == expected
+
+        where:
+        collection         | expected
+        ['', null, 'test'] | 'test'
+        ['test']           | 'test'
+        []                 | 'default'
+        null               | 'default'
+    }
+
+    @Unroll
+    def 'max default passing collection #collection and find with default supplier returns #expected'() {
+
+        expect:
+        maxDefault(collection, findWithDefault(constant(true), { 'default' } as Supplier<String>)) == expected
+
+        where:
+        collection         | expected
+        ['', null, 'test'] | 'test'
+        ['test']           | 'test'
+        []                 | 'default'
+        null               | 'default'
+    }
+
+    @Unroll
+    def 'min default passing collection #collection and predicate returns #expected'() {
+
+        expect:
+        minDefault(collection, constant(true)) == expected
+
+        where:
+        collection         | expected
+        ['', null, 'test'] | ''
+        ['test']           | 'test'
+        []                 | null
+    }
+
+    @Unroll
+    def 'min default passing collection #collection and find with default returns #expected'() {
+
+        expect:
+        minDefault(collection, findWithDefault(constant(true), 'default')) == expected
+
+        where:
+        collection         | expected
+        ['', null, 'test'] | ''
+        ['test']           | 'test'
+        []                 | 'default'
+    }
+
+    @Unroll
+    def 'min default passing collection #collection and find with default supplier returns #expected'() {
+
+        expect:
+        minDefault(collection, findWithDefault(constant(true), { 'default' } as Supplier<String>)) == expected
+
+        where:
+        collection         | expected
+        ['', null, 'test'] | ''
+        ['test']           | 'test'
+        []                 | 'default'
+    }
+
+    @Unroll
+    def 'find any default null returns expected value for string length "#length"'() {
+
+        expect:
+        findAnyDefaultNull([null, '', 'test', ''], isEqual({ String s -> s.length() }, length)) == expected
 
         where:
         length | expected

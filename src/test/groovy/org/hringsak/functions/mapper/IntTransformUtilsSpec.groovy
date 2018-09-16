@@ -1,6 +1,5 @@
 package org.hringsak.functions.mapper
 
-import com.google.common.collect.Sets
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -64,7 +63,7 @@ class IntTransformUtilsSpec extends Specification {
         expect:
         def ints = [1, 2, 3] as int[]
         def mapper = { d -> String.valueOf(d) }
-        intTransformToSet(ints, mapper) == Sets.newHashSet('1', '2', '3')
+        intTransformToSet(ints, mapper) == ['1', '2', '3'] as HashSet
     }
 
     @Unroll

@@ -1,8 +1,8 @@
 package org.hringsak.functions.stream;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Stream;
 
@@ -34,7 +34,7 @@ public class StreamUtilsTest {
     }
 
     private void thenExpectStream(TestValue... expected) {
-        assertEquals(Lists.newArrayList(expected), result.collect(toList()));
+        assertEquals(Arrays.asList(expected), result.collect(toList()));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class StreamUtilsTest {
     }
 
     private void givenInputCollection(TestValue... values) {
-        inputCollection = Lists.newArrayList(values);
+        inputCollection = Arrays.asList(values);
     }
 
     @Test

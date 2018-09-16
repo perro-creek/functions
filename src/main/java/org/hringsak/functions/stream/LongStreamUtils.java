@@ -1,13 +1,10 @@
 package org.hringsak.functions.stream;
 
-import com.google.common.collect.Sets;
 import org.hringsak.functions.mapper.LongIndexPair;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
 import java.util.function.LongSupplier;
@@ -24,6 +21,52 @@ import static org.hringsak.functions.predicate.LongPredicateUtils.mapToLongAndFi
 public final class LongStreamUtils {
 
     private LongStreamUtils() {
+    }
+
+    public static boolean longAllMatch(long[] longs, LongPredicate predicate) {
+        return longs != null && Arrays.stream(longs).allMatch(predicate);
+    }
+
+    public static boolean longAnyMatch(long[] longs, LongPredicate predicate) {
+        return longs != null && Arrays.stream(longs).anyMatch(predicate);
+    }
+
+    public static boolean longNoneMatch(long[] longs, LongPredicate predicate) {
+        return longs != null && Arrays.stream(longs).noneMatch(predicate);
+    }
+
+    public static long longCount(long[] longs, LongPredicate predicate) {
+        return defaultLongStream(longs)
+                .filter(predicate)
+                .count();
+    }
+
+    public static long longMaxDefault(long[] longs, FindLongWithDefault findWithDefault) {
+        return defaultLongStream(longs)
+                .filter(findWithDefault.getPredicate())
+                .max()
+                .orElse(findWithDefault.getDefaultValue());
+    }
+
+    public static long longMaxDefaultSupplier(long[] longs, FindLongWithDefaultSupplier findWithDefault) {
+        return defaultLongStream(longs)
+                .filter(findWithDefault.getPredicate())
+                .max()
+                .orElseGet(findWithDefault.getDefaultSupplier());
+    }
+
+    public static long longMinDefault(long[] longs, FindLongWithDefault findWithDefault) {
+        return defaultLongStream(longs)
+                .filter(findWithDefault.getPredicate())
+                .min()
+                .orElse(findWithDefault.getDefaultValue());
+    }
+
+    public static long longMinDefaultSupplier(long[] longs, FindLongWithDefaultSupplier findWithDefault) {
+        return defaultLongStream(longs)
+                .filter(findWithDefault.getPredicate())
+                .min()
+                .orElseGet(findWithDefault.getDefaultSupplier());
     }
 
     /**
@@ -71,6 +114,37 @@ public final class LongStreamUtils {
                 .orElseGet(findWithDefaultSupplier.getDefaultSupplier());
     }
 
+    /**
+     * Attempt to find the first matching long value in an array of longs using a predicate, returning <code>null</code>
+     * if one is not found. This method does all filtering with a primitive <code>LongStream</code>, boxing the stream
+     * and calling <code>Stream.findAny()</code> only after it has been filtered. Here is a contrived example of how
+     * this method would be called:
+     * <pre>
+     *     {
+     *         ...
+     *         return LongStreamUtils.findFirstLongDefaultNull(longArray, LongPredicateUtils.isLongEqual(2L, Function.identity()));
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     {
+     *         ...
+     *         return findFirstLongDefaultNull(longArray, isLongEqual(2, identity()));
+     *     }
+     * </pre>
+     *
+     * @param longs      An array of primitive long values.
+     * @param predicate A predicate for finding a Long value.
+     * @return A Long value if one is found, otherwise null.
+     */
+    public static Long findFirstLongDefaultNull(long[] longs, LongPredicate predicate) {
+        return defaultLongStream(longs)
+                .filter(predicate)
+                .boxed()
+                .findFirst()
+                .orElse(null);
+    }
+
     public static long findFirstLongDefault(long[] longs, FindLongWithDefault findWithDefault) {
         return defaultLongStream(longs)
                 .filter(findWithDefault.getPredicate())
@@ -100,14 +174,6 @@ public final class LongStreamUtils {
                 .mapToLong(LongIndexPair::getRight)
                 .findFirst()
                 .orElse(-1);
-    }
-
-    public static boolean longAnyMatch(long[] longs, LongPredicate predicate) {
-        return defaultLongStream(longs).anyMatch(predicate);
-    }
-
-    public static boolean longNoneMatch(long[] longs, LongPredicate predicate) {
-        return defaultLongStream(longs).noneMatch(predicate);
     }
 
     public static String longJoin(long[] longs, LongFunction<CharSequence> mapper) {
