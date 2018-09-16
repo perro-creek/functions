@@ -1,6 +1,5 @@
 package org.hringsak.functions.stream;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -79,7 +78,7 @@ public class IntStreamUtilsTest {
     }
 
     private void givenInputCollection(Integer... values) {
-        inputCollection = Lists.newArrayList(values);
+        inputCollection = Arrays.asList(values);
     }
 
     @Test
@@ -140,7 +139,7 @@ public class IntStreamUtilsTest {
     @Test
     public void testDefaultStreamForEmptyPrimitiveStream() {
         givenInputPrimitiveStream();
-        whenDefaultStreamIsRetrievedFromStream();
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
         thenExpectStream();
     }
 
@@ -151,7 +150,7 @@ public class IntStreamUtilsTest {
     @Test
     public void testDefaultStreamForPopulatedPrimitiveStream() {
         givenInputPrimitiveStream(1, 2);
-        whenDefaultStreamIsRetrievedFromStream();
-        givenInputPrimitiveStream(1, 2);
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
+        thenExpectStream(1, 2);
     }
 }

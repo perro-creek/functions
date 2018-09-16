@@ -1,12 +1,13 @@
 package org.hringsak.functions.mapper
 
-import org.apache.commons.lang3.tuple.Pair
+import org.hringsak.functions.internal.Pair
+import org.hringsak.functions.internal.StringUtils
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.function.ToLongBiFunction
 
-import static org.apache.commons.lang3.StringUtils.defaultString
+import static org.hringsak.functions.internal.StringUtils.defaultString
 import static org.hringsak.functions.mapper.LongMapperUtils.*
 
 class LongMapperUtilsSpec extends Specification {

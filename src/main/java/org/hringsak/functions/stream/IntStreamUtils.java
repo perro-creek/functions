@@ -1,14 +1,10 @@
 package org.hringsak.functions.stream;
 
-import com.google.common.collect.Sets;
 import org.hringsak.functions.mapper.IntIndexPair;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.function.DoublePredicate;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 import java.util.function.IntSupplier;
@@ -25,6 +21,52 @@ import static org.hringsak.functions.predicate.IntPredicateUtils.mapToIntAndFilt
 public final class IntStreamUtils {
 
     private IntStreamUtils() {
+    }
+
+    public static boolean intAllMatch(int[] ints, IntPredicate predicate) {
+        return ints != null && Arrays.stream(ints).allMatch(predicate);
+    }
+
+    public static boolean intAnyMatch(int[] ints, IntPredicate predicate) {
+        return ints != null && Arrays.stream(ints).anyMatch(predicate);
+    }
+
+    public static boolean intNoneMatch(int[] ints, IntPredicate predicate) {
+        return ints != null && Arrays.stream(ints).noneMatch(predicate);
+    }
+
+    public static long intCount(int[] ints, IntPredicate predicate) {
+        return defaultIntStream(ints)
+                .filter(predicate)
+                .count();
+    }
+
+    public static int intMaxDefault(int[] ints, FindIntWithDefault findWithDefault) {
+        return defaultIntStream(ints)
+                .filter(findWithDefault.getPredicate())
+                .max()
+                .orElse(findWithDefault.getDefaultValue());
+    }
+
+    public static int intMaxDefaultSupplier(int[] ints, FindIntWithDefaultSupplier findWithDefault) {
+        return defaultIntStream(ints)
+                .filter(findWithDefault.getPredicate())
+                .max()
+                .orElseGet(findWithDefault.getDefaultSupplier());
+    }
+
+    public static int intMinDefault(int[] ints, FindIntWithDefault findWithDefault) {
+        return defaultIntStream(ints)
+                .filter(findWithDefault.getPredicate())
+                .min()
+                .orElse(findWithDefault.getDefaultValue());
+    }
+
+    public static int intMinDefaultSupplier(int[] ints, FindIntWithDefaultSupplier findWithDefault) {
+        return defaultIntStream(ints)
+                .filter(findWithDefault.getPredicate())
+                .min()
+                .orElseGet(findWithDefault.getDefaultSupplier());
     }
 
     /**
@@ -46,7 +88,7 @@ public final class IntStreamUtils {
      *     }
      * </pre>
      *
-     * @param ints   An array of primitive int values.
+     * @param ints      An array of primitive int values.
      * @param predicate A predicate for finding an Integer value.
      * @return An Integer value if one is found, otherwise null.
      */
@@ -63,6 +105,37 @@ public final class IntStreamUtils {
                 .filter(findWithDefault.getPredicate())
                 .findAny()
                 .orElse(findWithDefault.getDefaultValue());
+    }
+
+    /**
+     * Attempt to find the first matching int value in an array of ints using a predicate, returning <code>null</code>
+     * if one is not found. This method does all filtering with a primitive <code>IntStream</code>, boxing the stream
+     * and calling <code>Stream.findAny()</code> only after it has been filtered. Here is a contrived example of how
+     * this method would be called:
+     * <pre>
+     *     {
+     *         ...
+     *         return IntStreamUtils.findFirstIntDefaultNull(intArray, IntPredicateUtils.isIntEqual(2, Function.identity()));
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     {
+     *         ...
+     *         return findFirstIntDefaultNull(intArray, isIntEqual(2, identity()));
+     *     }
+     * </pre>
+     *
+     * @param ints      An array of primitive int values.
+     * @param predicate A predicate for finding an Integer value.
+     * @return An Integer value if one is found, otherwise null.
+     */
+    public static Integer findFirstIntDefaultNull(int[] ints, IntPredicate predicate) {
+        return defaultIntStream(ints)
+                .filter(predicate)
+                .boxed()
+                .findFirst()
+                .orElse(null);
     }
 
     public static int findAnyIntDefault(int[] ints, FindIntWithDefaultSupplier findWithDefaultSupplier) {
@@ -101,14 +174,6 @@ public final class IntStreamUtils {
                 .mapToInt(IntIndexPair::getRight)
                 .findFirst()
                 .orElse(-1);
-    }
-
-    public static boolean intAnyMatch(int[] ints, IntPredicate predicate) {
-        return defaultIntStream(ints).anyMatch(predicate);
-    }
-
-    public static boolean intNoneMatch(int[] ints, IntPredicate predicate) {
-        return defaultIntStream(ints).noneMatch(predicate);
     }
 
     public static String intJoin(int[] ints, IntFunction<CharSequence> mapper) {

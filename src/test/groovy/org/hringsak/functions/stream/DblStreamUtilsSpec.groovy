@@ -3,42 +3,135 @@ package org.hringsak.functions.stream
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.stream.IntStream
-
 import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
-import static org.hringsak.functions.predicate.DblPredicateUtils.dblDistinctByKey
-import static org.hringsak.functions.predicate.DblPredicateUtils.dblDistinctByKeyParallel
 import static org.hringsak.functions.stream.DblStreamUtils.*
 
 class DblStreamUtilsSpec extends Specification {
 
-    static final int RAW_LIST_SIZE = 1000
-    static final int DISTINCT_KEY_SIZE = 100
-    def keyExtractor = { double d -> Integer.valueOf((int) d % DISTINCT_KEY_SIZE) }
+    @Unroll
+    def 'double all match passing doubles #doubles returns #expected'() {
 
-    def 'double distinct by key filters objects with unique key values'() {
         expect:
-        makeEntriesDistinctByKey().length == DISTINCT_KEY_SIZE
+        def predicate = { d -> d > 1.0D }
+        dblAllMatch(doubles, predicate) == expected
+
+        where:
+        doubles                        | expected
+        [1.0D, 2.0D, 3.0D] as double[] | false
+        [] as double[]                 | true
+        null as double[]               | false
     }
 
-    double[] makeEntriesDistinctByKey() {
-        IntStream.range(0, RAW_LIST_SIZE)
-                .mapToDouble({ i -> (double) i })
-                .filter(dblDistinctByKey(keyExtractor))
-                .toArray()
-    }
+    @Unroll
+    def 'double any match passing doubles #doubles returns #expected'() {
 
-    def 'double distinct by key parallel filters objects with unique key values'() {
         expect:
-        makeEntriesDistinctByKeyParallel().size() == DISTINCT_KEY_SIZE
+        def predicate = { d -> d > 1.0D }
+        dblAnyMatch(doubles, predicate) == expected
+
+        where:
+        doubles                        | expected
+        [1.0D, 2.0D, 3.0D] as double[] | true
+        [] as double[]                 | false
+        null as double[]               | false
     }
 
-    Collection makeEntriesDistinctByKeyParallel() {
-        IntStream.range(0, RAW_LIST_SIZE).parallel()
-                .mapToDouble({ i -> (double) i })
-                .filter(dblDistinctByKeyParallel(keyExtractor))
-                .toArray()
+    @Unroll
+    def 'double none match passing doubles #doubles returns #expected'() {
+
+        expect:
+        def predicate = { d -> d > 1.0D }
+        dblNoneMatch(doubles, predicate) == expected
+
+        where:
+        doubles                        | expected
+        [1.0D, 2.0D, 3.0D] as double[] | false
+        [] as double[]                 | true
+        null as double[]               | false
+    }
+
+    @Unroll
+    def 'double count passing doubles #doubles returns #expected'() {
+
+        expect:
+        def predicate = { d -> d > 1.0D }
+        dblCount(doubles, predicate) == expected
+
+        where:
+        doubles                        | expected
+        [1.0D, 2.0D, 3.0D] as double[] | 2L
+        [] as double[]                 | 0L
+        null as double[]               | 0L
+    }
+
+    @Unroll
+    def 'double max default passing doubles #doubles returns #expected'() {
+
+        expect:
+        def predicate = { d -> d > 1.0D }
+        dblMaxDefault(doubles, findDblDefault(predicate, -1.0D)) == expected
+
+        where:
+        doubles                        | expected
+        [1.0D, 2.0D, 3.0D] as double[] | 3.0D
+        [] as double[]                 | -1.0D
+        null as double[]               | -1.0D
+    }
+
+    @Unroll
+    def 'double max default supplier passing doubles #doubles returns #expected'() {
+
+        expect:
+        def predicate = { d -> d > 1.0D }
+        dblMaxDefaultSupplier(doubles, findDblDefaultSupplier(predicate, { -1.0D })) == expected
+
+        where:
+        doubles                        | expected
+        [1.0D, 2.0D, 3.0D] as double[] | 3.0D
+        [] as double[]                 | -1.0D
+        null as double[]               | -1.0D
+    }
+
+    @Unroll
+    def 'double min default passing doubles #doubles returns #expected'() {
+
+        expect:
+        def predicate = { d -> d > 1.0D }
+        dblMinDefault(doubles, findDblDefault(predicate, -1.0D)) == expected
+
+        where:
+        doubles                        | expected
+        [1.0D, 2.0D, 3.0D] as double[] | 2.0D
+        [] as double[]                 | -1.0D
+        null as double[]               | -1.0D
+    }
+
+    @Unroll
+    def 'double min default supplier passing doubles #doubles returns #expected'() {
+
+        expect:
+        def predicate = { d -> d > 1.0D }
+        dblMinDefaultSupplier(doubles, findDblDefaultSupplier(predicate, { -1.0D })) == expected
+
+        where:
+        doubles                        | expected
+        [1.0D, 2.0D, 3.0D] as double[] | 2.0D
+        [] as double[]                 | -1.0D
+        null as double[]               | -1.0D
+    }
+
+    @Unroll
+    def 'find any double default null returns #expected for compareValue #compareValue'() {
+
+        expect:
+        def predicate = { d -> d > compareValue }
+        findAnyDblDefaultNull([1.0D, 2.0D, 3.0D] as double[], predicate) == expected
+
+        where:
+        compareValue | expected
+        2.0D         | 3.0D
+        3.0D         | null
     }
 
     @Unroll
@@ -66,6 +159,19 @@ class DblStreamUtilsSpec extends Specification {
         compareValue | expected
         2.0D         | 3.0D
         3.0D         | -1.0D
+    }
+
+    @Unroll
+    def 'find first double default null returns #expected for compareValue #compareValue'() {
+
+        expect:
+        def predicate = { d -> d > compareValue }
+        findFirstDblDefaultNull([1.0D, 2.0D, 3.0D] as double[], predicate) == expected
+
+        where:
+        compareValue | expected
+        2.0D         | 3.0D
+        3.0D         | null
     }
 
     @Unroll

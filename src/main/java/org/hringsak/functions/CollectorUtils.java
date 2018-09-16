@@ -1,7 +1,6 @@
 package org.hringsak.functions;
 
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.mutable.MutableInt;
+import org.hringsak.functions.internal.Invariants;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -100,7 +101,7 @@ public final class CollectorUtils {
         };
     }
 
-    static <T> BinaryOperator<T> combiner(BiConsumer<? super T, ? super T> biConsumer) {
+    private static <T> BinaryOperator<T> combiner(BiConsumer<? super T, ? super T> biConsumer) {
         return (left, right) -> {
             biConsumer.accept(left, right);
             return left;
@@ -200,26 +201,26 @@ public final class CollectorUtils {
      */
     @SuppressWarnings("WeakerAccess")
     public static <T> Collector<T, ?, List<List<T>>> toPartitionedList(int partitionSize) {
-        Preconditions.checkArgument(partitionSize > 0, "The 'partitionSize' argument must be greater than zero");
+        Invariants.checkArgument(partitionSize > 0, "The 'partitionSize' argument must be greater than zero");
         return Collector.of(ArrayList::new, listPartitionAccumulator(partitionSize), combiner(List::addAll));
     }
 
     @SuppressWarnings("WeakerAccess")
     public static <T, R> Collector<T, List<List<T>>, List<R>> toPartitionedList(int partitionSize, Function<List<List<T>>, List<R>> finisher) {
-        Preconditions.checkArgument(partitionSize > 0, "The 'partitionSize' argument must be greater than zero");
+        Invariants.checkArgument(partitionSize > 0, "The 'partitionSize' argument must be greater than zero");
         return Collector.of(ArrayList::new, listPartitionAccumulator(partitionSize), combiner(List::addAll), finisher);
     }
 
     private static <T> BiConsumer<List<List<T>>, T> listPartitionAccumulator(int partitionSize) {
-        MutableInt batchCount = new MutableInt();
-        MutableInt lastPartition = new MutableInt();
+        AtomicInteger batchCount = new AtomicInteger();
+        AtomicInteger lastPartition = new AtomicInteger();
         return (partitions, target) -> {
             if (batchCount.intValue() % partitionSize == 0) {
-                batchCount.setValue(0);
-                lastPartition.setValue(partitions.size());
+                batchCount.set(0);
+                lastPartition.set(partitions.size());
                 partitions.add(new ArrayList<>());
             }
-            batchCount.increment();
+            batchCount.incrementAndGet();
             partitions.get(lastPartition.intValue()).add(target);
         };
     }
@@ -261,7 +262,7 @@ public final class CollectorUtils {
      * @return An EnumSet collector.
      */
     public static <E extends Enum<E>> Collector<E, ?, EnumSet<E>> toEnumSet(Class<E> enumClass) {
-        Preconditions.checkNotNull(enumClass, "The argument, \"enumClass\", must not be null");
+        Objects.requireNonNull(enumClass, "The argument, \"enumClass\", must not be null");
         return Collector.of(supplier(EnumSet::noneOf, enumClass), accumulator(EnumSet::add), combiner(EnumSet::addAll));
     }
 

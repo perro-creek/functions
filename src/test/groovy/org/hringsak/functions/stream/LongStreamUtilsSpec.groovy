@@ -10,6 +10,131 @@ import static org.hringsak.functions.stream.LongStreamUtils.*
 class LongStreamUtilsSpec extends Specification {
 
     @Unroll
+    def 'long all match passing longs #longs returns #expected'() {
+
+        expect:
+        def predicate = { l -> l > 1L }
+        longAllMatch(longs, predicate) == expected
+
+        where:
+        longs                  | expected
+        [1L, 2L, 3L] as long[] | false
+        [] as long[]           | true
+        null as long[]         | false
+    }
+
+    @Unroll
+    def 'long any match passing longs #longs returns #expected'() {
+
+        expect:
+        def predicate = { l -> l > 1L }
+        longAnyMatch(longs, predicate) == expected
+
+        where:
+        longs                  | expected
+        [1L, 2L, 3L] as long[] | true
+        [] as long[]           | false
+        null as long[]         | false
+    }
+
+    @Unroll
+    def 'long none match passing longs #longs returns #expected'() {
+
+        expect:
+        def predicate = { l -> l > 1L }
+        longNoneMatch(longs, predicate) == expected
+
+        where:
+        longs                  | expected
+        [1L, 2L, 3L] as long[] | false
+        [] as long[]           | true
+        null as long[]         | false
+    }
+
+    @Unroll
+    def 'long count passing longs #longs returns #expected'() {
+
+        expect:
+        def predicate = { l -> l > 1L }
+        longCount(longs, predicate) == expected
+
+        where:
+        longs                  | expected
+        [1L, 2L, 3L] as long[] | 2L
+        [] as long[]           | 0L
+        null as long[]         | 0L
+    }
+
+    @Unroll
+    def 'long max default passing longs #longs returns #expected'() {
+
+        expect:
+        def predicate = { l -> l > 1L }
+        longMaxDefault(longs, findLongDefault(predicate, -1L)) == expected
+
+        where:
+        longs                  | expected
+        [1L, 2L, 3L] as long[] | 3L
+        [] as long[]           | -1L
+        null as long[]         | -1L
+    }
+
+    @Unroll
+    def 'long max default supplier passing longs #longs returns #expected'() {
+
+        expect:
+        def predicate = { l -> l > 1L }
+        longMaxDefaultSupplier(longs, findLongDefaultSupplier(predicate, { -1L })) == expected
+
+        where:
+        longs                  | expected
+        [1L, 2L, 3L] as long[] | 3L
+        [] as long[]           | -1L
+        null as long[]         | -1L
+    }
+
+    @Unroll
+    def 'long min default passing longs #longs returns #expected'() {
+
+        expect:
+        def predicate = { l -> l > 1L }
+        longMinDefault(longs, findLongDefault(predicate, -1L)) == expected
+
+        where:
+        longs                  | expected
+        [1L, 2L, 3L] as long[] | 2L
+        [] as long[]           | -1L
+        null as long[]         | -1L
+    }
+
+    @Unroll
+    def 'long min default supplier passing longs #longs returns #expected'() {
+
+        expect:
+        def predicate = { l -> l > 1L }
+        longMinDefaultSupplier(longs, findLongDefaultSupplier(predicate, { -1L })) == expected
+
+        where:
+        longs                  | expected
+        [1L, 2L, 3L] as long[] | 2L
+        [] as long[]           | -1L
+        null as long[]         | -1L
+    }
+
+    @Unroll
+    def 'find any long default null returns #expected for compareValue #compareValue'() {
+
+        expect:
+        def predicate = { l -> l > compareValue }
+        findAnyLongDefaultNull([1L, 2L, 3L] as long[], predicate) == expected
+
+        where:
+        compareValue | expected
+        2L           | 3L
+        3L           | null
+    }
+
+    @Unroll
     def 'find any long default returns #expected for compareValue #compareValue'() {
 
         expect:
@@ -34,6 +159,19 @@ class LongStreamUtilsSpec extends Specification {
         compareValue | expected
         2L           | 3L
         3L           | -1L
+    }
+
+    @Unroll
+    def 'find first long default null returns #expected for compareValue #compareValue'() {
+
+        expect:
+        def predicate = { l -> l > compareValue }
+        findFirstLongDefaultNull([1L, 2L, 3L] as long[], predicate) == expected
+
+        where:
+        compareValue | expected
+        2L           | 3L
+        3L           | null
     }
 
     @Unroll

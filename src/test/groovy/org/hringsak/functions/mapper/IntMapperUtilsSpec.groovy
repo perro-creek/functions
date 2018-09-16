@@ -1,12 +1,12 @@
 package org.hringsak.functions.mapper
 
-import org.apache.commons.lang3.tuple.Pair
+import org.hringsak.functions.internal.Pair
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.function.ToIntBiFunction
 
-import static org.apache.commons.lang3.StringUtils.defaultString
+import static org.hringsak.functions.internal.StringUtils.defaultString
 import static org.hringsak.functions.mapper.IntMapperUtils.*
 
 class IntMapperUtilsSpec extends Specification {

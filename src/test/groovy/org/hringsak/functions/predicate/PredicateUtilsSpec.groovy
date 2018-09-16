@@ -127,17 +127,18 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'is string empty passing "#target" returns #expected'() {
+    def 'is string empty passing "#target" with function value "#functionValue" returns #expected'() {
 
         expect:
-        def predicate = isStrEmpty { String s -> s.reverse() }
+        def predicate = isStrEmpty { s -> functionValue }
         predicate.test(target) == expected
 
         where:
-        target | expected
-        null   | true
-        ''     | true
-        'test' | false
+        target | functionValue | expected
+        null   | null          | true
+        ''     | ''            | true
+        ''     | null          | true
+        'test' | 'test'        | false
     }
 
     @Unroll
@@ -208,7 +209,7 @@ class PredicateUtilsSpec extends Specification {
     def 'contains passing collection "#collection" and target "#target" returns "#expected"'() {
 
         expect:
-        def predicate = contains({ String s -> collection }, target)
+        def predicate = contains({ s -> collection }, target)
         predicate.test(target) == expected
 
         where:
@@ -220,6 +221,7 @@ class PredicateUtilsSpec extends Specification {
         [null]     | null   | false
         ['']       | 'test' | false
         []         | 'test' | false
+        null       | 'test' | false
     }
 
     @Unroll
@@ -238,6 +240,7 @@ class PredicateUtilsSpec extends Specification {
         [null]     | null   | false
         ['']       | 'test' | false
         []         | 'test' | false
+        null       | 'test' | false
     }
 
     @Unroll
@@ -561,7 +564,7 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'is empty passing #target returns #expected'() {
+    def 'is collection empty passing #target returns #expected'() {
 
         expect:
         def predicate = isCollEmpty { List l -> l.asCollection() }
@@ -575,7 +578,7 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'is not empty passing #target returns #expected'() {
+    def 'is collection not empty passing #target returns #expected'() {
 
         expect:
         def predicate = isCollNotEmpty { List l -> l.asCollection() }
@@ -586,6 +589,52 @@ class PredicateUtilsSpec extends Specification {
         ['test'] | true
         null     | false
         []       | false
+    }
+
+    @Unroll
+    def 'all match passing target "#target" returns #expected'() {
+
+        expect:
+        def function = { s -> s.codePoints().boxed().collect(toList()) }
+        def predicate = allMatch(function, { i -> i > 100 })
+        predicate.test(target) == expected
+
+        where:
+        target | expected
+        'test' | true
+        ' '    | false
+        ''     | true
+        null   | false
+    }
+
+    @Unroll
+    def 'any match passing target "#target" returns #expected'() {
+
+        expect:
+        def function = { s -> s.codePoints().boxed().collect(toList()) }
+        def predicate = anyMatch(function, { i -> i == 101 })
+        predicate.test(target) == expected
+
+        where:
+        target | expected
+        'test' | true
+        ''     | false
+        null   | false
+    }
+
+    @Unroll
+    def 'none match passing target "#target" returns #expected'() {
+
+        expect:
+        def function = { s -> s.codePoints().boxed().collect(toList()) }
+        def predicate = noneMatch(function, { i -> i == 101 })
+        predicate.test(target) == expected
+
+        where:
+        target | expected
+        'test' | false
+        ''     | true
+        null   | false
     }
 
     def 'distinct by key filters objects with unique key values'() {

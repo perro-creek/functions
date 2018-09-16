@@ -1,6 +1,5 @@
 package org.hringsak.functions.mapper
 
-import com.google.common.collect.Sets
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -64,7 +63,7 @@ class DblTransformUtilsSpec extends Specification {
         expect:
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         def mapper = { d -> String.valueOf(d) }
-        dblTransformToSet(doubles, mapper) == Sets.newHashSet('1.0', '2.0', '3.0')
+        dblTransformToSet(doubles, mapper) == ['1.0', '2.0', '3.0'] as HashSet
     }
 
     @Unroll

@@ -1,9 +1,8 @@
 package org.hringsak.functions.mapper;
 
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.commons.lang3.tuple.Pair;
+import org.hringsak.functions.internal.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -226,8 +225,8 @@ public final class LongMapperUtils {
     }
 
     public static <R> LongFunction<LongObjectPair<R>> longPairWith(List<R> pairedList) {
-        List<R> nonNullList = ListUtils.emptyIfNull(pairedList);
-        MutableInt idx = new MutableInt();
+        List<R> nonNullList = pairedList == null ? new ArrayList<>() : pairedList;
+        AtomicInteger idx = new AtomicInteger();
         return l -> {
             int i = idx.getAndIncrement();
             return (i < nonNullList.size()) ? LongObjectPair.of(l, nonNullList.get(i)) : LongObjectPair.of(l, null);
@@ -235,8 +234,8 @@ public final class LongMapperUtils {
     }
 
     public static <U, V> LongFunction<Pair<U, V>> longPairWith(LongFunction<? extends U> function, List<V> pairedList) {
-        List<V> nonNullList = ListUtils.emptyIfNull(pairedList);
-        MutableInt idx = new MutableInt();
+        List<V> nonNullList = pairedList == null ? new ArrayList<>() : pairedList;
+        AtomicInteger idx = new AtomicInteger();
         return l -> {
             U extracted = function.apply(l);
             int i = idx.getAndIncrement();

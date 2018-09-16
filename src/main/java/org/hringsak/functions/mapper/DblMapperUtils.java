@@ -1,10 +1,8 @@
 package org.hringsak.functions.mapper;
 
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.commons.lang3.tuple.Pair;
+import org.hringsak.functions.internal.Pair;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -228,8 +226,8 @@ public final class DblMapperUtils {
     }
 
     public static <R> DoubleFunction<DoubleObjectPair<R>> dblPairWith(List<R> pairedList) {
-        List<R> nonNullList = ListUtils.emptyIfNull(pairedList);
-        MutableInt idx = new MutableInt();
+        List<R> nonNullList = pairedList == null ? new ArrayList<>() : pairedList;
+        AtomicInteger idx = new AtomicInteger();
         return d -> {
             int i = idx.getAndIncrement();
             return (i < nonNullList.size()) ? DoubleObjectPair.of(d, nonNullList.get(i)) : DoubleObjectPair.of(d, null);
@@ -237,8 +235,8 @@ public final class DblMapperUtils {
     }
 
     public static <U, V> DoubleFunction<Pair<U, V>> dblPairWith(DoubleFunction<? extends U> function, List<V> pairedList) {
-        List<V> nonNullList = ListUtils.emptyIfNull(pairedList);
-        MutableInt idx = new MutableInt();
+        List<V> nonNullList = pairedList == null ? new ArrayList<>() : pairedList;
+        AtomicInteger idx = new AtomicInteger();
         return d -> {
             U extracted = function.apply(d);
             int i = idx.getAndIncrement();

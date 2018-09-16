@@ -5,7 +5,7 @@ import spock.lang.Unroll
 
 import java.util.function.ToLongBiFunction
 
-import static org.apache.commons.lang3.StringUtils.defaultString
+import static org.hringsak.functions.internal.StringUtils.defaultString
 import static org.hringsak.functions.supplier.LongSupplierUtils.longSupplier
 import static org.hringsak.functions.supplier.SupplierUtils.constantValues
 

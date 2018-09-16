@@ -1,6 +1,5 @@
 package org.hringsak.functions.mapper
 
-import com.google.common.collect.Sets
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -64,7 +63,7 @@ class LongTransformUtilsSpec extends Specification {
         expect:
         def longs = [1L, 2L, 3L] as long[]
         def mapper = { l -> String.valueOf(l) }
-        longTransformToSet(longs, mapper) == Sets.newHashSet('1', '2', '3')
+        longTransformToSet(longs, mapper) == ['1', '2', '3'] as HashSet
     }
 
     @Unroll

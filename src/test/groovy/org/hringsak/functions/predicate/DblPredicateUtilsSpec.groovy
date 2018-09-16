@@ -5,11 +5,12 @@ import spock.lang.Unroll
 
 import java.util.function.DoubleFunction
 import java.util.function.DoublePredicate
+import java.util.function.Function
 import java.util.stream.IntStream
 
-import static com.mrll.javelin.cmcs.util.StreamUtils.filter
 import static org.hringsak.functions.predicate.DblFilterUtils.dblFilter
 import static org.hringsak.functions.predicate.DblPredicateUtils.*
+import static org.hringsak.functions.predicate.FilterUtils.filter
 
 class DblPredicateUtilsSpec extends Specification {
 
@@ -65,11 +66,19 @@ class DblPredicateUtilsSpec extends Specification {
         dblFilter(doubles, predicate) == [1.0D, 3.0D] as double[]
     }
 
-    def 'is double string empty returns expected value'() {
+    @Unroll
+    def 'is double string empty with function value "#functionValue" returns expected value'() {
+
         expect:
-        def predicate = isDblStrEmpty { d -> d == 2.0D ? '' : String.valueOf(d) }
+        def predicate = isDblStrEmpty { d -> d == 2.0D ? functionValue : String.valueOf(d) }
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
-        dblFilter(doubles, predicate) == [2.0D] as double[]
+        dblFilter(doubles, predicate) == expected as double[]
+
+        where:
+        functionValue || expected
+        'test'        || []
+        ''            || [2.0D]
+        null          || [2.0D]
     }
 
     def 'is double string not empty returns expected value'() {
@@ -128,18 +137,46 @@ class DblPredicateUtilsSpec extends Specification {
         dblFilter(doubles, predicate) == [1.0D, 3.0D] as double[]
     }
 
-    def 'double contains passing function and constant value returns expected value'() {
+    def 'double to objects contains returns expected value'() {
         expect:
-        def predicate = dblContains({ d -> [String.valueOf(d)] }, '2.0')
+        def predicate = dblToObjsContains({ d -> d == 1.0D ? null : [String.valueOf(d)] }, '2.0')
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblFilter(doubles, predicate) == [2.0D] as double[]
     }
 
-    def 'inverse double contains passing collection and function returns expected value'() {
+    def 'object to doubles contains returns expected value'() {
         expect:
-        def predicate = inverseDblContains(['2.0'], { d -> String.valueOf(d) })
+        def predicate = objToDblsContains({ String s -> [Double.valueOf(s)] as double[] }, 2.0D)
+        def strings = ['1.0', '2.0', '3.0']
+        filter(strings, predicate) == ['2.0']
+    }
+
+    def 'inverse double to object contains returns expected value'() {
+        expect:
+        def predicate = inverseDblToObjContains(['2.0'], { d -> String.valueOf(d) })
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblFilter(doubles, predicate) == [2.0D] as double[]
+    }
+
+    def 'inverse double to object contains passing null collection returns expected value'() {
+        expect:
+        def predicate = inverseDblToObjContains(null, { d -> String.valueOf(d) })
+        def doubles = [1.0D, 2.0D, 3.0D] as double[]
+        dblFilter(doubles, predicate) == [] as double[]
+    }
+
+    def 'inverse object to double contains returns expected value'() {
+        expect:
+        def predicate = inverseObjToDblContains([2.0D] as double[], { String s -> Double.valueOf(s) })
+        def strings = ['1.0', '2.0', '3.0']
+        filter(strings, predicate) == ['2.0']
+    }
+
+    def 'inverse object to double contains passing null double array returns expected value'() {
+        expect:
+        def predicate = inverseObjToDblContains(null as double[], { String s -> Double.valueOf(s) })
+        def strings = ['1.0', '2.0', '3.0']
+        filter(strings, predicate) == []
     }
 
     def 'double contains key passing map returns expected value'() {
@@ -149,11 +186,25 @@ class DblPredicateUtilsSpec extends Specification {
         dblFilter(doubles, predicate) == [2.0D] as double[]
     }
 
+    def 'double contains key passing null map returns expected value'() {
+        expect:
+        def predicate = dblContainsKey(null, { d -> String.valueOf(d) })
+        def doubles = [1.0D, 2.0D, 3.0D] as double[]
+        dblFilter(doubles, predicate) == [] as double[]
+    }
+
     def 'double contains value passing map returns expected value'() {
         expect:
         def predicate = dblContainsValue([(2.0D): '2.0'], { d -> String.valueOf(d) })
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblFilter(doubles, predicate) == [2.0D] as double[]
+    }
+
+    def 'double contains value passing null map returns expected value'() {
+        expect:
+        def predicate = dblContainsValue(null, { d -> String.valueOf(d) })
+        def doubles = [1.0D, 2.0D, 3.0D] as double[]
+        dblFilter(doubles, predicate) == [] as double[]
     }
 
     def 'double contains char passing function and search char returns expected value'() {
@@ -312,6 +363,48 @@ class DblPredicateUtilsSpec extends Specification {
         def predicate = isDblCollNotEmpty() { d -> d == 2.0D ? [] : [String.valueOf(d)] }
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblFilter(doubles, predicate) == [1.0D, 3.0D] as double[]
+    }
+
+    def 'object to doubles all match returns expected value'() {
+        expect:
+        def function = { s -> s.codePoints().asDoubleStream().toArray() } as Function
+        def predicate = objToDblsAllMatch(function, { d -> d > 100.0D })
+        filter(['test', ' ', '', null], predicate) == ['test', '']
+    }
+
+    def 'double to objects all match returns expected value'() {
+        expect:
+        def function = { d -> [String.valueOf(d)] }
+        def predicate = dblToObjsAllMatch(function, { s -> s == '2.0' })
+        dblFilter([1.0D, 2.0D, 3.0D] as double[], predicate) == [2.0D] as double[]
+    }
+
+    def 'object to doubles any match returns expected value'() {
+        expect:
+        def function = { s -> s.codePoints().asDoubleStream().toArray() }
+        def predicate = objToDblsAnyMatch(function, { d -> d == 101.0D })
+        filter(['test', '', null], predicate) == ['test']
+    }
+
+    def 'double to objects any match returns expected value'() {
+        expect:
+        def function = { d -> [String.valueOf(d)] }
+        def predicate = dblToObjsAnyMatch(function, { s -> s == '2.0' })
+        dblFilter([1.0D, 2.0D, 3.0D] as double[], predicate) == [2.0D] as double[]
+    }
+
+    def 'object to doubles none match returns expected value'() {
+        expect:
+        def function = { s -> s.codePoints().asDoubleStream().toArray() }
+        def predicate = objToDblsNoneMatch(function, { d -> d > 100.0D })
+        filter(['test', '', null], predicate) == ['']
+    }
+
+    def 'double to objects none match returns expected value'() {
+        expect:
+        def function = { d -> [String.valueOf(d)] }
+        def predicate = dblToObjsNoneMatch(function, { s -> s == '2.0' })
+        dblFilter([1.0D, 2.0D, 3.0D] as double[], predicate) == [1.0D, 3.0D] as double[]
     }
 
     def 'double distinct by key filters objects with unique key values'() {
