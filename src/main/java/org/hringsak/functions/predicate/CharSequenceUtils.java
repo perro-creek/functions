@@ -1,12 +1,8 @@
 package org.hringsak.functions.predicate;
 
-import org.hringsak.functions.mapper.IntIndexPair;
-import org.hringsak.functions.mapper.IntMapperUtils;
-
 import java.util.function.IntPredicate;
 
 import static org.hringsak.functions.predicate.IntPredicateUtils.isIntEqual;
-import static org.hringsak.functions.predicate.PredicateUtils.predicate;
 
 final class CharSequenceUtils {
 
@@ -14,48 +10,11 @@ final class CharSequenceUtils {
     }
 
     static boolean equals(CharSequence left, CharSequence right) {
-        return (left == right) ||
-                (neitherAreNull(left, right) &&
-                        lengthsAreEqual(left, right) &&
-                        allCodePointsMatch(left, right));
-    }
-
-    private static boolean neitherAreNull(CharSequence left, CharSequence right) {
-        return left != null && right != null;
-    }
-
-    private static boolean lengthsAreEqual(CharSequence left, CharSequence right) {
-        return left.length() == right.length();
-    }
-
-    private static boolean allCodePointsMatch(CharSequence left, CharSequence right) {
-        return left.codePoints()
-                .mapToObj(IntMapperUtils.intPairWithIndex())
-                .allMatch(predicate(CharSequenceUtils::isCodePointEqual, right));
-    }
-
-    private static boolean isCodePointEqual(IntIndexPair pair, CharSequence right) {
-        return pair.getLeft() == right.charAt(pair.getRight());
+        return new CharSequenceEqualityEvaluator(left, right).equals();
     }
 
     static boolean equalsIgnoreCase(CharSequence left, CharSequence right) {
-        return (left == right) ||
-                (neitherAreNull(left, right) &&
-                        lengthsAreEqual(left, right) &&
-                        allCodePointsMatchIgnoreCase(left, right));
-    }
-
-    private static boolean allCodePointsMatchIgnoreCase(CharSequence left, CharSequence right) {
-        return left.codePoints()
-                .mapToObj(IntMapperUtils.intPairWithIndex())
-                .allMatch(predicate(CharSequenceUtils::isCodePointEqualIgnoreCase, right));
-    }
-
-    private static boolean isCodePointEqualIgnoreCase(IntIndexPair pair, CharSequence right) {
-        int leftChar = pair.getLeft();
-        int rightChar = right.charAt(pair.getRight());
-        return Character.toUpperCase(leftChar) == Character.toUpperCase(rightChar) ||
-                Character.toLowerCase(leftChar) == Character.toLowerCase(rightChar);
+        return new CharSequenceEqualityEvaluator(left, right).equalsIgnoreCase();
     }
 
     static boolean contains(CharSequence sequence, int searchChar) {
@@ -74,20 +33,20 @@ final class CharSequenceUtils {
     }
 
     static boolean isAlpha(CharSequence sequence) {
-        return isCharachterMatch(sequence, Character::isLetter);
+        return isCharacterMatch(sequence, Character::isLetter);
     }
 
-    private static boolean isCharachterMatch(CharSequence sequence, IntPredicate charPredicate) {
+    private static boolean isCharacterMatch(CharSequence sequence, IntPredicate charPredicate) {
         return !isNullOrEmpty(sequence) &&
                 sequence.codePoints().allMatch(charPredicate);
     }
 
     static boolean isAlphaNumeric(CharSequence sequence) {
-        return isCharachterMatch(sequence, Character::isLetterOrDigit);
+        return isCharacterMatch(sequence, Character::isLetterOrDigit);
     }
 
     static boolean isNumeric(CharSequence sequence) {
-        return isCharachterMatch(sequence, Character::isDigit);
+        return isCharacterMatch(sequence, Character::isDigit);
     }
 
     static boolean startsWith(CharSequence sequence, CharSequence prefix) {
@@ -95,6 +54,10 @@ final class CharSequenceUtils {
                 (neitherAreNull(sequence, prefix) &&
                         sequence.length() >= prefix.length() &&
                         equals(getStartsWithSubSequence(sequence, prefix), prefix));
+    }
+
+    static boolean neitherAreNull(CharSequence left, CharSequence right) {
+        return left != null && right != null;
     }
 
     private static CharSequence getStartsWithSubSequence(CharSequence sequence, CharSequence prefix) {

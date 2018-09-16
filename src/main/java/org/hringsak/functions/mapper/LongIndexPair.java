@@ -4,11 +4,11 @@ import java.util.Objects;
 
 public class LongIndexPair {
 
-    private final long left;
+    private final long longValue;
     private final int right;
 
-    private LongIndexPair(long left, int right) {
-        this.left = left;
+    private LongIndexPair(long longValue, int right) {
+        this.longValue = longValue;
         this.right = right;
     }
 
@@ -16,8 +16,8 @@ public class LongIndexPair {
         return new LongIndexPair(left, right);
     }
 
-    public long getLeft() {
-        return left;
+    public long getLongValue() {
+        return longValue;
     }
 
     public int getRight() {
@@ -26,7 +26,7 @@ public class LongIndexPair {
 
     @Override
     public int hashCode() {
-        return Objects.hash(left, right);
+        return Objects.hash(longValue, right);
     }
 
     @Override
@@ -38,14 +38,14 @@ public class LongIndexPair {
             return true;
         }
         LongIndexPair other = (LongIndexPair) obj;
-        return Objects.equals(left, other.left) &&
+        return Objects.equals(longValue, other.longValue) &&
                 Objects.equals(right, other.right);
     }
 
     @Override
     public String toString() {
         String identity = Integer.toHexString(System.identityHashCode(this));
-        String template = "%s@%s[left=%s,right=%s]";
-        return String.format(template, getClass().getName(), identity, left, right);
+        String template = "%s@%s[longValue=%s,right=%s]";
+        return String.format(template, getClass().getName(), identity, longValue, right);
     }
 }

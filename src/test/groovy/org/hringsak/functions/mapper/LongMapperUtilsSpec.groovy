@@ -139,9 +139,9 @@ class LongMapperUtilsSpec extends Specification {
 
         where:
         left   | right   || expected
-        'left' | 'right' || Pair.of('left', 'right')
+        'object' | 'right' || Pair.of('object', 'right')
         null   | 'right' || Pair.of(null, 'right')
-        'left' | null    || Pair.of('left', null)
+        'object' | null    || Pair.of('object', null)
     }
 
     @Unroll
@@ -154,9 +154,9 @@ class LongMapperUtilsSpec extends Specification {
 
         where:
         left   | right   || expected
-        'left' | 'right' || Pair.of('left', 'right')
+        'object' | 'right' || Pair.of('object', 'right')
         null   | 'right' || Pair.of(null, 'right')
-        'left' | null    || Pair.of('left', null)
+        'object' | null    || Pair.of('object', null)
     }
 
     @Unroll

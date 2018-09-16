@@ -170,8 +170,8 @@ public final class IntStreamUtils {
     public static int indexOfFirstInt(int[] ints, IntPredicate predicate) {
         return defaultIntStream(ints)
                 .mapToObj(intPairWithIndex())
-                .filter(mapToIntAndFilter(IntIndexPair::getLeft, predicate))
-                .mapToInt(IntIndexPair::getRight)
+                .filter(mapToIntAndFilter(IntIndexPair::getIntValue, predicate))
+                .mapToInt(IntIndexPair::getIndex)
                 .findFirst()
                 .orElse(-1);
     }

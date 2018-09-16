@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
-import java.util.function.DoublePredicate;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
 import java.util.function.ToIntBiFunction;
 import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
@@ -143,7 +143,7 @@ public final class IntMapperUtils {
      * @return A ToIntFunction taking a single parameter of type &lt;T&gt;, and returning a result of type int.
      */
     public static <T> ToIntFunction<T> toIntMapperDefault(ToIntFunction<? super T> function, int defaultValue) {
-        return i -> i == null ? defaultValue : function.applyAsInt(i);
+        return t -> t == null ? defaultValue : function.applyAsInt(t);
     }
 
     /**
@@ -172,7 +172,7 @@ public final class IntMapperUtils {
      * @return A ToIntFunction taking a single parameter of type &lt;T&gt;, and returning a result of type int.
      */
     public static <T, U> ToIntFunction<T> toIntMapper(ToIntBiFunction<? super T, ? super U> biFunction, U value) {
-        return i -> biFunction.applyAsInt(i, value);
+        return t -> biFunction.applyAsInt(t, value);
     }
 
     /**
@@ -201,7 +201,7 @@ public final class IntMapperUtils {
      * @return A ToIntFunction taking a single parameter of type &lt;T&gt;, and returning a result of type int.
      */
     public static <T, U> ToIntFunction<T> inverseToIntMapper(ToIntBiFunction<? super U, ? super T> biFunction, U value) {
-        return i -> biFunction.applyAsInt(value, i);
+        return t -> biFunction.applyAsInt(value, t);
     }
 
     public static IntFunction<IntStream> intFlatMapper(IntFunction<? extends int[]> intMapper) {
@@ -253,7 +253,7 @@ public final class IntMapperUtils {
         return i -> Pair.of(function.apply(i), idx.getAndIncrement());
     }
 
-    public static <R> IntFunction<R> intTernary(DoublePredicate predicate, IntTernaryMapper<R> ternaryMapper) {
+    public static <R> IntFunction<R> intTernary(IntPredicate predicate, IntTernaryMapper<R> ternaryMapper) {
         return i -> predicate.test(i) ? ternaryMapper.getTrueMapper().apply(i) : ternaryMapper.getFalseMapper().apply(i);
     }
 

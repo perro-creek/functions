@@ -314,13 +314,13 @@ public final class MapperUtils {
         };
     }
 
-    public static <T> Function<T, Pair<T, Integer>> pairWithIndex() {
+    public static <T> Function<T, ObjectIndexPair<T>> pairWithIndex() {
         return pairWithIndex(identity());
     }
 
-    public static <T, R> Function<T, Pair<R, Integer>> pairWithIndex(Function<? super T, ? extends R> function) {
+    public static <T, R> Function<T, ObjectIndexPair<R>> pairWithIndex(Function<? super T, ? extends R> function) {
         AtomicInteger idx = new AtomicInteger();
-        return t -> Pair.of(function.apply(t), idx.getAndIncrement());
+        return t -> ObjectIndexPair.of(function.apply(t), idx.getAndIncrement());
     }
 
     public static <T, R> Function<T, R> ternary(Predicate<T> predicate, TernaryMapper<T, R> ternaryMapper) {
@@ -331,8 +331,8 @@ public final class MapperUtils {
         return TernaryMapper.of(trueExtractor, falseExtractor);
     }
 
-    public static <T, R> R defaultValue(Function<T, R> function, T target) {
-        return mapperDefault(function, null).apply(target);
+    public static <T, R> R applyMapper(Function<T, R> function, T target) {
+        return function.apply(target);
     }
 
     public static <T, K, V> KeyValueMapper<T, K, V> keyValueMapper(Function<T, K> keyMapper, Function<T, V> valueMapper) {

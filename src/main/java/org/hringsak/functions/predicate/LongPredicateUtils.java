@@ -13,6 +13,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
+import java.util.function.LongUnaryOperator;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 
@@ -47,44 +48,48 @@ public final class LongPredicateUtils {
         return function::apply;
     }
 
-    public static LongPredicate notLong(LongPredicate predicate) {
+    public static LongPredicate longNot(LongPredicate predicate) {
         return predicate.negate();
     }
 
-    public static <R extends CharSequence> LongPredicate isLongStrEmpty(LongFunction<? extends R> function) {
+    public static <R extends CharSequence> LongPredicate isLongSeqEmpty(LongFunction<? extends R> function) {
         return l -> { CharSequence seq = function.apply(l); return seq == null || seq.length() == 0; };
     }
 
-    public static <R extends CharSequence> LongPredicate isLongStrNotEmpty(LongFunction<? extends R> function) {
-        return notLong(isLongStrEmpty(function));
+    public static <R extends CharSequence> LongPredicate isLongSeqNotEmpty(LongFunction<? extends R> function) {
+        return longNot(isLongSeqEmpty(function));
     }
 
     public static <R extends CharSequence> LongPredicate longEqualsIgnoreCase(LongFunction<? extends R> function, R value) {
         return l -> CharSequenceUtils.equalsIgnoreCase(function.apply(l), value);
     }
 
+    public static <R extends CharSequence> LongPredicate longNotEqualsIgnoreCase(LongFunction<? extends R> function, R value) {
+        return longNot(longEqualsIgnoreCase(function, value));
+    }
+
     public static LongPredicate isLongEqual(long value) {
         return l -> l == value;
     }
 
-    public static <R> LongPredicate isLongEqual(LongFunction<? extends R> function, R value) {
-        return l -> Objects.equals(value, function.apply(l));
+    public static LongPredicate isLongEqual(LongUnaryOperator operator, long value) {
+        return d -> operator.applyAsLong(d) == value;
+    }
+
+    public static LongPredicate isLongNotEqual(long value) {
+        return longNot(isLongEqual(value));
+    }
+
+    public static LongPredicate isLongNotEqual(LongUnaryOperator operator, long value) {
+        return longNot(isLongEqual(operator, value));
     }
 
     public static <R> LongPredicate isLongMapperEqual(LongFunction<? extends R> function, R value) {
         return l -> Objects.equals(function.apply(l), value);
     }
 
-    public static LongPredicate isLongNotEqual(long value) {
-        return notLong(isLongEqual(value));
-    }
-
-    public static <R> LongPredicate isLongNotEqual(LongFunction<? extends R> function, R value) {
-        return notLong(isLongEqual(function, value));
-    }
-
     public static <R> LongPredicate isLongMapperNotEqual(LongFunction<? extends R> function, R value) {
-        return notLong(isLongMapperEqual(function, value));
+        return longNot(isLongMapperEqual(function, value));
     }
 
     public static <R> LongPredicate longToObjsContains(LongFunction<? extends Collection<R>> collectionExtractor, R value) {
@@ -162,7 +167,7 @@ public final class LongPredicateUtils {
     }
 
     public static <R> LongPredicate isLongNotNull(LongFunction<? extends R> function) {
-        return notLong(isLongNull(function));
+        return longNot(isLongNull(function));
     }
 
     public static LongPredicate longGt(long compareTo) {
@@ -202,7 +207,7 @@ public final class LongPredicateUtils {
     }
 
     public static <R> LongPredicate isLongCollNotEmpty(LongFunction<? extends Collection<R>> function) {
-        return notLong(isLongCollEmpty(function));
+        return longNot(isLongCollEmpty(function));
     }
 
     public static <T> Predicate<T> objToLongsAllMatch(Function<T, ? extends long[]> function, LongPredicate predicate) {

@@ -2,22 +2,22 @@ package org.hringsak.functions.mapper;
 
 import java.util.Objects;
 
-public class IntIndexPair {
+public class ObjectIndexPair<T> {
 
-    private final int intValue;
+    private final T object;
     private final int index;
 
-    private IntIndexPair(int intValue, int index) {
-        this.intValue = intValue;
+    private ObjectIndexPair(T object, int index) {
+        this.object = object;
         this.index = index;
     }
 
-    public static IntIndexPair of(int left, int right) {
-        return new IntIndexPair(left, right);
+    public static <T> ObjectIndexPair<T> of(T left, int right) {
+        return new ObjectIndexPair<>(left, right);
     }
 
-    public int getIntValue() {
-        return intValue;
+    public T getObject() {
+        return object;
     }
 
     public int getIndex() {
@@ -26,7 +26,7 @@ public class IntIndexPair {
 
     @Override
     public int hashCode() {
-        return Objects.hash(intValue, index);
+        return Objects.hash(object, index);
     }
 
     @Override
@@ -37,15 +37,15 @@ public class IntIndexPair {
         if (this == obj) {
             return true;
         }
-        IntIndexPair other = (IntIndexPair) obj;
-        return Objects.equals(intValue, other.intValue) &&
+        ObjectIndexPair other = (ObjectIndexPair) obj;
+        return Objects.equals(object, other.object) &&
                 index == other.index;
     }
 
     @Override
     public String toString() {
         String identity = Integer.toHexString(System.identityHashCode(this));
-        String template = "%s@%s[intValue=%s,index=%s]";
-        return String.format(template, getClass().getName(), identity, intValue, index);
+        String template = "%s@%s[object=%s,index=%s]";
+        return String.format(template, getClass().getName(), identity, object, index);
     }
 }

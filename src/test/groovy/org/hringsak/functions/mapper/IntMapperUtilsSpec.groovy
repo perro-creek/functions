@@ -185,7 +185,7 @@ class IntMapperUtilsSpec extends Specification {
         def mapper = intPairWithIndex()
         (0..5).each { i ->
             with(mapper.apply(1)) {
-                getRight() == i
+                getIndex() == i
             }
         }
     }

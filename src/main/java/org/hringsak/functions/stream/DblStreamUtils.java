@@ -289,8 +289,8 @@ public final class DblStreamUtils {
     public static int indexOfFirstDbl(double[] doubles, DoublePredicate predicate) {
         return defaultDblStream(doubles)
                 .mapToObj(dblPairWithIndex())
-                .filter(mapToDblAndFilter(DoubleIndexPair::getLeft, predicate))
-                .mapToInt(DoubleIndexPair::getRight)
+                .filter(mapToDblAndFilter(DoubleIndexPair::getDoubleValue, predicate))
+                .mapToInt(DoubleIndexPair::getIndex)
                 .findFirst()
                 .orElse(-1);
     }
