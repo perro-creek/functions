@@ -170,7 +170,7 @@ public final class LongStreamUtils {
     public static long indexOfFirstLong(long[] longs, LongPredicate predicate) {
         return defaultLongStream(longs)
                 .mapToObj(longPairWithIndex())
-                .filter(mapToLongAndFilter(LongIndexPair::getLeft, predicate))
+                .filter(mapToLongAndFilter(LongIndexPair::getLongValue, predicate))
                 .mapToLong(LongIndexPair::getRight)
                 .findFirst()
                 .orElse(-1);

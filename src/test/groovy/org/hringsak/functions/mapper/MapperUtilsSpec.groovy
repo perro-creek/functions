@@ -197,7 +197,7 @@ class MapperUtilsSpec extends Specification {
         def function = pairWithIndex()
         (0..5).each { i ->
             with(function.apply('test')) {
-                getRight() == i
+                getIndex() == i
             }
         }
     }
@@ -210,9 +210,9 @@ class MapperUtilsSpec extends Specification {
 
         where:
         value   | expected
-        'value' | Pair.of('value', 0)
-        null    | Pair.of(null, 0)
-        ''      | Pair.of('', 0)
+        'value' | ObjectIndexPair.of('value', 0)
+        null    | ObjectIndexPair.of(null, 0)
+        ''      | ObjectIndexPair.of('', 0)
     }
 
     @Unroll
@@ -223,9 +223,9 @@ class MapperUtilsSpec extends Specification {
 
         where:
         value   | expected
-        'value' | Pair.of('value', 0)
-        null    | Pair.of(null, 0)
-        ''      | Pair.of('', 0)
+        'value' | ObjectIndexPair.of('value', 0)
+        null    | ObjectIndexPair.of(null, 0)
+        ''      | ObjectIndexPair.of('', 0)
     }
 
     @Unroll
@@ -246,16 +246,30 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'default value passing target "#target" returns "#expected"'() {
+    def 'apply mapper default null passing target "#target" returns "#expected"'() {
 
         expect:
-        def function = { s -> s.toUpperCase() }
-        defaultValue(function, target) == expected
+        def function = mapper { String s -> s.toUpperCase() }
+        applyMapper(function, target) == expected
 
         where:
         target || expected
         'test' || 'TEST'
         ''     || ''
         null   || null
+    }
+
+    @Unroll
+    def 'apply mapper with default passing target "#target" returns "#expected"'() {
+
+        expect:
+        def function = mapperDefault({ String s -> s.toUpperCase() }, '')
+        applyMapper(function, target) == expected
+
+        where:
+        target || expected
+        'test' || 'TEST'
+        ''     || ''
+        null   || ''
     }
 }

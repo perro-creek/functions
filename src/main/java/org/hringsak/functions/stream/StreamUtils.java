@@ -1,7 +1,7 @@
 package org.hringsak.functions.stream;
 
 import org.hringsak.functions.CollectorUtils;
-import org.hringsak.functions.internal.Pair;
+import org.hringsak.functions.mapper.ObjectIndexPair;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -145,8 +145,8 @@ public final class StreamUtils {
     public static <T> int indexOfFirst(Collection<T> objects, Predicate<T> predicate) {
         return defaultStream(objects)
                 .map(pairWithIndex())
-                .filter(mapAndFilter(Pair::getLeft, predicate))
-                .mapToInt(Pair::getRight)
+                .filter(mapAndFilter(ObjectIndexPair::getObject, predicate))
+                .mapToInt(ObjectIndexPair::getIndex)
                 .findFirst()
                 .orElse(-1);
     }

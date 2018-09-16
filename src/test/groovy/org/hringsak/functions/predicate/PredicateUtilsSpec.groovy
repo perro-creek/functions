@@ -127,10 +127,10 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'is string empty passing "#target" with function value "#functionValue" returns #expected'() {
+    def 'is sequence empty passing "#target" with function value "#functionValue" returns #expected'() {
 
         expect:
-        def predicate = isStrEmpty { s -> functionValue }
+        def predicate = isSeqEmpty { s -> functionValue }
         predicate.test(target) == expected
 
         where:
@@ -142,10 +142,10 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'is string not empty passing "#target" returns #expected'() {
+    def 'is sequence not empty passing "#target" returns #expected'() {
 
         expect:
-        def predicate = isStrNotEmpty { String s -> s.reverse() }
+        def predicate = isSeqNotEmpty { String s -> s.reverse() }
         predicate.test(target) == expected
 
         where:
@@ -163,14 +163,34 @@ class PredicateUtilsSpec extends Specification {
         predicate.test(target) == expected
 
         where:
-        constantValue | target | expected
-        'test'        | null   | false
-        'test'        | ''     | false
-        'test'        | 'test' | true
-        'test'        | 'TEST' | true
-        'TEST'        | 'test' | true
-        null          | 'test' | false
-        ''            | 'test' | false
+        target | constantValue | expected
+        null   | null          | true
+        null   | 'test'        | false
+        ''     | 'test'        | false
+        'test' | 'test'        | true
+        'TEST' | 'test'        | true
+        'test' | 'TEST'        | true
+        'test' | null          | false
+        'test' | ''            | false
+    }
+
+    @Unroll
+    def 'not equals ignore case passing constantValue #constantValue and target #target returns #expected'() {
+
+        expect:
+        def predicate = notEqualsIgnoreCase({ String s -> s.toString() }, constantValue)
+        predicate.test(target) == expected
+
+        where:
+        target | constantValue | expected
+        null   | null          | false
+        null   | 'test'        | true
+        ''     | 'test'        | true
+        'test' | 'test'        | false
+        'TEST' | 'test'        | false
+        'test' | 'TEST'        | false
+        'test' | null          | true
+        'test' | ''            | true
     }
 
     @Unroll

@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
-import java.util.function.DoublePredicate;
 import java.util.function.Function;
 import java.util.function.LongFunction;
+import java.util.function.LongPredicate;
 import java.util.function.ToLongBiFunction;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
@@ -143,7 +143,7 @@ public final class LongMapperUtils {
      * @return A ToLongFunction taking a single parameter of type &lt;T&gt;, and returning a result of type long.
      */
     public static <T> ToLongFunction<T> toLongMapperDefault(ToLongFunction<? super T> function, long defaultValue) {
-        return l -> l == null ? defaultValue : function.applyAsLong(l);
+        return t -> t == null ? defaultValue : function.applyAsLong(t);
     }
 
     /**
@@ -172,7 +172,7 @@ public final class LongMapperUtils {
      * @return A ToLongFunction taking a single parameter of type &lt;T&gt;, and returning a result of type long.
      */
     public static <T, U> ToLongFunction<T> toLongMapper(ToLongBiFunction<? super T, ? super U> biFunction, U value) {
-        return l -> biFunction.applyAsLong(l, value);
+        return t -> biFunction.applyAsLong(t, value);
     }
 
     /**
@@ -201,7 +201,7 @@ public final class LongMapperUtils {
      * @return A ToLongFunction taking a single parameter of type &lt;T&gt;, and returning a result of type long.
      */
     public static <T, U> ToLongFunction<T> inverseToLongMapper(ToLongBiFunction<? super U, ? super T> biFunction, U value) {
-        return l -> biFunction.applyAsLong(value, l);
+        return t -> biFunction.applyAsLong(value, t);
     }
 
     public static LongFunction<LongStream> longFlatMapper(LongFunction<? extends long[]> longMapper) {
@@ -253,7 +253,7 @@ public final class LongMapperUtils {
         return l -> Pair.of(function.apply(l), idx.getAndIncrement());
     }
 
-    public static <R> LongFunction<R> longTernary(DoublePredicate predicate, LongTernaryMapper<R> ternaryMapper) {
+    public static <R> LongFunction<R> longTernary(LongPredicate predicate, LongTernaryMapper<R> ternaryMapper) {
         return l -> predicate.test(l) ? ternaryMapper.getTrueMapper().apply(l) : ternaryMapper.getFalseMapper().apply(l);
     }
 

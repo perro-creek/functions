@@ -48,16 +48,20 @@ public final class PredicateUtils {
         return predicate.negate();
     }
 
-    public static <T, R extends CharSequence> Predicate<T> isStrEmpty(Function<? super T, ? extends R> function) {
+    public static <T, R extends CharSequence> Predicate<T> isSeqEmpty(Function<? super T, ? extends R> function) {
         return t -> t == null  || function.apply(t) == null || function.apply(t).length() == 0;
     }
 
-    public static <T, R extends CharSequence> Predicate<T> isStrNotEmpty(Function<? super T, ? extends R> function) {
-        return not(isStrEmpty(function));
+    public static <T, R extends CharSequence> Predicate<T> isSeqNotEmpty(Function<? super T, ? extends R> function) {
+        return not(isSeqEmpty(function));
     }
 
     public static <T> Predicate<T> equalsIgnoreCase(Function<? super T, ? extends CharSequence> function, CharSequence value) {
         return t -> CharSequenceUtils.equalsIgnoreCase(t == null ? null : function.apply(t), value);
+    }
+
+    public static <T> Predicate<T> notEqualsIgnoreCase(Function<? super T, ? extends CharSequence> function, CharSequence value) {
+        return not(equalsIgnoreCase(function, value));
     }
 
     public static <T, R> Predicate<T> isEqual(Function<? super T, ? extends R> extractor, R value) {

@@ -1,7 +1,6 @@
 package org.hringsak.functions.predicate;
 
 import java.util.function.BiPredicate;
-import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
 import static org.hringsak.functions.predicate.IntPredicateUtils.intPredicate;
@@ -17,35 +16,34 @@ class CharSequenceMatcher {
     }
 
     boolean containsSearchSequence() {
-        IntPredicate matchPredicate = intPredicate(this::sequenceMatches, CharSequenceUtils::equals);
         return target != null && searchSequence != null &&
                 (bothSequencesAreEmpty() ||
-                        containsAllCodePoints(matchPredicate));
+                        containsAllCodePoints(CharSequenceUtils::equals));
     }
 
     private boolean bothSequencesAreEmpty() {
         return target.length() == 0 && searchSequence.length() == 0;
     }
 
-    private boolean containsAllCodePoints(IntPredicate predicate) {
+    private boolean containsAllCodePoints(BiPredicate<CharSequence, CharSequence> equalityPredicate) {
         return IntStream.range(0, target.length())
-                .anyMatch(predicate);
+                .anyMatch(intPredicate(this::indexWithinLimit)
+                        .and(intPredicate(this::sequenceMatches, equalityPredicate)));
     }
 
-    private boolean sequenceMatches(int index, BiPredicate<CharSequence, CharSequence> matchPredicate) {
+    private boolean indexWithinLimit(int index) {
+        return target.length() >= index + searchSequence.length();
+    }
+
+    private boolean sequenceMatches(int index, BiPredicate<CharSequence, CharSequence> equalityPredicate) {
         int searchLength = searchSequence.length();
-        int endIndex = index + searchLength;
-        if (endIndex <= target.length()) {
-            CharSequence targetSubSequence = target.subSequence(index, index + searchLength);
-            return matchPredicate.test(targetSubSequence, searchSequence);
-        }
-        return false;
+        CharSequence targetSubSequence = target.subSequence(index, index + searchLength);
+        return equalityPredicate.test(targetSubSequence, searchSequence);
     }
 
     boolean containsSearchSequenceIgnoreCase() {
-        IntPredicate matchPredicate = intPredicate(this::sequenceMatches, CharSequenceUtils::equalsIgnoreCase);
         return target != null && searchSequence != null &&
                 (bothSequencesAreEmpty() ||
-                        containsAllCodePoints(matchPredicate));
+                        containsAllCodePoints(CharSequenceUtils::equalsIgnoreCase));
     }
 }

@@ -59,18 +59,18 @@ class IntPredicateUtilsSpec extends Specification {
         intFilter(ints, predicate) == [2] as int[]
     }
 
-    def 'not int returns expected value'() {
+    def 'int not returns expected value'() {
         expect:
-        def predicate = notInt { i -> i % 2 == 0 }
+        def predicate = intNot { i -> i % 2 == 0 }
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [1, 3] as int[]
     }
 
     @Unroll
-    def 'is int string empty with function value "#functionValue" returns expected value'() {
+    def 'is int sequence empty with function value "#functionValue" returns expected value'() {
 
         expect:
-        def predicate = isIntStrEmpty { i -> i == 2 ? functionValue : String.valueOf(i) }
+        def predicate = isIntSeqEmpty { i -> i == 2 ? functionValue : String.valueOf(i) }
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == expected as int[]
 
@@ -81,9 +81,9 @@ class IntPredicateUtilsSpec extends Specification {
         null          || [2]
     }
 
-    def 'is int string not empty returns expected value'() {
+    def 'is int sequence not empty returns expected value'() {
         expect:
-        def predicate = isIntStrNotEmpty { i -> i == 2 ? String.valueOf(i) : '' }
+        def predicate = isIntSeqNotEmpty { i -> i == 2 ? String.valueOf(i) : '' }
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [2] as int[]
     }
@@ -93,6 +93,13 @@ class IntPredicateUtilsSpec extends Specification {
         def predicate = intEqualsIgnoreCase({ i -> [(1): 'One', (2): 'Two', (3): 'Three'].get(i) }, 'two')
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [2] as int[]
+    }
+
+    def 'int not equals ignore case passing function and constant value returns expected value'() {
+        expect:
+        def predicate = intNotEqualsIgnoreCase({ i -> [(1): 'One', (2): 'Two', (3): 'Three'].get(i) }, 'two')
+        def ints = [1, 2, 3] as int[]
+        intFilter(ints, predicate) == [1, 3] as int[]
     }
 
     def 'is int equal passing constant value returns expected value'() {

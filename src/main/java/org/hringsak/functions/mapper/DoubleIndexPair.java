@@ -4,29 +4,29 @@ import java.util.Objects;
 
 public class DoubleIndexPair {
 
-    private final double left;
-    private final int right;
+    private final double doubleValue;
+    private final int index;
 
-    private DoubleIndexPair(double left, int right) {
-        this.left = left;
-        this.right = right;
+    private DoubleIndexPair(double doubleValue, int index) {
+        this.doubleValue = doubleValue;
+        this.index = index;
     }
 
     public static DoubleIndexPair of(double left, int right) {
         return new DoubleIndexPair(left, right);
     }
 
-    public double getLeft() {
-        return left;
+    public double getDoubleValue() {
+        return doubleValue;
     }
 
-    public int getRight() {
-        return right;
+    public int getIndex() {
+        return index;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(left, right);
+        return Objects.hash(doubleValue, index);
     }
 
     @Override
@@ -38,14 +38,14 @@ public class DoubleIndexPair {
             return true;
         }
         DoubleIndexPair other = (DoubleIndexPair) obj;
-        return Objects.equals(left, other.left) &&
-                Objects.equals(right, other.right);
+        return Objects.equals(doubleValue, other.doubleValue) &&
+                index == other.index;
     }
 
     @Override
     public String toString() {
         String identity = Integer.toHexString(System.identityHashCode(this));
-        String template = "%s@%s[left=%s,right=%s]";
-        return String.format(template, getClass().getName(), identity, left, right);
+        String template = "%s@%s[doubleValue=%s,index=%s]";
+        return String.format(template, getClass().getName(), identity, doubleValue, index);
     }
 }

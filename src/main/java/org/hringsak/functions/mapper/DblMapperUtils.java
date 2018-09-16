@@ -144,7 +144,7 @@ public final class DblMapperUtils {
      * @return A ToDoubleFunction taking a single parameter of type &lt;T&gt;, and returning a result of type double.
      */
     public static <T> ToDoubleFunction<T> toDblMapperDefault(ToDoubleFunction<? super T> function, double defaultValue) {
-        return d -> d == null ? defaultValue : function.applyAsDouble(d);
+        return t -> t == null ? defaultValue : function.applyAsDouble(t);
     }
 
     /**
@@ -173,7 +173,7 @@ public final class DblMapperUtils {
      * @return A ToDoubleFunction taking a single parameter of type &lt;T&gt;, and returning a result of type double.
      */
     public static <T, U> ToDoubleFunction<T> toDblMapper(ToDoubleBiFunction<? super T, ? super U> biFunction, U value) {
-        return d -> biFunction.applyAsDouble(d, value);
+        return t -> biFunction.applyAsDouble(t, value);
     }
 
     /**
@@ -202,7 +202,7 @@ public final class DblMapperUtils {
      * @return A ToDoubleFunction taking a single parameter of type &lt;T&gt;, and returning a result of type double.
      */
     public static <T, U> ToDoubleFunction<T> inverseToDblMapper(ToDoubleBiFunction<? super U, ? super T> biFunction, U value) {
-        return d -> biFunction.applyAsDouble(value, d);
+        return t -> biFunction.applyAsDouble(value, t);
     }
 
     public static DoubleFunction<DoubleStream> dblFlatMapper(DoubleFunction<? extends double[]> doubleMapper) {

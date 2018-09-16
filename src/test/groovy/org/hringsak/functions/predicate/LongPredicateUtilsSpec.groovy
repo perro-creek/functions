@@ -59,18 +59,18 @@ class LongPredicateUtilsSpec extends Specification {
         longFilter(longs, predicate) == [2L] as long[]
     }
 
-    def 'not long returns expected value'() {
+    def 'long not returns expected value'() {
         expect:
-        def predicate = notLong { l -> l % 2L == 0L }
+        def predicate = longNot { l -> l % 2L == 0L }
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == [1L, 3L] as long[]
     }
 
     @Unroll
-    def 'is long string empty with function value "#functionValue" returns expected value'() {
+    def 'is long sequence empty with function value "#functionValue" returns expected value'() {
 
         expect:
-        def predicate = isLongStrEmpty { l -> l == 2L ? functionValue : String.valueOf(l) }
+        def predicate = isLongSeqEmpty { l -> l == 2L ? functionValue : String.valueOf(l) }
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == expected as long[]
 
@@ -81,9 +81,9 @@ class LongPredicateUtilsSpec extends Specification {
         null          || [2L]
     }
 
-    def 'is long string not empty returns expected value'() {
+    def 'is long sequence not empty returns expected value'() {
         expect:
-        def predicate = isLongStrNotEmpty { l -> l == 2L ? String.valueOf(l) : '' }
+        def predicate = isLongSeqNotEmpty { l -> l == 2L ? String.valueOf(l) : '' }
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == [2L] as long[]
     }
@@ -93,6 +93,13 @@ class LongPredicateUtilsSpec extends Specification {
         def predicate = longEqualsIgnoreCase({ l -> [(1L): 'One', (2L): 'Two', (3L): 'Three'].get(l) }, 'two')
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == [2L] as long[]
+    }
+
+    def 'long not equals ignore case passing function and constant value returns expected value'() {
+        expect:
+        def predicate = longNotEqualsIgnoreCase({ l -> [(1L): 'One', (2L): 'Two', (3L): 'Three'].get(l) }, 'two')
+        def longs = [1L, 2L, 3L] as long[]
+        longFilter(longs, predicate) == [1L, 3L] as long[]
     }
 
     def 'is long equal passing constant value returns expected value'() {

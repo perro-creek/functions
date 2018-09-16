@@ -59,18 +59,18 @@ class DblPredicateUtilsSpec extends Specification {
         dblFilter(doubles, predicate) == [2.0D] as double[]
     }
 
-    def 'not double returns expected value'() {
+    def 'double not returns expected value'() {
         expect:
-        def predicate = notDbl { d -> d % 2 == 0.0D }
+        def predicate = dblNot { d -> d % 2 == 0.0D }
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblFilter(doubles, predicate) == [1.0D, 3.0D] as double[]
     }
 
     @Unroll
-    def 'is double string empty with function value "#functionValue" returns expected value'() {
+    def 'is double sequence empty with function value "#functionValue" returns expected value'() {
 
         expect:
-        def predicate = isDblStrEmpty { d -> d == 2.0D ? functionValue : String.valueOf(d) }
+        def predicate = isDblSeqEmpty { d -> d == 2.0D ? functionValue : String.valueOf(d) }
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblFilter(doubles, predicate) == expected as double[]
 
@@ -81,9 +81,9 @@ class DblPredicateUtilsSpec extends Specification {
         null          || [2.0D]
     }
 
-    def 'is double string not empty returns expected value'() {
+    def 'is double sequence not empty returns expected value'() {
         expect:
-        def predicate = isDblStrNotEmpty { d -> d == 2.0D ? String.valueOf(d) : '' }
+        def predicate = isDblSeqNotEmpty { d -> d == 2.0D ? String.valueOf(d) : '' }
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblFilter(doubles, predicate) == [2.0D] as double[]
     }
@@ -93,6 +93,13 @@ class DblPredicateUtilsSpec extends Specification {
         def predicate = dblEqualsIgnoreCase({ d -> [(1.0D): 'One', (2.0D): 'Two', (3.0D): 'Three'].get(d) }, 'two')
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblFilter(doubles, predicate) == [2.0D] as double[]
+    }
+
+    def 'not double equals ignore case passing function and constant value returns expected value'() {
+        expect:
+        def predicate = dblNotEqualsIgnoreCase({ d -> [(1.0D): 'One', (2.0D): 'Two', (3.0D): 'Three'].get(d) }, 'two')
+        def doubles = [1.0D, 2.0D, 3.0D] as double[]
+        dblFilter(doubles, predicate) == [1.0D, 3.0D] as double[]
     }
 
     def 'is double equal passing constant value returns expected value'() {

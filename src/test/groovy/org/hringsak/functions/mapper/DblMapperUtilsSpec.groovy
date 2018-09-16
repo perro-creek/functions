@@ -189,7 +189,7 @@ class DblMapperUtilsSpec extends Specification {
         def mapper = dblPairWithIndex()
         (0..5).each { d ->
             with(mapper.apply(1.0D)) {
-                getRight() == d
+                getIndex() == d
             }
         }
     }

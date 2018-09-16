@@ -48,23 +48,27 @@ public final class DblPredicateUtils {
         return function::apply;
     }
 
-    public static DoublePredicate notDbl(DoublePredicate predicate) {
+    public static DoublePredicate dblNot(DoublePredicate predicate) {
         return predicate.negate();
     }
 
-    public static <R extends CharSequence> DoublePredicate isDblStrEmpty(DoubleFunction<? extends R> function) {
+    public static <R extends CharSequence> DoublePredicate isDblSeqEmpty(DoubleFunction<? extends R> function) {
         return d -> {
             CharSequence seq = function.apply(d);
             return seq == null || seq.length() == 0;
         };
     }
 
-    public static <R extends CharSequence> DoublePredicate isDblStrNotEmpty(DoubleFunction<? extends R> function) {
-        return notDbl(isDblStrEmpty(function));
+    public static <R extends CharSequence> DoublePredicate isDblSeqNotEmpty(DoubleFunction<? extends R> function) {
+        return dblNot(isDblSeqEmpty(function));
     }
 
     public static <R extends CharSequence> DoublePredicate dblEqualsIgnoreCase(DoubleFunction<? extends R> function, R value) {
         return d -> CharSequenceUtils.equalsIgnoreCase(function.apply(d), value);
+    }
+
+    public static <R extends CharSequence> DoublePredicate dblNotEqualsIgnoreCase(DoubleFunction<? extends R> function, R value) {
+        return dblNot(dblEqualsIgnoreCase(function, value));
     }
 
     public static DoublePredicate isDblEqual(double value) {
@@ -80,15 +84,15 @@ public final class DblPredicateUtils {
     }
 
     public static DoublePredicate isDblNotEqual(double value) {
-        return notDbl(isDblEqual(value));
+        return dblNot(isDblEqual(value));
     }
 
     public static DoublePredicate isDblNotEqual(DoubleUnaryOperator operator, double value) {
-        return notDbl(isDblEqual(operator, value));
+        return dblNot(isDblEqual(operator, value));
     }
 
     public static <R> DoublePredicate isDblMapperNotEqual(DoubleFunction<? extends R> function, R value) {
-        return notDbl(isDblMapperEqual(function, value));
+        return dblNot(isDblMapperEqual(function, value));
     }
 
     public static <R> DoublePredicate dblToObjsContains(DoubleFunction<? extends Collection<R>> collectionExtractor, R value) {
@@ -166,7 +170,7 @@ public final class DblPredicateUtils {
     }
 
     public static <R> DoublePredicate isDblNotNull(DoubleFunction<? extends R> function) {
-        return notDbl(isDblNull(function));
+        return dblNot(isDblNull(function));
     }
 
     public static DoublePredicate dblGt(double compareTo) {
@@ -206,7 +210,7 @@ public final class DblPredicateUtils {
     }
 
     public static <R> DoublePredicate isDblCollNotEmpty(DoubleFunction<? extends Collection<R>> function) {
-        return notDbl(isDblCollEmpty(function));
+        return dblNot(isDblCollEmpty(function));
     }
 
     public static <T> Predicate<T> objToDblsAllMatch(Function<T, ? extends double[]> function, DoublePredicate predicate) {

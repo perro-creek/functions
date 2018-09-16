@@ -13,6 +13,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
+import java.util.function.IntUnaryOperator;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
@@ -47,44 +48,48 @@ public final class IntPredicateUtils {
         return function::apply;
     }
 
-    public static IntPredicate notInt(IntPredicate predicate) {
+    public static IntPredicate intNot(IntPredicate predicate) {
         return predicate.negate();
     }
 
-    public static <R extends CharSequence> IntPredicate isIntStrEmpty(IntFunction<? extends R> function) {
+    public static <R extends CharSequence> IntPredicate isIntSeqEmpty(IntFunction<? extends R> function) {
         return i -> { CharSequence seq = function.apply(i); return seq == null || seq.length() == 0; };
     }
 
-    public static <R extends CharSequence> IntPredicate isIntStrNotEmpty(IntFunction<? extends R> function) {
-        return notInt(isIntStrEmpty(function));
+    public static <R extends CharSequence> IntPredicate isIntSeqNotEmpty(IntFunction<? extends R> function) {
+        return intNot(isIntSeqEmpty(function));
     }
 
     public static <R extends CharSequence> IntPredicate intEqualsIgnoreCase(IntFunction<? extends R> function, R value) {
         return i -> CharSequenceUtils.equalsIgnoreCase(function.apply(i), value);
     }
 
+    public static <R extends CharSequence> IntPredicate intNotEqualsIgnoreCase(IntFunction<? extends R> function, R value) {
+        return intNot(intEqualsIgnoreCase(function, value));
+    }
+
     public static IntPredicate isIntEqual(int value) {
         return i -> i == value;
     }
 
-    public static <R> IntPredicate isIntEqual(IntFunction<? extends R> extractor, R value) {
-        return i -> Objects.equals(value, extractor.apply(i));
+    public static IntPredicate isIntEqual(IntUnaryOperator operator, int value) {
+        return d -> operator.applyAsInt(d) == value;
+    }
+
+    public static IntPredicate isIntNotEqual(int value) {
+        return intNot(isIntEqual(value));
+    }
+
+    public static IntPredicate isIntNotEqual(IntUnaryOperator operator, int value) {
+        return intNot(isIntEqual(operator, value));
     }
 
     public static <R> IntPredicate isIntMapperEqual(IntFunction<? extends R> function, R value) {
         return i -> Objects.equals(function.apply(i), value);
     }
 
-    public static IntPredicate isIntNotEqual(int value) {
-        return notInt(isIntEqual(value));
-    }
-
-    public static <R> IntPredicate isIntNotEqual(IntFunction<? extends R> function, R value) {
-        return notInt(isIntEqual(function, value));
-    }
-
     public static <R> IntPredicate isIntMapperNotEqual(IntFunction<? extends R> function, R value) {
-        return notInt(isIntMapperEqual(function, value));
+        return intNot(isIntMapperEqual(function, value));
     }
 
     public static <R> IntPredicate intToObjsContains(IntFunction<? extends Collection<R>> collectionExtractor, R value) {
@@ -162,7 +167,7 @@ public final class IntPredicateUtils {
     }
 
     public static <R> IntPredicate isIntNotNull(IntFunction<? extends R> function) {
-        return notInt(isIntNull(function));
+        return intNot(isIntNull(function));
     }
 
     public static IntPredicate intGt(int compareTo) {
@@ -202,7 +207,7 @@ public final class IntPredicateUtils {
     }
 
     public static <R> IntPredicate isIntCollNotEmpty(IntFunction<? extends Collection<R>> function) {
-        return notInt(isIntCollEmpty(function));
+        return intNot(isIntCollEmpty(function));
     }
 
     public static <T> Predicate<T> objToIntsAllMatch(Function<T, ? extends int[]> function, IntPredicate predicate) {
