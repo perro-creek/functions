@@ -214,13 +214,13 @@ class DblMapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'double ternary passing target #target expecting "#expected'() {
+    def 'double true/false mappers passing target #target expecting "#expected'() {
 
         expect:
         def predicate = { d -> d == 1.0D }
         def trueExtractor = { d -> 'trueValue' }
         def falseExtractor = { d -> 'falseValue' }
-        def result = dblTernary(predicate, dblTernaryMapper(trueExtractor, falseExtractor)).apply(target)
+        def result = dblTernary(predicate, dblTrueFalseMappers(trueExtractor, falseExtractor)).apply(target)
         result == expected
 
         where:

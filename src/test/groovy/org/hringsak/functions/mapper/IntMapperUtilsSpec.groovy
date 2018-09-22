@@ -210,13 +210,13 @@ class IntMapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'int ternary passing target #target expecting "#expected'() {
+    def 'int true/false mappers passing target #target expecting "#expected'() {
 
         expect:
         def predicate = { i -> i == 1 }
         def trueExtractor = { i -> 'trueValue' }
         def falseExtractor = { i -> 'falseValue' }
-        def result = intTernary(predicate, intTernaryMapper(trueExtractor, falseExtractor)).apply(target)
+        def result = intTernary(predicate, intTrueFalseMappers(trueExtractor, falseExtractor)).apply(target)
         result == expected
 
         where:

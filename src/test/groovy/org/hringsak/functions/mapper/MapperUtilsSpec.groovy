@@ -229,13 +229,13 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'ternary passing target "#target" expecting "#expected'() {
+    def 'true/false mappers passing target "#target" expecting "#expected'() {
 
         expect:
         def predicate = { String s -> s.isEmpty() }
         def trueExtractor = { s -> 'trueValue' }
         def falseExtractor = { s -> 'falseValue' }
-        def result = ternary(predicate, ternaryMapper(trueExtractor, falseExtractor)).apply(target)
+        def result = ternary(predicate, trueFalseMappers(trueExtractor, falseExtractor)).apply(target)
         result == expected
 
         where:
@@ -243,33 +243,5 @@ class MapperUtilsSpec extends Specification {
         'test' || 'falseValue'
         ''     || 'trueValue'
         null   || 'falseValue'
-    }
-
-    @Unroll
-    def 'apply mapper default null passing target "#target" returns "#expected"'() {
-
-        expect:
-        def function = mapper { String s -> s.toUpperCase() }
-        applyMapper(function, target) == expected
-
-        where:
-        target || expected
-        'test' || 'TEST'
-        ''     || ''
-        null   || null
-    }
-
-    @Unroll
-    def 'apply mapper with default passing target "#target" returns "#expected"'() {
-
-        expect:
-        def function = mapperDefault({ String s -> s.toUpperCase() }, '')
-        applyMapper(function, target) == expected
-
-        where:
-        target || expected
-        'test' || 'TEST'
-        ''     || ''
-        null   || ''
     }
 }
