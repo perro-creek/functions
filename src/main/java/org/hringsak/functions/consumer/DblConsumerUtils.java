@@ -10,6 +10,10 @@ import java.util.function.Function;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.ToDoubleFunction;
 
+/**
+ * Methods that build consumers useful in many different situations, particularly in Java streams.  This class deals
+ * specifically with consumers involving primitive <code>double</code> types.
+ */
 public final class DblConsumerUtils {
 
     private DblConsumerUtils() {

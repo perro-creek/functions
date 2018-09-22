@@ -10,6 +10,10 @@ import java.util.function.ObjIntConsumer;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
+/**
+ * Methods that build consumers useful in many different situations, particularly in Java streams.  This class deals
+ * specifically with consumers involving primitive <code>int</code> types.
+ */
 public final class IntConsumerUtils {
 
     private IntConsumerUtils() {
