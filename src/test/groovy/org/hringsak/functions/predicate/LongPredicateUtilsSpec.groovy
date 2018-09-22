@@ -213,6 +213,7 @@ class LongPredicateUtilsSpec extends Specification {
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == [] as long[]
     }
+
     def 'long contains char passing function and search char returns expected value'() {
         expect:
         def predicate = longContainsChar({ l -> String.valueOf(l) }, 50)
@@ -281,6 +282,54 @@ class LongPredicateUtilsSpec extends Specification {
         def predicate = longEndsWithIgnoreCase({ l -> l == 2L ? '2 - Two' : String.valueOf(l) }, 'two')
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == [2L] as long[]
+    }
+
+    @Unroll
+    def 'long any characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = longAnyCharsMatch({ l -> target }, { int c -> Character.isLetter(c) })
+        predicate.test(1L) == expected
+
+        where:
+        target    | expected
+        'test'    | true
+        'test123' | true
+        '123'     | false
+        null      | false
+        ''        | false
+    }
+
+    @Unroll
+    def 'long all characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = longAllCharsMatch({ l -> target }, { int c -> Character.isLetter(c) })
+        predicate.test(1L) == expected
+
+        where:
+        target    | expected
+        'test'    | true
+        'test123' | false
+        '123'     | false
+        null      | false
+        ''        | false
+    }
+
+    @Unroll
+    def 'long no characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = longNoCharsMatch({ l -> target }, { int c -> Character.isLetter(c) })
+        predicate.test(1L) == expected
+
+        where:
+        target    | expected
+        'test'    | false
+        'test123' | false
+        '123'     | true
+        null      | false
+        ''        | true
     }
 
     def 'is long null passing function returns expected value'() {

@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.IntPredicate;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
@@ -19,6 +20,7 @@ import java.util.function.ToLongFunction;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
+import static org.hringsak.functions.predicate.CharSequenceUtils.isCharacterMatch;
 
 /**
  * Methods that build predicates specifically those involving primitive <code>long</code> types.
@@ -135,15 +137,15 @@ public final class LongPredicateUtils {
     }
 
     public static LongPredicate longIsAlpha(LongFunction<? extends CharSequence> extractor) {
-        return l -> CharSequenceUtils.isAlpha(extractor.apply(l));
+        return l -> CharSequenceUtils.isCharacterMatch(extractor.apply(l), Character::isLetter);
     }
 
     public static LongPredicate longIsAlphanumeric(LongFunction<? extends CharSequence> extractor) {
-        return l -> CharSequenceUtils.isAlphaNumeric(extractor.apply(l));
+        return l -> CharSequenceUtils.isCharacterMatch(extractor.apply(l), Character::isLetterOrDigit);
     }
 
     public static LongPredicate longIsNumeric(LongFunction<? extends CharSequence> extractor) {
-        return l -> CharSequenceUtils.isNumeric(extractor.apply(l));
+        return l -> CharSequenceUtils.isCharacterMatch(extractor.apply(l), Character::isDigit);
     }
 
     public static LongPredicate longStartsWith(LongFunction<? extends CharSequence> extractor, CharSequence prefix) {
@@ -160,6 +162,24 @@ public final class LongPredicateUtils {
 
     public static LongPredicate longEndsWithIgnoreCase(LongFunction<? extends CharSequence> extractor, CharSequence suffix) {
         return l -> CharSequenceUtils.endsWithIgnoreCase(extractor.apply(l), suffix);
+    }
+
+    public static LongPredicate longAnyCharsMatch(LongFunction<? extends CharSequence> function, IntPredicate charPredicate) {
+        return l -> {
+            CharSequence sequence = function.apply(l);
+            return sequence != null && sequence.codePoints().anyMatch(charPredicate);
+        };
+    }
+
+    public static LongPredicate longAllCharsMatch(LongFunction<? extends CharSequence> function, IntPredicate charPredicate) {
+        return l -> isCharacterMatch(function.apply(l), charPredicate);
+    }
+
+    public static LongPredicate longNoCharsMatch(LongFunction<? extends CharSequence> function, IntPredicate charPredicate) {
+        return l -> {
+            CharSequence sequence = function.apply(l);
+            return sequence != null && sequence.codePoints().noneMatch(charPredicate);
+        };
     }
 
     public static <R> LongPredicate isLongNull(LongFunction<? extends R> function) {

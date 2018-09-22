@@ -32,21 +32,19 @@ final class CharSequenceUtils {
                 .containsSearchSequenceIgnoreCase();
     }
 
-    static boolean isAlpha(CharSequence sequence) {
-        return isCharacterMatch(sequence, Character::isLetter);
+    static boolean anyCharacterMatches(CharSequence sequence, IntPredicate charPredicate) {
+        return sequence != null &&
+                sequence.codePoints().anyMatch(charPredicate);
     }
 
-    private static boolean isCharacterMatch(CharSequence sequence, IntPredicate charPredicate) {
+    static boolean isCharacterMatch(CharSequence sequence, IntPredicate charPredicate) {
         return !isNullOrEmpty(sequence) &&
                 sequence.codePoints().allMatch(charPredicate);
     }
 
-    static boolean isAlphaNumeric(CharSequence sequence) {
-        return isCharacterMatch(sequence, Character::isLetterOrDigit);
-    }
-
-    static boolean isNumeric(CharSequence sequence) {
-        return isCharacterMatch(sequence, Character::isDigit);
+    static boolean noCharactersMatch(CharSequence sequence, IntPredicate charPredicate) {
+        return sequence != null &&
+                sequence.codePoints().noneMatch(charPredicate);
     }
 
     static boolean startsWith(CharSequence sequence, CharSequence prefix) {
@@ -56,7 +54,7 @@ final class CharSequenceUtils {
                         equals(getStartsWithSubSequence(sequence, prefix), prefix));
     }
 
-    static boolean neitherAreNull(CharSequence left, CharSequence right) {
+    private static boolean neitherAreNull(CharSequence left, CharSequence right) {
         return left != null && right != null;
     }
 

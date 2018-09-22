@@ -284,6 +284,54 @@ class IntPredicateUtilsSpec extends Specification {
         intFilter(ints, predicate) == [2] as int[]
     }
 
+    @Unroll
+    def 'int any characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = intAnyCharsMatch({ i -> target }, { int c -> Character.isLetter(c) })
+        predicate.test(1) == expected
+
+        where:
+        target    | expected
+        'test'    | true
+        'test123' | true
+        '123'     | false
+        null      | false
+        ''        | false
+    }
+
+    @Unroll
+    def 'int all characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = intAllCharsMatch({ i -> target }, { int c -> Character.isLetter(c) })
+        predicate.test(1) == expected
+
+        where:
+        target    | expected
+        'test'    | true
+        'test123' | false
+        '123'     | false
+        null      | false
+        ''        | false
+    }
+
+    @Unroll
+    def 'int no characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = intNoCharsMatch({ i -> target }, { int c -> Character.isLetter(c) })
+        predicate.test(1) == expected
+
+        where:
+        target    | expected
+        'test'    | false
+        'test123' | false
+        '123'     | true
+        null      | false
+        ''        | true
+    }
+
     def 'is int null passing function returns expected value'() {
         expect:
         def predicate = isIntNull { i -> i == 2 ? null : String.valueOf(i) }

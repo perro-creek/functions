@@ -95,7 +95,7 @@ class CharSequenceUtilsSpec extends Specification {
     def 'is alpha passing sequence "#sequence" returns #expected'() {
 
         expect:
-        CharSequenceUtils.isAlpha(sequence) == expected
+        CharSequenceUtils.isCharacterMatch(sequence, { c -> Character.isLetter(c) }) == expected
 
         where:
         sequence  | expected
@@ -103,40 +103,6 @@ class CharSequenceUtilsSpec extends Specification {
         ''        | false
         'test'    | true
         'test123' | false
-    }
-
-    @Unroll
-    def 'is alphanumeric passing sequence "#sequence" returns #expected'() {
-
-        expect:
-        CharSequenceUtils.isAlphaNumeric(sequence) == expected
-
-        where:
-        sequence   | expected
-        null       | false
-        ''         | false
-        'test'     | true
-        '123'      | true
-        'test123'  | true
-        'test-123' | false
-    }
-
-    @Unroll
-    def 'is numeric passing sequence "#sequence" returns #expected'() {
-
-        expect:
-        CharSequenceUtils.isNumeric(sequence) == expected
-
-        where:
-        sequence  | expected
-        null      | false
-        ''        | false
-        'test'    | false
-        '123'     | true
-        'test123' | false
-        '-123'    | false
-        '+123'    | false
-        '1.23'    | false
     }
 
     @Unroll

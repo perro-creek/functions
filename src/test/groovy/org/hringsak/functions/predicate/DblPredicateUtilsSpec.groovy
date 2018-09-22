@@ -8,9 +8,11 @@ import java.util.function.DoublePredicate
 import java.util.function.Function
 import java.util.stream.IntStream
 
+import static java.util.function.Function.identity
 import static org.hringsak.functions.predicate.DblFilterUtils.dblFilter
 import static org.hringsak.functions.predicate.DblPredicateUtils.*
 import static org.hringsak.functions.predicate.FilterUtils.filter
+import static org.hringsak.functions.predicate.PredicateUtils.noCharsMatch
 
 class DblPredicateUtilsSpec extends Specification {
 
@@ -95,7 +97,7 @@ class DblPredicateUtilsSpec extends Specification {
         dblFilter(doubles, predicate) == [2.0D] as double[]
     }
 
-    def 'not double equals ignore case passing function and constant value returns expected value'() {
+    def 'double not equals ignore case passing function and constant value returns expected value'() {
         expect:
         def predicate = dblNotEqualsIgnoreCase({ d -> [(1.0D): 'One', (2.0D): 'Two', (3.0D): 'Three'].get(d) }, 'two')
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
@@ -282,6 +284,54 @@ class DblPredicateUtilsSpec extends Specification {
         def predicate = dblEndsWithIgnoreCase({ d -> d == 2.0D ? '2.0 - Two' : String.valueOf(d) }, 'two')
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblFilter(doubles, predicate) == [2.0D] as double[]
+    }
+
+    @Unroll
+    def 'double any characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = dblAnyCharsMatch({ d -> target }, { int c -> Character.isLetter(c) })
+        predicate.test(1.0D) == expected
+
+        where:
+        target    | expected
+        'test'    | true
+        'test123' | true
+        '123'     | false
+        null      | false
+        ''        | false
+    }
+
+    @Unroll
+    def 'double all characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = dblAllCharsMatch({ d -> target }, { int c -> Character.isLetter(c) })
+        predicate.test(1.0D) == expected
+
+        where:
+        target    | expected
+        'test'    | true
+        'test123' | false
+        '123'     | false
+        null      | false
+        ''        | false
+    }
+
+    @Unroll
+    def 'double no characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = dblNoCharsMatch({ d -> target }, { int c -> Character.isLetter(c) })
+        predicate.test(1.0D) == expected
+
+        where:
+        target    | expected
+        'test'    | false
+        'test123' | false
+        '123'     | true
+        null      | false
+        ''        | true
     }
 
     def 'is double null passing function returns expected value'() {

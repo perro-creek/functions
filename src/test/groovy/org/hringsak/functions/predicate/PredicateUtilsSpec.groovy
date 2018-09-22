@@ -473,6 +473,54 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'any characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = anyCharsMatch(identity(), { int c -> Character.isLetter(c) })
+        predicate.test(target) == expected
+
+        where:
+        target    | expected
+        'test'    | true
+        'test123' | true
+        '123'     | false
+        null      | false
+        ''        | false
+    }
+
+    @Unroll
+    def 'all characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = allCharsMatch(identity(), { int c -> Character.isLetter(c) })
+        predicate.test(target) == expected
+
+        where:
+        target    | expected
+        'test'    | true
+        'test123' | false
+        '123'     | false
+        null      | false
+        ''        | false
+    }
+
+    @Unroll
+    def 'no characters match passing value "#target" returns #expected'() {
+
+        expect:
+        def predicate = noCharsMatch(identity(), { int c -> Character.isLetter(c) })
+        predicate.test(target) == expected
+
+        where:
+        target    | expected
+        'test'    | false
+        'test123' | false
+        '123'     | true
+        null      | false
+        ''        | true
+    }
+
+    @Unroll
     def 'is null passing value "#target" returns "#expected"'() {
 
         expect:
