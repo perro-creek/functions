@@ -205,14 +205,69 @@ public final class DblMapperUtils {
         return t -> biFunction.applyAsDouble(value, t);
     }
 
+    /**
+     * Given a <code>DoubleFunction</code> that returns a <code>double</code> array, this method builds a
+     * <code>DoubleFunction</code> that returns a <code>DoubleStream</code>. This is useful in the
+     * <code>DoubleStream.flatMap()</code> method. For a very contrived example, let's say you have a method,
+     * <code>MathUtils.getFactors(double product)</code>, that takes a double value, truncating the decimal portion,
+     * and returns a <code>double</code> array containing the factors of that number. You have lower and upper bound int
+     * values to create a range, which is converted to a <code>DoubleStream</code>, and you want to sum the factors of
+     * all of the individual double values:
+     * <pre>
+     *     private double getSumOfAllFactors(int startInclusive, int endExclusive) {
+     *         return IntStream.range(startInclusive, endExclusive).asDoubleStream()
+     *             .flatMap(DblMapperUtils.dblFlatMapper(MathUtils::getFactors))
+     *             .sum();
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     private double getSumOfAllFactors(int startInclusive, int endExclusive) {
+     *         return IntStream.range(startInclusive, endExclusive).asDoubleStream()
+     *             .flatMap(dblFlatMapper(MathUtils::getFactors))
+     *             .sum();
+     *     }
+     * </pre>
+     *
+     * @param doubleMapper A function taking a double value, that returns an array of doubles.
+     * @return A DoubleFunction that, given an argument of type &lt;double&gt;, returns a Stream of double values.
+     * Returns an empty Stream if the double array returned by the given function is null or empty.
+     */
     public static DoubleFunction<DoubleStream> dblFlatMapper(DoubleFunction<? extends double[]> doubleMapper) {
         return d -> defaultDblStream(doubleMapper.apply(d));
     }
 
-    public static DoubleFunction<DoubleStream> dblFlatMapperToObj(DoubleFunction<? extends double[]> doubleMapper) {
-        return d -> defaultDblStream(doubleMapper.apply(d));
-    }
-
+    /**
+     * Given a <code>Function</code> that takes an argument of type &lt;T&gt; and returns a <code>double</code> array,
+     * this method builds a <code>Function</code> that takes the same argument, but returns a <code>DoubleStream</code>.
+     * This is useful in the <code>Stream.flatMapToDouble()</code> method. For example, let's say you have a collection
+     * of objects representing the product lines of your company. You want to total the prices of all products in those
+     * product lines contained in the collection:
+     * <pre>
+     *     private double getTotalProductLinePrices(Collection&lt;ProductLine&gt; productLines) {
+     *         return productLines.stream()
+     *             .flatMapToDouble(DblMapperUtils.flatMapperToDbl(this::getAllPrices))
+     *             .sum();
+     *     }
+     *
+     *     private double[] getAllPrices(ProductLine productLine) {
+     *         ...
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     private double getTotalProductLinePrices(Collection&lt;ProductLine&gt; productLines) {
+     *         return productLines.stream()
+     *             .flatMapToDouble(flatMapperToDbl(this::getAllPrices))
+     *             .sum();
+     *     }
+     * </pre>
+     *
+     * @param toDoubleArrayMapper A Function taking an argument of type &lt;T&gt;, that returns an array of doubles.
+     * @param <T>                 The type of the argument to be passed to the given toDoubleArrayMapper function.
+     * @return A Function taking an argument of type &lt;T&gt;, that returns a Stream of double values. Returns an empty
+     * Stream if the passed argument is null, or the double array returned by the given function is null or empty.
+     */
     public static <T> Function<T, DoubleStream> flatMapperToDbl(Function<? super T, ? extends double[]> toDoubleArrayMapper) {
         return t -> t == null ? DoubleStream.empty() : defaultDblStream(toDoubleArrayMapper.apply(t));
     }

@@ -8,17 +8,20 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
+import static org.hringsak.functions.predicate.CharSequenceUtils.isCharacterMatch;
 
 /**
  * Methods that build predicates specifically those involving primitive <code>int</code> types.
@@ -138,15 +141,15 @@ public final class DblPredicateUtils {
     }
 
     public static DoublePredicate dblIsAlpha(DoubleFunction<? extends CharSequence> function) {
-        return d -> CharSequenceUtils.isAlpha(function.apply(d));
+        return d -> isCharacterMatch(function.apply(d), Character::isLetter);
     }
 
     public static DoublePredicate dblIsAlphanumeric(DoubleFunction<? extends CharSequence> function) {
-        return d -> CharSequenceUtils.isAlphaNumeric(function.apply(d));
+        return d -> isCharacterMatch(function.apply(d), Character::isLetterOrDigit);
     }
 
     public static DoublePredicate dblIsNumeric(DoubleFunction<? extends CharSequence> function) {
-        return d -> CharSequenceUtils.isNumeric(function.apply(d));
+        return d -> isCharacterMatch(function.apply(d), Character::isDigit);
     }
 
     public static DoublePredicate dblStartsWith(DoubleFunction<? extends CharSequence> function, CharSequence prefix) {
@@ -163,6 +166,24 @@ public final class DblPredicateUtils {
 
     public static DoublePredicate dblEndsWithIgnoreCase(DoubleFunction<? extends CharSequence> function, CharSequence suffix) {
         return d -> CharSequenceUtils.endsWithIgnoreCase(function.apply(d), suffix);
+    }
+
+    public static DoublePredicate dblAnyCharsMatch(DoubleFunction<? extends CharSequence> function, IntPredicate charPredicate) {
+        return d -> {
+            CharSequence sequence = function.apply(d);
+            return sequence != null && sequence.codePoints().anyMatch(charPredicate);
+        };
+    }
+
+    public static DoublePredicate dblAllCharsMatch(DoubleFunction<? extends CharSequence> function, IntPredicate charPredicate) {
+        return d -> isCharacterMatch(function.apply(d), charPredicate);
+    }
+
+    public static DoublePredicate dblNoCharsMatch(DoubleFunction<? extends CharSequence> function, IntPredicate charPredicate) {
+        return d -> {
+            CharSequence sequence = function.apply(d);
+            return sequence != null && sequence.codePoints().noneMatch(charPredicate);
+        };
     }
 
     public static <R> DoublePredicate isDblNull(DoubleFunction<? extends R> function) {

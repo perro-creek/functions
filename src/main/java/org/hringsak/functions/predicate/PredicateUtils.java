@@ -7,13 +7,17 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
+import static org.hringsak.functions.mapper.MapperUtils.mapper;
+import static org.hringsak.functions.predicate.CharSequenceUtils.isCharacterMatch;
 
 public final class PredicateUtils {
 
@@ -107,15 +111,15 @@ public final class PredicateUtils {
     }
 
     public static <T> Predicate<T> isAlpha(Function<? super T, ? extends CharSequence> extractor) {
-        return t -> t != null && CharSequenceUtils.isAlpha(extractor.apply(t));
+        return t -> CharSequenceUtils.isCharacterMatch(extractor.apply(t), Character::isLetter);
     }
 
     public static <T> Predicate<T> isAlphanumeric(Function<? super T, ? extends CharSequence> extractor) {
-        return t -> t != null && CharSequenceUtils.isAlphaNumeric(extractor.apply(t));
+        return t -> CharSequenceUtils.isCharacterMatch(extractor.apply(t), Character::isLetterOrDigit);
     }
 
     public static <T> Predicate<T> isNumeric(Function<? super T, ? extends CharSequence> extractor) {
-        return t -> t != null && CharSequenceUtils.isNumeric(extractor.apply(t));
+        return t -> CharSequenceUtils.isCharacterMatch(extractor.apply(t), Character::isDigit);
     }
 
     public static <T> Predicate<T> startsWith(Function<? super T, ? extends CharSequence> extractor, CharSequence prefix) {
@@ -132,6 +136,27 @@ public final class PredicateUtils {
 
     public static <T> Predicate<T> endsWithIgnoreCase(Function<? super T, ? extends CharSequence> extractor, CharSequence suffix) {
         return t -> t != null && CharSequenceUtils.endsWithIgnoreCase(extractor.apply(t), suffix);
+    }
+
+    public static <T> Predicate<T> anyCharsMatch(Function<? super T, ? extends CharSequence> extractor, IntPredicate charPredicate) {
+        return t -> {
+            CharSequence sequence = Optional.ofNullable(t).map(extractor).orElse(null);
+            return sequence != null && sequence.codePoints().anyMatch(charPredicate);
+        };
+    }
+
+    public static <T> Predicate<T> allCharsMatch(Function<? super T, ? extends CharSequence> extractor, IntPredicate charPredicate) {
+        return t -> {
+            CharSequence sequence = Optional.ofNullable(t).map(extractor).orElse(null);
+            return isCharacterMatch(sequence, charPredicate);
+        };
+    }
+
+    public static <T> Predicate<T> noCharsMatch(Function<? super T, ? extends CharSequence> extractor, IntPredicate charPredicate) {
+        return t -> {
+            CharSequence sequence = Optional.ofNullable(t).map(extractor).orElse(null);
+            return sequence != null && sequence.codePoints().noneMatch(charPredicate);
+        };
     }
 
     public static <T, R> Predicate<T> isNull(Function<? super T, ? extends R> function) {

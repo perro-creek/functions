@@ -19,6 +19,7 @@ import java.util.function.ToIntFunction;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
+import static org.hringsak.functions.predicate.CharSequenceUtils.isCharacterMatch;
 
 /**
  * Methods that build predicates specifically those involving primitive <code>int</code> types.
@@ -135,15 +136,15 @@ public final class IntPredicateUtils {
     }
 
     public static IntPredicate intIsAlpha(IntFunction<? extends CharSequence> extractor) {
-        return i -> CharSequenceUtils.isAlpha(extractor.apply(i));
+        return i -> CharSequenceUtils.isCharacterMatch(extractor.apply(i), Character::isLetter);
     }
 
     public static IntPredicate intIsAlphanumeric(IntFunction<? extends CharSequence> extractor) {
-        return i -> CharSequenceUtils.isAlphaNumeric(extractor.apply(i));
+        return i -> CharSequenceUtils.isCharacterMatch(extractor.apply(i), Character::isLetterOrDigit);
     }
 
     public static IntPredicate intIsNumeric(IntFunction<? extends CharSequence> extractor) {
-        return i -> CharSequenceUtils.isNumeric(extractor.apply(i));
+        return i -> CharSequenceUtils.isCharacterMatch(extractor.apply(i), Character::isDigit);
     }
 
     public static IntPredicate intStartsWith(IntFunction<? extends CharSequence> extractor, CharSequence prefix) {
@@ -160,6 +161,24 @@ public final class IntPredicateUtils {
 
     public static IntPredicate intEndsWithIgnoreCase(IntFunction<? extends CharSequence> extractor, CharSequence suffix) {
         return i -> CharSequenceUtils.endsWithIgnoreCase(extractor.apply(i), suffix);
+    }
+
+    public static IntPredicate intAnyCharsMatch(IntFunction<? extends CharSequence> function, IntPredicate charPredicate) {
+        return i -> {
+            CharSequence sequence = function.apply(i);
+            return sequence != null && sequence.codePoints().anyMatch(charPredicate);
+        };
+    }
+
+    public static IntPredicate intAllCharsMatch(IntFunction<? extends CharSequence> function, IntPredicate charPredicate) {
+        return i -> isCharacterMatch(function.apply(i), charPredicate);
+    }
+
+    public static IntPredicate intNoCharsMatch(IntFunction<? extends CharSequence> function, IntPredicate charPredicate) {
+        return i -> {
+            CharSequence sequence = function.apply(i);
+            return sequence != null && sequence.codePoints().noneMatch(charPredicate);
+        };
     }
 
     public static <R> IntPredicate isIntNull(IntFunction<? extends R> function) {
