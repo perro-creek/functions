@@ -209,6 +209,10 @@ public final class DblMapperUtils {
         return d -> defaultDblStream(doubleMapper.apply(d));
     }
 
+    public static DoubleFunction<DoubleStream> dblFlatMapperToObj(DoubleFunction<? extends double[]> doubleMapper) {
+        return d -> defaultDblStream(doubleMapper.apply(d));
+    }
+
     public static <T> Function<T, DoubleStream> flatMapperToDbl(Function<? super T, ? extends double[]> toDoubleArrayMapper) {
         return t -> t == null ? DoubleStream.empty() : defaultDblStream(toDoubleArrayMapper.apply(t));
     }

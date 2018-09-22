@@ -1,5 +1,8 @@
 package org.hringsak.functions.internal;
 
+/**
+ * Internal class intended only to be used by classes in this library.
+ */
 public final class Invariants {
 
     private Invariants() {

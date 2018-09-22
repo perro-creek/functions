@@ -11,6 +11,10 @@ import java.util.function.ObjLongConsumer;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
 
+/**
+ * Methods that build consumers useful in many different situations, particularly in Java streams.  This class deals
+ * specifically with consumers involving primitive <code>long</code> types.
+ */
 public final class LongConsumerUtils {
 
     private LongConsumerUtils() {
