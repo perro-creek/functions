@@ -1,7 +1,6 @@
 package org.hringsak.functions.mapper;
 
 import java.util.Collection;
-import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,7 +8,6 @@ import java.util.function.DoubleFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
-import java.util.stream.DoubleStream;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -18,7 +16,6 @@ import static org.hringsak.functions.mapper.DblMapperUtils.dblFlatMapper;
 import static org.hringsak.functions.mapper.DblMapperUtils.dblMapper;
 import static org.hringsak.functions.mapper.DblMapperUtils.dblPairOf;
 import static org.hringsak.functions.mapper.DblMapperUtils.flatMapperToDbl;
-import static org.hringsak.functions.mapper.MapperUtils.flatMapper;
 import static org.hringsak.functions.stream.DblStreamUtils.defaultDblStream;
 import static org.hringsak.functions.stream.StreamUtils.defaultStream;
 

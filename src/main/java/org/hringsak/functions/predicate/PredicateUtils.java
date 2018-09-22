@@ -16,7 +16,6 @@ import java.util.function.Predicate;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
-import static org.hringsak.functions.mapper.MapperUtils.mapper;
 import static org.hringsak.functions.predicate.CharSequenceUtils.isCharacterMatch;
 
 public final class PredicateUtils {
