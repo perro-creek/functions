@@ -228,8 +228,8 @@ public final class IntMapperUtils {
      * </pre>
      *
      * @param intMapper An IntFunction that returns an array of ints.
-     * @return An IntFunction that returns a Stream of int values.
-     * Returns an empty Stream if the int array returned by the given intMapper is null or empty.
+     * @return An IntFunction that returns an IntStream. Returns an empty IntStream if the int array returned by the
+     * given intMapper is null or empty.
      */
     public static IntFunction<IntStream> intFlatMapper(IntFunction<? extends int[]> intMapper) {
         return i -> defaultIntStream(intMapper.apply(i));
@@ -304,7 +304,7 @@ public final class IntMapperUtils {
      * This works because the {@link Pair} object implements the Java <code>Map.Entry</code> interface.
      *
      * @param keyValueMapper An object consisting of a pair of int functions that will be used to retrieve a left and
-     *                       right value for a Pair that is a result of the Function built by this method.
+     *                       right value for a Pair that is a result of the IntFunction built by this method.
      * @param <U>            The type of the left element of the Pair to be returned by the IntFunction built by this
      *                       method.
      * @param <V>            The type of the right element of the Pair to be returned by the IntFunction built by this

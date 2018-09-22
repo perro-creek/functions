@@ -204,26 +204,157 @@ public final class LongMapperUtils {
         return t -> biFunction.applyAsLong(value, t);
     }
 
+    /**
+     * Given a <code>LongFunction</code> that returns a <code>long</code> array, this method builds a
+     * <code>LongFunction</code> that returns a <code>LongStream</code>. This is useful in the
+     * <code>LongStream.flatMap()</code> method. For a very contrived example, let's say you have a method,
+     * <code>MathUtils.getFactors(long product)</code>, that takes a long value and returns a <code>long</code> array
+     * containing the factors of that number. You have lower and upper bound long values to create a range, and you want
+     * to sum the factors of all of the individual long values:
+     * <pre>
+     *     private long getSumOfAllFactors(long startInclusive, long endExclusive) {
+     *         return LongStream.range(startInclusive, endExclusive)
+     *             .flatMap(LongMapperUtils.longFlatMapper(MathUtils::getFactors))
+     *             .sum();
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     private long getSumOfAllFactors(long startInclusive, long endExclusive) {
+     *         return LongStream.range(startInclusive, endExclusive)
+     *             .flatMap(longFlatMapper(MathUtils::getFactors))
+     *             .sum();
+     *     }
+     * </pre>
+     *
+     * @param longMapper A LongFunction that returns an array of longs.
+     * @return A LongFunction that returns a LongStream. Returns an empty LongStream if the long array returned by the
+     * given longMapper is null or empty.
+     */
     public static LongFunction<LongStream> longFlatMapper(LongFunction<? extends long[]> longMapper) {
         return l -> defaultLongStream(longMapper.apply(l));
     }
 
+    /**
+     * Given a <code>Function</code> that takes an argument of type &lt;T&gt; and returns a <code>long</code> array, this
+     * method builds a <code>Function</code> that takes the same argument, but returns a <code>LongStream</code>. This is
+     * useful in the <code>Stream.flatMapToLong()</code> method. For example, let's say you have a collection of
+     * objects representing all the orders for a particular customer. You want to total the quantities for each of the
+     * line items in all of the orders contained in the collection:
+     * <pre>
+     *     private long getTotalLineItemQuantities(Collection&lt;Order&gt; customerOrders) {
+     *         return customerOrders.stream()
+     *             .flatMapToLong(LongMapperUtils.flatMapperToLong(this::getAllQuantities))
+     *             .sum();
+     *     }
+     *
+     *     private long[] getAllQuantities(Order order) {
+     *         ...
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     private long getTotalLineItemQuantities(Collection&lt;Order&gt; customerOrders) {
+     *         return customerOrders.stream()
+     *             .flatMapToLong(flatMapperToLong(this::getAllQuantities))
+     *             .sum();
+     *     }
+     * </pre>
+     *
+     * @param toLongArrayMapper A Function taking an argument of type &lt;T&gt;, that returns an array of longs.
+     * @param <T>               The type of the argument to be passed to the given toLongArrayMapper function.
+     * @return A Function taking an argument of type &lt;T&gt;, that returns a LongStream. Returns an empty LongStream
+     * if the passed argument is null, or the long array returned by the given toLongArrayMapper function is null or
+     * empty.
+     */
     public static <T> Function<T, LongStream> flatMapperToLong(Function<? super T, ? extends long[]> toLongArrayMapper) {
         return t -> t == null ? LongStream.empty() : defaultLongStream(toLongArrayMapper.apply(t));
     }
 
+    /**
+     * Given a <code>LongFunction</code> that returns a value of type &lt;U&gt;, this method builds a
+     * <code>LongFunction</code> that returns a value of type <code>LongObjectPair&lt;U&gt;</code>. This pair will
+     * consist of the target long itself, and a value returned by the passed <code>rightFunction</code>.
+     *
+     * @param rightFunction A LongFunction to extract the right value in the LongObjectPair&lt;U&gt; to be returned
+     *                      by the LongFunction built by this method.
+     * @param <U>           The type of the right element of the LongObjectPair to be returned by the LongFunction
+     *                      built by this method.
+     * @return A LongFunction that returns a LongObjectPair of the target long, along with a value returned by the
+     * passed rightFunction.
+     */
     public static <U> LongFunction<LongObjectPair<U>> longPairOf(LongFunction<? extends U> rightFunction) {
         return l -> LongObjectPair.of(l, rightFunction.apply(l));
     }
 
+    /**
+     * Given an object consisting of a pair of long functions, one that returns a value of type &lt;U&gt;, and the other
+     * that returns a value of type &lt;V&gt;, this method builds a <code>LongFunction</code> that returns a value of
+     * type <code>Pair&lt;U, V&gt;</code>. This pair will consist of the values returned by each of the functions in the
+     * passed <code>keyValueMapper</code>. This method does the same thing as the overload that takes a
+     * <code>leftFunction</code> and <code>rightFunction</code>, and is included as a convenience when a method already
+     * takes a <code>LongKeyValueMapper</code>. For example, the implementation of the
+     * {@link LongTransformUtils#longTransformToMap(long[], LongKeyValueMapper)} method is:
+     * <pre>
+     *     public static &lt;K, V&gt; Map&lt;K, V&gt; longTransformToMap(long[] longs, LongKeyValueMapper&lt;K, V&gt; keyValueMapper) {
+     *         return defaultLongStream(longs)
+     *             .mapToObj(longPairOf(keyValueMapper))
+     *             .collect(toMapFromEntry());
+     *     }
+     * </pre>
+     * This works because the {@link Pair} object implements the Java <code>Map.Entry</code> interface.
+     *
+     * @param keyValueMapper An object consisting of a pair of long functions that will be used to retrieve a left and
+     *                       right value for a Pair that is a result of the LongFunction built by this method.
+     * @param <U>            The type of the left element of the Pair to be returned by the LongFunction built by this
+     *                       method.
+     * @param <V>            The type of the right element of the Pair to be returned by the LongFunction built by this
+     *                       method.
+     * @return A LongFunction that returns a Pair whose values will be retrieved by a pair of long functions represented
+     * by the passed keyValueMapper.
+     */
     public static <U, V> LongFunction<Pair<U, V>> longPairOf(LongKeyValueMapper<U, V> keyValueMapper) {
         return longPairOf(keyValueMapper.getKeyMapper(), keyValueMapper.getValueMapper());
     }
 
+    /**
+     * Given a pair of long functions, one that returns a value of type &lt;U&gt;, and the other that returns a value of
+     * type &lt;V&gt;, this method builds a <code>LongFunction</code> that returns a value of type
+     * <code>Pair&lt;U, V&gt;</code>. This pair will consist of the values returned by each of the long functions passed
+     * to this method.
+     *
+     * @param leftFunction  A LongFunction that will be used to retrieve a left value for a Pair that is a result of
+     *                      the LongFunction built by this method.
+     * @param rightFunction A LongFunction that will be used to retrieve a right value for a Pair that is a result of
+     *                      the LongFunction built by this method.
+     * @param <U>           The type of the left element of the Pair to be returned by the LongFunction built by this
+     *                      method.
+     * @param <V>           The type of the right element of the Pair to be returned by the LongFunction built by this
+     *                      method.
+     * @return A LongFunction that returns a Pair whose values will be retrieved by a pair of long functions passed to
+     * this method.
+     */
     public static <U, V> LongFunction<Pair<U, V>> longPairOf(LongFunction<? extends U> leftFunction, LongFunction<? extends V> rightFunction) {
         return l -> Pair.of(leftFunction.apply(l), rightFunction.apply(l));
     }
 
+    /**
+     * Given a <code>List&lt;R&gt;</code>, this methods builds a <code>LongFunction</code> that returns a
+     * <code>LongObjectPair&lt;R&gt;</code>. It is intended to be used in a stream. The
+     * <code>LongObjectPair&lt;R&gt;</code> built by this <code>LongFunction</code> will consist of a target long, and
+     * an object of type &lt;R&gt; whose element in the passed <code>List</code> is associated with the current long, in
+     * encounter order. The function returned from this method is <i>not</i> intended to be used with parallel streams.
+     * <p>
+     * If the passed <code>List</code> has more elements than the array of longs being streamed, the extra elements are
+     * ignored. If it has fewer elements, any target values that do not have associated values in the list, will be
+     * paired with a <code>null</code> value.
+     *
+     * @param pairedList A List whose elements are to be paired with long array elements being streamed, by the
+     *                   LongFunction built by this method.
+     * @param <R>        The type of the elements in the passed pairedList parameter.
+     * @return A LongFunction that will return a LongObjectPair of that long, along with an associated element from the
+     * passed pairedList.
+     */
     public static <R> LongFunction<LongObjectPair<R>> longPairWith(List<R> pairedList) {
         List<R> nonNullList = pairedList == null ? new ArrayList<>() : pairedList;
         AtomicInteger idx = new AtomicInteger();
@@ -233,6 +364,26 @@ public final class LongMapperUtils {
         };
     }
 
+    /**
+     * Given a <code>LongFunction&lt;U&gt;</code>, and a <code>List&lt;V&gt;</code>, this method builds a
+     * <code>LongFunction</code> that returns a <code>Pair&lt;U, V&gt;</code>. It is intended to be used in a stream.
+     * The <code>Pair&lt;U, V&gt;</code> built by this <code>LongFunction</code> will consist of an element returned
+     * by the passed <code>function</code>, and an object of type &lt;V&gt; whose element in the passed
+     * <code>List</code> is associated with the current double, in encounter order. The double function returned from
+     * this method is <i>not</i> intended to be used with parallel streams.
+     * <p>
+     * If the passed <code>List</code> has more elements than the double array being streamed, the extra elements are
+     * ignored. If it has fewer elements, any values returned by the passed double <code>function</code>, that do not
+     * have associated values in the list, will be paired with a <code>null</code> value.
+     *
+     * @param function   A LongFunction that will return a value of type &lt;U&gt;, which will become the left element
+     *                   in a Pair, returned by the LongFunction built by this method.
+     * @param pairedList A List whose elements are to be paired with elements retrieved by the passed double function.
+     * @param <U>        The type of the left element, retrieved by the passed function.
+     * @param <V>        The type of the right element, retrieved from the passed List.
+     * @return A LongFunction that will return a Pair of a value retrieved from the passed function, along with an
+     * associated element from the passed pairedList.
+     */
     public static <U, V> LongFunction<Pair<U, V>> longPairWith(LongFunction<? extends U> function, List<V> pairedList) {
         List<V> nonNullList = pairedList == null ? new ArrayList<>() : pairedList;
         AtomicInteger idx = new AtomicInteger();
@@ -243,24 +394,89 @@ public final class LongMapperUtils {
         };
     }
 
+    /**
+     * Builds a <code>LongFunction</code> that returns an object that represents a pair of values, one being the long
+     * value itself, and the other a primitive zero-based index of the long in encounter order. The
+     * <code>LongFunction</code> built by this method is intended to be used in a stream, but is <i>not</i> intended
+     * to be used with parallel streams.
+     *
+     * @return A LongFunction that returns an object representing a pair of the long itself, along with the primitive
+     * zero-based int index of the long value.
+     */
     public static LongFunction<LongIndexPair> longPairWithIndex() {
         AtomicInteger idx = new AtomicInteger();
         return l -> LongIndexPair.of(l, idx.getAndIncrement());
     }
 
+    /**
+     * Given a <code>LongFunction</code> that returns a value of type &lt;R&gt;, this method builds a
+     * <code>LongFunction</code> that returns an object that represents a pair of values, one being a value returned
+     * from the passed long <code>function</code>, and the other a primitive zero-based index of the long value in
+     * encounter order. The <code>LongFunction</code> built by this method is intended to be used in a stream, but is
+     * <i>not</i> intended to be used with parallel streams.
+     *
+     * @param function A LongFunction that returns a value of type &lt;R&gt;.
+     * @param <R>      The type of a value retrieved from the passed long function.
+     * @return A LongFunction that returns an object representing a pair of a value returned from the passed long
+     * function, along with the primitive zero-based int index of the target long.
+     */
     public static <R> LongFunction<Pair<R, Integer>> longPairWithIndex(LongFunction<? extends R> function) {
         AtomicInteger idx = new AtomicInteger();
         return l -> Pair.of(function.apply(l), idx.getAndIncrement());
     }
 
-    public static <R> LongFunction<R> longTernary(LongPredicate predicate, LongTernaryMapper<R> ternaryMapper) {
-        return l -> predicate.test(l) ? ternaryMapper.getTrueMapper().apply(l) : ternaryMapper.getFalseMapper().apply(l);
+    /**
+     * Given a LongPredicate and an object consisting of a pair of long functions, each returning a value of type
+     * &lt;R&gt;, one to return a value if the predicate is true, the other returning an alternate value if the
+     * predicate is false, this method builds a <code>LongFunction</code> that evaluates the predicate and returns a
+     * value produced by one or the other of the pair. It may be difficult to think of an example where this may be
+     * useful, but this method is included here for the sake of completeness.
+     *
+     * @param predicate        A long predicate to be evaluated, determining which of the pair of long functions below
+     *                         will return a resulting value.
+     * @param trueFalseMappers An object consisting of a pair of long functions, one to return a value if the passed
+     *                         predicate evaluates to true, and the other to return an alternate value if it evaluates
+     *                         to false.
+     * @param <R>              The type of the values returned by the pair of long functions in the passed
+     *                         trueFalseMappers.
+     * @return A value of type &lt;R&gt; returned by one or the other of a pair of functions, depending on whether the
+     * passed long predicate evaluates to true or false.
+     */
+    public static <R> LongFunction<R> longTernary(LongPredicate predicate, LongTernaryMapper<R> trueFalseMappers) {
+        return l -> predicate.test(l) ? trueFalseMappers.getTrueMapper().apply(l) : trueFalseMappers.getFalseMapper().apply(l);
     }
 
-    public static <R> LongTernaryMapper<R> longTernaryMapper(LongFunction<R> trueExtractor, LongFunction<R> falseExtractor) {
+    /**
+     * Builds an object representing a pair of functions, one to return a value if a long predicate evaluates to true,
+     * the other to return an alternate value if it evaluates to false. This method is meant to be used to build the
+     * second argument to the {@link #longTernary(LongPredicate, LongTernaryMapper)} method.
+     *
+     * @param trueExtractor  Retrieves a value to be returned by the
+     *                       {@link #longTernary(LongPredicate, LongTernaryMapper)} method when its predicate evaluates
+     *                       to true.
+     * @param falseExtractor Retrieves a value to be returned by the
+     *                       {@link #longTernary(LongPredicate, LongTernaryMapper)} method when its predicate evaluates
+     *                       to false.
+     * @param <R>            The type of the value to be returned by the extractor methods below.
+     * @return An object representing a pair of long functions, one to be called if a predicate evaluates to true, the
+     * other to be called if it evaluates to false.
+     */
+    public static <R> LongTernaryMapper<R> longTrueFalseMappers(LongFunction<R> trueExtractor, LongFunction<R> falseExtractor) {
         return LongTernaryMapper.of(trueExtractor, falseExtractor);
     }
 
+    /**
+     * Builds an object representing a pair of long functions, one to return a key in a <code>Map</code>, and the other
+     * to return its associated value. This method is meant to be used to build the second parameter to the
+     * {@link LongTransformUtils#longTransformToMap(long[], LongKeyValueMapper)} method.
+     *
+     * @param keyMapper   LongFunction to retrieve a value to be used as a key in a Map.
+     * @param valueMapper LongFunction to retrieve a value associated with a key in a Map.
+     * @param <K>         The type of a key value for a Map.
+     * @param <V>         The type of a value to be associated with a key in a Map.
+     * @return Builds an object representing a pair of long functions, one to retrieve a Map key, and the other to
+     * retrieve its associated value.
+     */
     public static <K, V> LongKeyValueMapper<K, V> longKeyValueMapper(LongFunction<K> keyMapper, LongFunction<V> valueMapper) {
         return LongKeyValueMapper.of(keyMapper, valueMapper);
     }

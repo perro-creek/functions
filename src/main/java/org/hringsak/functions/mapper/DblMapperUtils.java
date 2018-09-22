@@ -230,8 +230,8 @@ public final class DblMapperUtils {
      * </pre>
      *
      * @param doubleMapper A DoubleFunction that returns an array of doubles.
-     * @return A DoubleFunction that returns a Stream of double values.
-     * Returns an empty Stream if the double array returned by the given doubleMapper is null or empty.
+     * @return A DoubleFunction that returns a DoubleStream. Returns an empty DoubleStream if the double array returned
+     * by the given doubleMapper is null or empty.
      */
     public static DoubleFunction<DoubleStream> dblFlatMapper(DoubleFunction<? extends double[]> doubleMapper) {
         return d -> defaultDblStream(doubleMapper.apply(d));
@@ -307,7 +307,7 @@ public final class DblMapperUtils {
      * This works because the {@link Pair} object implements the Java <code>Map.Entry</code> interface.
      *
      * @param keyValueMapper An object consisting of a pair of double functions that will be used to retrieve a left and
-     *                       right value for a Pair that is a result of the Function built by this method.
+     *                       right value for a Pair that is a result of the DoubleFunction built by this method.
      * @param <U>            The type of the left element of the Pair to be returned by the DoubleFunction built by this
      *                       method.
      * @param <V>            The type of the right element of the Pair to be returned by the DoubleFunction built by
@@ -384,7 +384,7 @@ public final class DblMapperUtils {
      * @param pairedList A List whose elements are to be paired with elements retrieved by the passed double function.
      * @param <U>        The type of the left element, retrieved by the passed function.
      * @param <V>        The type of the right element, retrieved from the passed List.
-     * @return A Function that will return a Pair of a value retrieved from the passed function, along with an
+     * @return A DoubleFunction that will return a Pair of a value retrieved from the passed function, along with an
      * associated element from the passed pairedList.
      */
     public static <U, V> DoubleFunction<Pair<U, V>> dblPairWith(DoubleFunction<? extends U> function, List<V> pairedList) {
