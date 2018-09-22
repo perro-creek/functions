@@ -1,7 +1,6 @@
 package org.hringsak.functions.mapper
 
 import org.hringsak.functions.internal.Pair
-import org.hringsak.functions.internal.StringUtils
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -215,13 +214,13 @@ class LongMapperUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'long ternary passing target #target expecting "#expected'() {
+    def 'long true/false mappers passing target #target expecting "#expected'() {
 
         expect:
         def predicate = { l -> l == 1L }
         def trueExtractor = { l -> 'trueValue' }
         def falseExtractor = { l -> 'falseValue' }
-        def result = longTernary(predicate, longTernaryMapper(trueExtractor, falseExtractor)).apply(target)
+        def result = longTernary(predicate, longTrueFalseMappers(trueExtractor, falseExtractor)).apply(target)
         result == expected
 
         where:
