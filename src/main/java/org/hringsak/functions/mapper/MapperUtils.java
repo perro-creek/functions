@@ -230,10 +230,11 @@ public final class MapperUtils {
     }
 
     /**
-     * Given a <code>Function</code> that returns a <code>Collection</code>, this method builds a <code>Function</code>
-     * that returns a <code>Stream</code> of the same element type. This is useful in the <code>Stream.flatMap()</code>
-     * method. For example, let's say you want to retrieve all the line items from all of a customer's orders, assuming
-     * that <code>Order.getLineItems()</code> returns a <code>Collection</code> of type &lt;R&gt;:
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns a
+     * <code>Collection&lt;R&gt;</code>, this method builds a <code>Function</code> that takes the same argument type,
+     * and returns a <code>Stream&lt;R&gt;</code>. This is useful in the <code>Stream.flatMap()</code> method. For
+     * example, let's say you want to retrieve all the line items from all of a customer's orders, assuming that
+     * <code>Order.getLineItems()</code> returns a <code>Collection</code> of type &lt;R&gt;:
      * <pre>
      *     private List&lt;OrderLineItem&gt; getCustomerLineItems(Collection&lt;Order&gt; customerOrders) {
      *         return customerOrders.stream()
@@ -259,10 +260,11 @@ public final class MapperUtils {
     }
 
     /**
-     * Given a <code>Function</code> that returns an array of type &lt;R&gt;, this method builds a <code>Function</code>
-     * that returns a <code>Stream</code> of the same element type. This is useful in the <code>Stream.flatMap()</code>
-     * method. For example, let's say you want to retrieve all the line items from all of a customer's orders, assuming
-     * that <code>Order.getLineItems()</code> returns an array of OrderLineItem:
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns an array of type &lt;R&gt;,
+     * this method builds a <code>Function</code> that takes the same argument type, and returns a
+     * <code>Stream&lt;R&gt;</code>. This is useful in the <code>Stream.flatMap()</code> method. For example, let's say
+     * you want to retrieve all the line items from all of a customer's orders, assuming that
+     * <code>Order.getLineItems()</code> returns an array of OrderLineItem:
      * <pre>
      *     private List&lt;OrderLineItem&gt; getCustomerLineItems(Collection&lt;Order&gt; customerOrders) {
      *         return customerOrders.stream()
@@ -287,23 +289,127 @@ public final class MapperUtils {
         return t -> t == null ? Stream.empty() : defaultStream(function.apply(t));
     }
 
+    /**
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns a value of type &lt;U&gt;, this
+     * method builds a <code>Function</code> that takes the same argument type and returns a value of type
+     * <code>Pair&lt;T, U&gt;</code>. This pair will consist of the target element itself, and a value returned by the
+     * passed <code>rightFunction</code>.
+     *
+     * @param rightFunction A Function to extract the right value in the Pair&lt;T, U&gt; to be returned by the Function
+     *                      built by this method.
+     * @param <T>           The type of the target element on which the rightFunction is to be called.
+     * @param <U>           The type of the right element of the Pair to be returned by the Function built by this
+     *                      method.
+     * @return A Function that, given a target element of type &lt;T&gt;, returns a Pair of the target element, along
+     * with a value returned by the passed rightFunction.
+     */
     public static <T, U> Function<T, Pair<T, U>> pairOf(Function<? super T, ? extends U> rightFunction) {
         return pairOf(identity(), rightFunction);
     }
 
+    /**
+     * Given an object consisting of a pair of functions, one that takes an element of type &lt;T&gt; and returns a
+     * value of type &lt;U&gt;, and the other that takes an element of type &lt;T&gt; and returns a value of type
+     * &lt;V&gt;, this method builds a <code>Function</code> that takes the same argument type and returns a value of
+     * type <code>Pair&lt;U, V&gt;</code>. This Pair will consist of the values returned by each of the functions in the
+     * passed <code>keyValueMapper</code>. This method does the same thing as the overload that takes a
+     * <code>leftFunction</code> and <code>rightFunction</code>, and is included as a convenience when a method already
+     * takes a <code>KeyValueMapper</code>. For example, the implementation of the
+     * {@link TransformUtils#transformToMap(Collection, KeyValueMapper)} method is:
+     * <pre>
+     *     public static &lt;T, K, V&gt; Map&lt;K, V&gt; transformToMap(Collection&lt;T&gt; objects, KeyValueMapper&lt;T, K, V&gt; keyValueMapper) {
+     *         return defaultStream(objects)
+     *             .map(pairOf(keyValueMapper))
+     *             .collect(toMapFromEntry());
+     *     }
+     * </pre>
+     * This works because the {@link Pair} object implements the Java <code>Map.Entry</code> interface.
+     *
+     * @param keyValueMapper An object consisting of a pair of functions that will be used to retrieve a left and right
+     *                       value for a Pair that is a result of the Function built by this method.
+     * @param <T>            The type of the target element on which a pair of functions, represented by the passed
+     *                       keyValueMapper, will be called.
+     * @param <U>            The type of the left element of the Pair to be returned by the Function built by this
+     *                       method.
+     * @param <V>            The type of the right element of the Pair to be returned by the Function built by this
+     *                       method.
+     * @return A Function that, given a target element of type &lt;T&gt;, returns a Pair whose values will be retrieved
+     * by a pair of functions represented by the passed keyValueMapper.
+     */
     public static <T, U, V> Function<T, Pair<U, V>> pairOf(KeyValueMapper<T, U, V> keyValueMapper) {
         return pairOf(keyValueMapper.getKeyMapper(), keyValueMapper.getValueMapper());
     }
 
+    /**
+     * Given a pair of functions, one that takes an element of type &lt;T&gt; and returns a value of type &lt;U&gt;, and
+     * the other that takes an element of type &lt;T&gt; and returns a value of type &lt;V&gt;, this method builds a
+     * <code>Function</code> that takes the same argument type and returns a value of type
+     * <code>Pair&lt;U, V&gt;</code>. This Pair will consist of the values returned by each of the functions passed to
+     * this method.
+     *
+     * @param leftFunction  A Function that will be used to retrieve a left value for a Pair that is a result of the
+     *                      Function built by this method.
+     * @param rightFunction A Function that will be used to retrieve a right value for a Pair that is a result of the
+     *                      Function built by this method.
+     * @param <T>           The type of the target element on which a pair of passed functions will be called.
+     * @param <U>           The type of the left element of the Pair to be returned by the Function built by this
+     *                      method.
+     * @param <V>           The type of the right element of the Pair to be returned by the Function built by this
+     *                      method.
+     * @return A Function that, given a target element of type &lt;T&gt;, returns a Pair whose values will be retrieved
+     * by a pair of functions passed to this method.
+     */
     @SuppressWarnings("WeakerAccess")
     public static <T, U, V> Function<T, Pair<U, V>> pairOf(Function<T, U> leftFunction, Function<? super T, ? extends V> rightFunction) {
         return t -> Pair.of(mapper(leftFunction).apply(t), mapper(rightFunction).apply(t));
     }
 
+    /**
+     * Given a <code>List&lt;R&gt;</code>, this methods builds a <code>Function</code> that returns a
+     * <code>Pair&lt;T, R&gt;</code>. It is intended to be used in a stream. The <code>Pair&lt;T, R&gt;</code> built by
+     * this <code>Function</code> will consist of a target element, and an object of type &lt;R&gt; whose element in the
+     * passed <code>List</code> is associated with the current element, in encounter order. This is most useful in a
+     * situation where an ordered collection is being streamed. The function returned from this method is <i>not</i>
+     * intended to be used with parallel streams.
+     * <p>
+     * If the passed <code>List</code> has more elements than the collection being streamed, the extra elements are
+     * ignored. If it has fewer elements, any target elements being streamed that do not have associated values in the
+     * list will be paired with a <code>null</code> value.
+     *
+     * @param pairedList A List whose elements are to be paired with collection elements being streamed, by the Function
+     *                   built by this method.
+     * @param <T>        The type of the target element being streamed.
+     * @param <R>        The type of the elements in the passed pairedList parameter.
+     * @return A Function that, given an element of type &lt;T&gt;, will return a Pair of that element, along with an
+     * associated element from the passed pairedList.
+     */
     public static <T, R> Function<T, Pair<T, R>> pairWith(List<R> pairedList) {
         return pairWith(identity(), pairedList);
     }
 
+    /**
+     * Given a <code>Function&lt;T, U&gt;</code>, and a <code>List&lt;V&gt;</code>, this method builds a
+     * <code>Function</code> that takes an element of type &lt;T&gt;, and returns a <code>Pair&lt;U, V&gt;</code>. It is
+     * intended to be used in a stream. The <code>Pair&lt;U, V&gt;</code> built by this <code>Function</code> will
+     * consist of an element returned by the passed <code>function</code>, and an object of type &lt;V&gt; whose element
+     * in the passed <code>List</code> is associated with the current element, in encounter order. This is most useful
+     * in a situation where an ordered collection is being streamed. The function returned from this method is
+     * <i>not</i> intended to be used with parallel streams.
+     * <p>
+     * If the passed <code>List</code> has more elements than the
+     * collection being streamed, the extra elements are ignored. If it has fewer elements, any values returned by the
+     * passed <code>function</code>, that do not have associated values in the list, will be paired with a
+     * <code>null</code> value.
+     *
+     * @param function   A Function that will return a value of type &lt;U&gt;, which will become the left element in a
+     *                   Pair, returned by the Function built by this method.
+     * @param pairedList A List whose elements are to be paired with elements retrieved by the passed function.
+     * @param <T>        The type of the target element being streamed.
+     * @param <U>        The type of the left element, retrieved by the passed function.
+     * @param <V>        The type of the right element, retrieved from the passed List.
+     * @return A Function that, given an element of type &lt;T&gt;, will return a Pair of a value retrieved from the
+     * passed function, along with an associated element from the passed pairedList.
+     */
     public static <T, U, V> Function<T, Pair<U, V>> pairWith(Function<? super T, ? extends U> function, List<V> pairedList) {
         List<V> nonNullList = pairedList == null ? new ArrayList<>() : pairedList;
         AtomicInteger idx = new AtomicInteger();
@@ -314,27 +420,106 @@ public final class MapperUtils {
         };
     }
 
+    /**
+     * Builds a <code>Function</code> that, given an element of type &lt;T&gt;, returns an object that represents a pair
+     * of values, one being the element itself, and the other a primitive zero-based index of the object in encounter
+     * order. The <code>Function</code> built by this method is intended to be used in a stream, and is most useful in a
+     * situation where an ordered collection is being streamed. It is <i>not</i> intended to be used with parallel
+     * streams.
+     *
+     * @param <T> The type of the target elements being streamed.
+     * @return A Function that takes an element of type &lt;T&gt;, and returns an object representing a pair of the
+     * element itself, along with the primitive zero-based int index of the element.
+     */
     public static <T> Function<T, ObjectIndexPair<T>> pairWithIndex() {
         return pairWithIndex(identity());
     }
 
+    /**
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns a value of type &lt;R&gt;, this
+     * method builds a <code>Function</code> that, given an element of type &lt;T&gt;, returns an object that represents
+     * a pair of values, one being a value returned from the passed <code>function</code>, and the other a primitive
+     * zero-based index of the object in encounter order. The <code>Function</code> built by this method is intended to
+     * be used in a stream, and is most useful in a situation where an ordered collection is being streamed. It is
+     * <i>not</i> intended to be used with parallel streams.
+     *
+     * @param function A Function that takes an element of type &lt;T&gt; and returns a value of type &lt;R&gt;.
+     * @param <T>      The type of the target elements being streamed.
+     * @param <R>      The type of a value retrieved from the passed function.
+     * @return A Function that takes an element of type &lt;T&gt;, and returns an object representing a pair of a value
+     * returned from the passed function, along with the primitive zero-based int index of the target element.
+     */
     public static <T, R> Function<T, ObjectIndexPair<R>> pairWithIndex(Function<? super T, ? extends R> function) {
         AtomicInteger idx = new AtomicInteger();
         return t -> ObjectIndexPair.of(function.apply(t), idx.getAndIncrement());
     }
 
-    public static <T, R> Function<T, R> ternary(Predicate<T> predicate, TernaryMapper<T, R> ternaryMapper) {
+    /**
+     * Given a Predicate&lt;T&gt; and an object consisting of a pair of functions, each taking an element of type
+     * &lt;T&gt; and returning a value of type &lt;R&gt;, one to return a value if the predicate is true, the other
+     * returning an alternate value if the predicate is false, this method builds a <code>Function</code> that
+     * evaluates the predicate and returns a value produced by one or the other of the pair. For example, suppose you
+     * have a collection of objects that represent nodes in a tree. The nodes each represent a folder or document in a
+     * hierarchy. You want to collect a set of only the root node ids:
+     * <pre>
+     *     private Set&lt;String&gt; getRootNodeIds(Collection&lt;TreeNode&gt; treeNodes) {
+     *         return treeNodes.stream()
+     *             .map(MapperUtils.ternary(TreeNode::isRoot, MapperUtils.trueFalseMappers(TreeNode::getId, TreeNode::getRootId)))
+     *             .collect(Collectors.toSet());
+     *     }
+     * </pre>
+     * Or, using static imports:
+     * <pre>
+     *     private Set&lt;String&gt; getRootNodeIds(Collection&lt;TreeNode&gt; treeNodes) {
+     *         return treeNodes.stream()
+     *             .map(ternary(TreeNode::isRoot, trueFalseMappers(TreeNode::getId, TreeNode::getRootId)))
+     *             .collect(Collectors.toSet());
+     *     }
+     * </pre>
+     *
+     * @param predicate     A predicate to be called on an element of type &lt;T&gt;.
+     * @param ternaryMapper An object consisting of a pair of functions, one to return a value if the passed predicate
+     *                      evaluates to true, and the other to return an alternate value if it evaluates to false.
+     * @param <T>           The type of the target element for the passed predicate.
+     * @param <R>           The type of the values returned by the pair of functions in the passed trueFalseMappers.
+     * @return A value of type &lt;R&gt; returned by one or the other of a pair of functions, depending on whether the
+     * passed predicate evaluates to true or false.
+     */
+    public static <T, R> Function<T, R> ternary(Predicate<T> predicate, TrueFalseMappers<T, R> ternaryMapper) {
         return t -> t != null && predicate.test(t) ? ternaryMapper.getTrueMapper().apply(t) : ternaryMapper.getFalseMapper().apply(t);
     }
 
-    public static <T, R> TernaryMapper<T, R> ternaryMapper(Function<T, R> trueExtractor, Function<T, R> falseExtractor) {
-        return TernaryMapper.of(trueExtractor, falseExtractor);
+    /**
+     * Builds an object representing a pair of functions, one to return a value if a predicate evaluates to true, the
+     * other to return an alternate value if it evaluates to false. This method is meant to be used to build the second
+     * argument to the {@link #ternary(Predicate, TrueFalseMappers)} method.
+     *
+     * @param trueExtractor  Retrieves a value to be returned by the {@link #ternary(Predicate, TrueFalseMappers)}
+     *                       method when its predicate evaluates to true.
+     * @param falseExtractor Retrieves a value to be returned by the {@link #ternary(Predicate, TrueFalseMappers)}
+     *                       method when its predicate evaluates to false.
+     * @param <T>            The type of the target element on which the extractor methods below are to be called.
+     * @param <R>            The type of the value to be returned by the extractor methods below.
+     * @return An object representing a pair of functions, one to be called if a predicate evaluates to true, the other
+     * to be called if it evaluates to false.
+     */
+    public static <T, R> TrueFalseMappers<T, R> trueFalseMappers(Function<T, R> trueExtractor, Function<T, R> falseExtractor) {
+        return TrueFalseMappers.of(trueExtractor, falseExtractor);
     }
 
-    public static <T, R> R applyMapper(Function<T, R> function, T target) {
-        return function.apply(target);
-    }
-
+    /**
+     * Builds an object representing a pair of functions, one to return a key in a <code>Map</code>, and the other to
+     * return its associated value. This method is meant to be used to build the second parameter to the
+     * {@link TransformUtils#transformToMap(Collection, KeyValueMapper)} method.
+     *
+     * @param keyMapper   Function to retrieve a value to be used as a key in a Map
+     * @param valueMapper Function to retrieve a value associated with a key in a Map
+     * @param <T>         The type of the target element on which the functions below are to be called.
+     * @param <K>         The type of a key value for a Map.
+     * @param <V>         The type of a value to be associated with a key in a Map.
+     * @return Builds an object representing a pair of functions, one to retrieve a Map key, and the other to retrieve
+     * its associated value.
+     */
     public static <T, K, V> KeyValueMapper<T, K, V> keyValueMapper(Function<T, K> keyMapper, Function<T, V> valueMapper) {
         return KeyValueMapper.of(keyMapper, valueMapper);
     }
