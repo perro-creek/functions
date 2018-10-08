@@ -59,32 +59,6 @@ class TransformUtilsSpec extends Specification {
         'collection containing null' | [null]     || [null]
     }
 
-    def 'transform with collector returns expected results'() {
-
-        given:
-        def list = [TestValue.ONE, TestValue.TWO]
-
-        when:
-        def enumSet = transform(list, toEnumSet(TestValue))
-
-        then:
-        enumSet == EnumSet.allOf(TestValue)
-        enumSet instanceof EnumSet
-    }
-
-    @Unroll
-    def 'transform with collector returns #expected for #scenario parameter'() {
-
-        expect:
-        transform(collection, toList()) == expected
-
-        where:
-        scenario                     | collection || expected
-        'empty'                      | []         || []
-        'null'                       | null       || []
-        'collection containing null' | [null]     || [null]
-    }
-
     def 'transform with mapping and collector returns expected results'() {
 
         given:

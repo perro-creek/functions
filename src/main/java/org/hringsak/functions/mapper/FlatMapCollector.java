@@ -3,6 +3,7 @@ package org.hringsak.functions.mapper;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 class FlatMapCollector<T, U, C extends Collection<U>> {
 
@@ -18,8 +19,8 @@ class FlatMapCollector<T, U, C extends Collection<U>> {
         return new FlatMapCollector<>(flatMapper, collector);
     }
 
-    Function<T, Collection<U>> getFlatMapper() {
-        return flatMapper;
+    Function<T, Stream<U>> getFlatMapper() {
+        return MapperUtils.flatMapper(flatMapper);
     }
 
     Collector<U, ?, C> getCollector() {
