@@ -22,6 +22,13 @@ final class CharSequenceUtils {
                 .anyMatch(isIntEqual(searchChar));
     }
 
+    static boolean containsIgnoreCase(CharSequence sequence, int searchChar) {
+        int lowerSearchChar = Character.toLowerCase(searchChar);
+        return sequence != null && sequence.codePoints()
+                .map(Character::toLowerCase)
+                .anyMatch(isIntEqual(lowerSearchChar));
+    }
+
     static boolean contains(CharSequence sequence, CharSequence searchSequence) {
         return new CharSequenceMatcher(sequence, searchSequence)
                 .containsSearchSequence();
@@ -38,12 +45,12 @@ final class CharSequenceUtils {
     }
 
     static boolean isCharacterMatch(CharSequence sequence, IntPredicate charPredicate) {
-        return !isNullOrEmpty(sequence) &&
+        return sequence != null &&
                 sequence.codePoints().allMatch(charPredicate);
     }
 
     static boolean noCharactersMatch(CharSequence sequence, IntPredicate charPredicate) {
-        return sequence != null &&
+        return sequence == null ||
                 sequence.codePoints().noneMatch(charPredicate);
     }
 

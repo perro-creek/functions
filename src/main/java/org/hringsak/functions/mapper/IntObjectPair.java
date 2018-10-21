@@ -22,7 +22,7 @@ public class IntObjectPair<T> {
      *
      * @param left  An int value to be paired with an associated object of type &lt;T&gt;.
      * @param right An object of type &lt;T&gt;.
-     * @param <T>   The type of the right attribute for the resulting DoubleObjectPair instance.
+     * @param <T>   The type of the right attribute for the resulting IntObjectPair instance.
      * @return A new instance of this class.
      */
     public static <T> IntObjectPair<T> of(int left, T right) {
@@ -30,7 +30,7 @@ public class IntObjectPair<T> {
     }
 
     /**
-     * Getter for the left <code>double</code> value associated with an object of type &lt;T&gt;.
+     * Getter for the left <code>int</code> value associated with an object of type &lt;T&gt;.
      *
      * @return An int value associated with an object of type &lt;T&gt;.
      */

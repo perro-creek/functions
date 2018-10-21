@@ -58,7 +58,7 @@ public class IntIndexPair {
     }
 
     /**
-     * Indicates whether some other object is "equal to" this one. The will be considered equal if the given object is
+     * Indicates whether some other object is "equal to" this one. They will be considered equal if the given object is
      * of the same class, and is either the identical object, or the primitive <code>int</code> and index attributes are
      * equal.
      *

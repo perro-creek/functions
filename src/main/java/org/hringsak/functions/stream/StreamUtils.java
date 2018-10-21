@@ -22,6 +22,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
 import static org.hringsak.functions.mapper.MapperUtils.pairWithIndex;
+import static org.hringsak.functions.predicate.PredicateUtils.contains;
 import static org.hringsak.functions.predicate.PredicateUtils.inverseContains;
 import static org.hringsak.functions.predicate.PredicateUtils.mapAndFilter;
 import static org.hringsak.functions.predicate.PredicateUtils.not;
@@ -168,7 +169,7 @@ public final class StreamUtils {
     public static <T> Set<T> subtract(Set<T> from, Set<T> toSubtract) {
         Stream<T> keyStream = defaultStream(from);
         Set<T> nonNullToSubtract = toSubtract == null ? emptySet() : toSubtract;
-        return keyStream.filter(not(inverseContains(nonNullToSubtract, identity())))
+        return keyStream.filter(not(contains(nonNullToSubtract, identity())))
                 .collect(toSet());
     }
 
