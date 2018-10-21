@@ -82,13 +82,13 @@ public final class MapperUtils {
      * on a <code>Stream</code>. In the following example, assume the <code>LineItemRequest</code> objects come in from
      * a rest API call, and we want to transform them into a collection of <code>OrderLineItem</code> objects:
      * <pre>
-     *     private Collection&lt;OrderLineItem&gt; buildOrderLineItems(Collection&lt;LineItemRequest&gt; requestLineItems, String orderId) {
-     *         return Collection&lt;OrderLineItem&gt; orderLineItems = requestLineItems.stream()
+     *     private Collection&lt;OrderLineItem&gt; buildOrderLineItems(Collection&lt;LineItemRequest&gt; lineItemRequests, String orderId) {
+     *         return Collection&lt;OrderLineItem&gt; orderLineItems = lineItemRequests.stream()
      *             .map(MapperUtils.mapper(this::createOrderLineItem, orderId))
      *             .collect(toList());
      *     }
      *
-     *     private OrderLineItem createOrderLineItem(RequestLineItem request, String orderId) {
+     *     private OrderLineItem createOrderLineItem(LineItemRequest request, String orderId) {
      *         ...
      *     }
      * </pre>

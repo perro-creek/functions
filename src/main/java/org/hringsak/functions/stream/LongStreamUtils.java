@@ -171,7 +171,7 @@ public final class LongStreamUtils {
         return defaultLongStream(longs)
                 .mapToObj(longPairWithIndex())
                 .filter(mapToLongAndFilter(LongIndexPair::getLongValue, predicate))
-                .mapToLong(LongIndexPair::getRight)
+                .mapToLong(LongIndexPair::getIndex)
                 .findFirst()
                 .orElse(-1);
     }

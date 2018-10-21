@@ -58,6 +58,19 @@ class CharSequenceUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'contains search char ignore case passing sequence "#sequence" returns #expected'() {
+
+        expect:
+        CharSequenceUtils.containsIgnoreCase(sequence, 69) == expected
+
+        where:
+        sequence | expected
+        'test'   | true
+        ''       | false
+        null     | false
+    }
+
+    @Unroll
     def 'contains search sequence passing target sequence "#targetSequence" and search sequence "#searchSequence" returns #expected'() {
 
         expect:
@@ -100,7 +113,7 @@ class CharSequenceUtilsSpec extends Specification {
         where:
         sequence  | expected
         null      | false
-        ''        | false
+        ''        | true
         'test'    | true
         'test123' | false
     }

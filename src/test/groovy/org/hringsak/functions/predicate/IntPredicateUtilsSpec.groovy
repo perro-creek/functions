@@ -313,7 +313,7 @@ class IntPredicateUtilsSpec extends Specification {
         'test123' | false
         '123'     | false
         null      | false
-        ''        | false
+        ''        | true
     }
 
     @Unroll

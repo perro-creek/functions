@@ -189,7 +189,7 @@ class LongMapperUtilsSpec extends Specification {
         def mapper = longPairWithIndex()
         (0..5).each { l ->
             with(mapper.apply(1L)) {
-                getRight() == l
+                getIndex() == l
             }
         }
     }

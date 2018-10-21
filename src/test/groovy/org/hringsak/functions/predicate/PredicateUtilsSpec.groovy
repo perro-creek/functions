@@ -229,7 +229,7 @@ class PredicateUtilsSpec extends Specification {
     def 'contains passing collection "#collection" and target "#target" returns "#expected"'() {
 
         expect:
-        def predicate = contains({ s -> collection }, target)
+        def predicate = contains(collection, { String s -> s.toString() })
         predicate.test(target) == expected
 
         where:
@@ -248,7 +248,7 @@ class PredicateUtilsSpec extends Specification {
     def 'inverse contains passing collection "#collection" and target "#target" returns "#expected"'() {
 
         expect:
-        def predicate = inverseContains(collection, { String s -> s.toString() })
+        def predicate = inverseContains({ s -> collection }, target)
         predicate.test(target) == expected
 
         where:
@@ -311,10 +311,25 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'contains char ignore case with string extractor passing value "#extractedString" and "#searchChar" returns "#expected"'() {
+
+        expect:
+        def predicate = containsCharIgnoreCase(Function.identity(), searchChar.codePointAt(0))
+        predicate.test(extractedString) == expected
+
+        where:
+        extractedString | searchChar | expected
+        null            | '\0'       | false
+        null            | 'E'        | false
+        'test'          | '\0'       | false
+        'test'          | 'E'        | true
+    }
+
+    @Unroll
     def 'contains sequence with string extractor passing value "#extractedString" and "#searchSeq" returns "#expected"'() {
 
         expect:
-        def predicate = containsSequence(Function.identity(), searchSeq)
+        def predicate = containsSeq(Function.identity(), searchSeq)
         predicate.test(extractedString) == expected
 
         where:
@@ -328,10 +343,10 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'contains ignore case with string extractor passing value "#extractedString" and "#searchSeq" returns "#expected"'() {
+    def 'contains sequence ignore case with string extractor passing value "#extractedString" and "#searchSeq" returns "#expected"'() {
 
         expect:
-        def predicate = containsIgnoreCase(Function.identity(), searchSeq)
+        def predicate = containsSeqIgnoreCase(Function.identity(), searchSeq)
         predicate.test(extractedString) == expected
 
         where:
@@ -356,7 +371,7 @@ class PredicateUtilsSpec extends Specification {
         where:
         extractedString | expected
         null            | false
-        ''              | false
+        ''              | true
         'test '         | false
         'test1'         | false
         'test'          | true
@@ -373,7 +388,7 @@ class PredicateUtilsSpec extends Specification {
         where:
         extractedString | expected
         null            | false
-        ''              | false
+        ''              | true
         'test '         | false
         'test1'         | true
         'test'          | true
@@ -392,7 +407,7 @@ class PredicateUtilsSpec extends Specification {
         where:
         extractedString | expected
         null            | false
-        ''              | false
+        ''              | true
         '123 '          | false
         '123a'          | false
         '1.23'          | false
@@ -501,7 +516,7 @@ class PredicateUtilsSpec extends Specification {
         'test123' | false
         '123'     | false
         null      | false
-        ''        | false
+        ''        | true
     }
 
     @Unroll
@@ -516,7 +531,7 @@ class PredicateUtilsSpec extends Specification {
         'test'    | false
         'test123' | false
         '123'     | true
-        null      | false
+        null      | true
         ''        | true
     }
 
@@ -601,8 +616,8 @@ class PredicateUtilsSpec extends Specification {
         null   | null  | false
         ''     | 'a'   | true
         'a'    | 'a'   | false
-        'a'    | null  | true
-        null   | 'a'   | false
+        'a'    | null  | false
+        null   | 'a'   | true
         'b'    | 'a'   | false
         'a'    | 'b'   | true
         'a'    | ''    | false
@@ -622,8 +637,8 @@ class PredicateUtilsSpec extends Specification {
         null   | null  | true
         ''     | 'a'   | true
         'a'    | 'a'   | true
-        'a'    | null  | true
-        null   | 'a'   | false
+        'a'    | null  | false
+        null   | 'a'   | true
         'b'    | 'a'   | false
         'a'    | 'b'   | true
         'a'    | ''    | false
