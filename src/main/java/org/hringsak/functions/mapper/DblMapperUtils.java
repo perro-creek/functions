@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
@@ -482,5 +483,57 @@ public final class DblMapperUtils {
      */
     public static <K, V> DblKeyValueMapper<K, V> dblKeyValueMapper(DoubleFunction<K> keyMapper, DoubleFunction<V> valueMapper) {
         return DblKeyValueMapper.of(keyMapper, valueMapper);
+    }
+
+    /**
+     * Builds a <code>DoubleUnaryOperator</code> that adds a constant value to a <code>double</code> parameter.
+     *
+     * @param toAdd A constant double value to be added to the parameter of a DoubleUnaryOperator.
+     * @return A DoubleUnaryOperator to whose parameter a constant double value will be added.
+     */
+    public static DoubleUnaryOperator dblAdd(double toAdd) {
+        return d -> d + toAdd;
+    }
+
+    /**
+     * Builds a <code>DoubleUnaryOperator</code> that subtracts a constant value from a <code>double</code> parameter.
+     *
+     * @param toSubtract A constant double value to be subtracted from the parameter of a DoubleUnaryOperator.
+     * @return A DoubleUnaryOperator from whose parameter a constant double value will be subtracted.
+     */
+    public static DoubleUnaryOperator dblSubtract(double toSubtract) {
+        return d -> d - toSubtract;
+    }
+
+    /**
+     * Builds a <code>DoubleUnaryOperator</code> that multiplies a constant value with a <code>double</code> parameter.
+     *
+     * @param factor A constant double value to be multiplied with the parameter of a DoubleUnaryOperator.
+     * @return A DoubleUnaryOperator whose parameter will be multiplied by a constant double value.
+     */
+    public static DoubleUnaryOperator dblMultiply(double factor) {
+        return d -> d * factor;
+    }
+
+    /**
+     * Builds a <code>DoubleUnaryOperator</code> that divides its <code>double</code> parameter by a constant value.
+     *
+     * @param divisor A constant double value to be divided into the parameter of a DoubleUnaryOperator.
+     * @return A DoubleUnaryOperator whose parameter will be divided by a constant double value.
+     */
+    public static DoubleUnaryOperator dblDivide(double divisor) {
+        return d -> d / divisor;
+    }
+
+    /**
+     * Builds a <code>DoubleUnaryOperator</code> that divides its <code>double</code> parameter by a constant value to
+     * get a remainder.
+     *
+     * @param divisor A constant double value to be divided into the parameter of a DoubleUnaryOperator to get a
+     *                remainder.
+     * @return A DoubleUnaryOperator whose parameter will be divided by a constant double value to get a remainder.
+     */
+    public static DoubleUnaryOperator dblModulo(double divisor) {
+        return d -> d % divisor;
     }
 }

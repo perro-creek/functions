@@ -35,6 +35,39 @@ public final class DblConsumerUtils {
     }
 
     /**
+     * Simply casts a method reference, which takes no parameters and returns void, to a <code>DoubleConsumer</code>.
+     * This could be useful in a situation where you have a method that takes no parameters, and has no return value,
+     * which you would like to call in a stream, for example, in the <code>DoubleStream.forEach(...)</code> method. In
+     * the following example, assume that <code>processDouble()</code> takes a single <code>double</code> parameter and
+     * has no return value, and <code>logCurrentState()</code> takes no parameter and has no return value:
+     * <pre>
+     *     double[] doubles = ...
+     *     Arrays.stream(doubles).forEach(DblConsumerUtils.dblConsumer(this::processDouble)
+     *             .andThen(DblConsumerUtils.dblConsumer(this::logCurrentState)));
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     Arrays.stream(doubles).forEach(dblConsumer(this::processDouble)
+     *             .andThen(dblConsumer(this::logCurrentState)));
+     * </pre>
+     * Admittedly, the fact that we are using <code>forEach(...)</code> here, using object state for the logging, and
+     * not returning any values, makes this code imperative, and not functional. However, casting a
+     * <code>Runnable</code> to a <code>DoubleConsumer</code> does come in handy at times.
+     * <p>
+     * Note that this method can also be used to cast a <code>Supplier</code> method reference to a
+     * <code>DoubleConsumer</code>, that is a reference to a method that takes no parameters, and returns an object of
+     * any type.
+     *
+     * @param runnable A method reference taking no parameters and having a return value of any type, including no
+     *                 return value, to be cast to a DoubleConsumer.
+     * @return A Runnable or Supplier method reference cast to a DoubleConsumer.
+     */
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    public static DoubleConsumer dblConsumer(Runnable runnable) {
+        return d -> runnable.run();
+    }
+
+    /**
      * Builds a <code>DoubleConsumer</code> from a passed <code>BiConsumer</code>. Everything said about the
      * {@link ConsumerUtils#consumer(BiConsumer, Object)} method applies here. The difference is that instead of an
      * element of type &lt;T&gt; being streamed through, it would be a primitive <code>double</code> instead. It may be

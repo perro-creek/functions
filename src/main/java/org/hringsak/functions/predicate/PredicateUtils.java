@@ -348,8 +348,8 @@ public final class PredicateUtils {
      * the passed collection contains at least one element e such that
      * <code>(o == null ? e == null : o.equals(e))</code>, o being the value returned from the passed function.
      *
-     * @param collection A Collection of elements of type &lt;R&gt;, to be checked if it contains a value returned from
-     *                   a passed function.
+     * @param collection A Collection of elements of type &lt;R&gt;, to be checked for whether it contains a value
+     *                   returned from a passed function.
      * @param function   A Function taking an element of type &lt;T&gt; and returning a value of type &lt;R&gt; to be
      *                   checked if it is contained in a passed Collection.
      * @param <T>        The type of the element taken by the Predicate built by this method.
@@ -371,8 +371,8 @@ public final class PredicateUtils {
      * <code>(o == null ? e == null : o.equals(e))</code>.
      * <p>
      * This method is similar to {@link #contains(Collection, Function)}, but instead of a built predicate checking
-     * whether a passed collection contains a value returned by a function, in this method a built predicate checks
-     * whether a collection returned by a function contains a passed value.
+     * whether a passed collection contains a value returned by a function, in this method it checks whether a
+     * collection returned by a function contains a passed value.
      *
      * @param function A Function that takes an element and returns a Collection of elements of type &lt;R&gt;.
      * @param value    A value of type &lt;R&gt; to be checked if a Collection returned by the above Function contains

@@ -6,7 +6,6 @@ import org.hringsak.functions.stream.StreamUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
@@ -14,13 +13,12 @@ import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
-import static org.hringsak.functions.predicate.CharSequenceUtils.isCharacterMatch;
+import static org.hringsak.functions.predicate.PredicateUtils.not;
 
 /**
  * Methods that build predicates specifically those involving primitive <code>double</code> types.
@@ -106,205 +104,642 @@ public final class DblPredicateUtils {
         return d -> biPredicate.test(d, value);
     }
 
+    /**
+     * Builds a <code>DoublePredicate</code> from a passed <code>BiPredicate&lt;Double, U&gt;</code>, which can be very
+     * useful in the common situation where you are streaming through a collection of elements, and have a predicate
+     * method to call that takes two parameters. In the
+     * <code>BiPredicate</code> passed to this method, the parameters are basically the same as in the call to
+     * {@link #dblPredicate(BiPredicate, Object)}, but in the inverse order. Here, the first parameter is a constant
+     * value that will be passed to all invocations of the method, and the second parameter is the target
+     * <code>double</code> element on which you are streaming. This would typically be called from within a chain of
+     * method calls based on a <code>DoubleStream</code>. In the following example, assume the <code>Stock</code>
+     * objects passed to the <code>getHighestPriceOfStockBelowLimit(...)</code> method are to be filtered based on
+     * whether their price is less than a limit for the passed <code>Client</code>:
+     * <pre>
+     *     private double[] getHighestPriceOfStockBelowLimit(Collection&lt;Stock&gt; stocks, Client client) {
+     *         return stocks.stream()
+     *             .mapToDouble(Stock::getPrice)
+     *             .filter(DblPredicateUtils.inverseDblPredicate(this::isPriceBelowLimit, client))
+     *             .max()
+     *             .orElse(-1.0D);
+     *     }
+     *
+     *     private boolean isPriceBelowLimit(Client client, double price) {
+     *         ...
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     return stocks.stream()
+     *         .mapToDouble(Stock::getPrice)
+     *         .filter(inverseDblPredicate(this::isPriceBelowLimit, client))
+     *         .max()
+     *         .orElse(-1.0D);
+     * </pre>
+     *
+     * @param biPredicate A method reference (a BiPredicate) which takes two parameters - the first of type
+     *                    &lt;U&gt;, and the second of type Double. The method reference will be converted by this
+     *                    method to a DoublePredicate. Behind the scenes, this BiPredicate will be called, passing the
+     *                    constant value to each invocation as the first parameter.
+     * @param value       A constant value, in that it will be passed to every invocation of the passed biPredicate as
+     *                    the first parameter to it, and will have the same value for each of them.
+     * @param <U>         The type of the constant value to be passed as the first parameter to each invocation of
+     *                    biPredicate.
+     * @return A DoublePredicate adapted from the passed BiPredicate.
+     */
     public static <U> DoublePredicate inverseDblPredicate(BiPredicate<? super U, Double> biPredicate, U value) {
         return d -> biPredicate.test(value, d);
     }
 
+    /**
+     * Builds a predicate based on a passed constant <code>boolean</code> value. The target element of type
+     * <code>double</code> that is passed to the predicate is ignored, and the constant value is simply returned. This
+     * comes in handy when combining one predicate with another using <code>Predicate.and(...)</code> or
+     * <code>Predicate.or(...)</code>. Consider the following example:
+     * <pre>
+     *     private double[] getHighestPriceOfStockBelowLimit(Collection&lt;Stock&gt; stocks, Client client) {
+     *         boolean hasLimit = client.getLimit() &gt; 0.0D;
+     *         return stocks.stream()
+     *             .mapToDouble(Stock::getPrice)
+     *             .filter(DblPredicateUtils.dblNot(DblPredicateUtils.dblConstant(hasLimit))
+     *                 .or(DblPredicateUtils.dblPredicate(this::isPriceBelowLimit, client))
+     *             .max()
+     *             .orElse(-1.0D);
+     *     }
+     *
+     *     private boolean isPriceBelowLimit(double price, Client client) {
+     *         ...
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     return stocks.stream()
+     *         .mapToDouble(Stock::getPrice)
+     *         .filter(dblNot(dblConstant(hasLimit))
+     *             .or(dblPredicate(this::isPriceBelowLimit, client))
+     *         .max()
+     *         .orElse(-1.0D);
+     * </pre>
+     *
+     * @param b A constant boolean value that will be the result of every invocation of the returned DoublePredicate.
+     * @return A DoublePredicate returning a constant boolean value.
+     */
     public static DoublePredicate dblConstant(boolean b) {
         return d -> b;
     }
 
-    public static DoublePredicate fromDblMapper(DoubleFunction<Boolean> function) {
-        return function::apply;
-    }
-
+    /**
+     * A <code>DoublePredicate</code> that simply negates the passed <code>DoublePredicate</code>. A predicate can
+     * always be negated via <code>predicate.negate()</code>, however using this method may improve readability.
+     *
+     * @param predicate A DoublePredicate whose result is to be negated.
+     * @return A DoublePredicate to be negated.
+     */
     public static DoublePredicate dblNot(DoublePredicate predicate) {
         return predicate.negate();
     }
 
-    public static <R extends CharSequence> DoublePredicate isDblSeqEmpty(DoubleFunction<? extends R> function) {
-        return d -> {
-            CharSequence seq = function.apply(d);
-            return seq == null || seq.length() == 0;
-        };
-    }
-
-    public static <R extends CharSequence> DoublePredicate isDblSeqNotEmpty(DoubleFunction<? extends R> function) {
-        return dblNot(isDblSeqEmpty(function));
-    }
-
-    public static <R extends CharSequence> DoublePredicate dblEqualsIgnoreCase(DoubleFunction<? extends R> function, R value) {
-        return d -> CharSequenceUtils.equalsIgnoreCase(function.apply(d), value);
-    }
-
-    public static <R extends CharSequence> DoublePredicate dblNotEqualsIgnoreCase(DoubleFunction<? extends R> function, R value) {
-        return dblNot(dblEqualsIgnoreCase(function, value));
-    }
-
+    /**
+     * This method builds a <code>DoublePredicate</code> whose parameter is to be compared for equality to the passed
+     * <code>double</code> constant value.
+     *
+     * @param value A constant value to be compared to the parameter of the DoublePredicate built by this method.
+     * @return A DoublePredicate that compares its parameter to a constant double value for equality.
+     */
     public static DoublePredicate isDblEqual(double value) {
         return d -> d == value;
     }
 
+    /**
+     * This method builds a <code>DoublePredicate</code> whose parameter is to be compared for equality to the passed
+     * <code>double</code> constant value. If the absolute value of the difference between the two numbers is less than
+     * or equal to a passed delta, the values will be considered equal.
+     *
+     * @param value A constant value to be compared to the parameter of the DoublePredicate built by this method.
+     * @param delta A delta value meaning that if the absolute value of the difference between the two numbers to be
+     *              compared is less than or equal to the delta, the values will be considered equal.
+     * @return A DoublePredicate that compares its parameter to a constant double value for equality within a delta
+     * value.
+     */
+    public static DoublePredicate isDblEqual(double value, double delta) {
+        return d -> DoubleWithDelta.of(value, delta).isEqualWithinDelta(d);
+    }
+
+    /**
+     * Given a <code>DoubleUnaryOperator</code> this method builds a <code>DoublePredicate</code> that determines if the
+     * value returned by that operator is equal to the passed constant double value. For example:
+     * <pre>
+     *     double[] doubles = IntStream.range(1, 10).asDoubleStream().toArray();
+     *     double[] evens = Arrays.stream(doubles)
+     *             .filter(DblPredicateUtils.isDblEqual(DblMapperUtils.dblModulo(2.0D), 0.0D))
+     *             .toArray();
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     double[] evens = Arrays.stream(doubles)
+     *             .filter(isDblEqual(dblModulo(2.0D), 0.0D))
+     *             .toArray();
+     * </pre>
+     *
+     * @param operator A DoubleUnaryOperator whose return value is to be compared with a passed constant double value
+     *                 for equality.
+     * @param value    A value to be compared to the result of the passed operator for equality.
+     * @return A DoublePredicate whose return value is compared for equality to a passed constant double value.
+     */
     public static DoublePredicate isDblEqual(DoubleUnaryOperator operator, double value) {
         return d -> operator.applyAsDouble(d) == value;
     }
 
-    public static <R> DoublePredicate isDblMapperEqual(DoubleFunction<? extends R> function, R value) {
-        return d -> Objects.equals(function.apply(d), value);
+    /**
+     * Given a <code>DoubleUnaryOperator</code> this method builds a <code>DoublePredicate</code> that determines if a
+     * value returned by that operator is equal to a constant double value, within a delta parameter.
+     * <pre>
+     *     double[] doubles = IntStream.range(1, 10).asDoubleStream().toArray();
+     *     double[] evens = Arrays.stream(doubles)
+     *             .filter(DblPredicateUtils.isDblEqual(DblMapperUtils.dblModulo(2.0D), DblPredicateUtils.doubleWithDelta(0.0D, 0.000001D)))
+     *             .toArray();
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     double[] evens = Arrays.stream(doubles)
+     *             .filter(isDblEqual(dblModulo(2.0D), doubleWithDelta(0.0D, 0.000001D)))
+     *             .toArray();
+     * </pre>
+     *
+     * @param operator        A DoubleUnaryOperator whose return value is to be compared with a passed constant double
+     *                        value for equality.
+     * @param doubleWithDelta An object containing a constant double value for comparison, and a double delta.
+     * @return A DoublePredicate whose parameter is to be applied to the passed operator, and the result is compared for
+     * equality to a constant double value. If the difference is less than or equal to a delta value, then the values
+     * are considered equal.
+     */
+    public static DoublePredicate isDblEqual(DoubleUnaryOperator operator, DoubleWithDelta doubleWithDelta) {
+        return d -> doubleWithDelta.isEqualWithinDelta(operator.applyAsDouble(d));
     }
 
+    /**
+     * This method builds a <code>DoublePredicate</code> whose parameter is to be compared for inequality to the passed
+     * <code>double</code> constant value.
+     *
+     * @param value A constant value to be compared to the parameter of the DoublePredicate built by this method.
+     * @return A DoublePredicate that compares its parameter to a constant double value for inequality.
+     */
     public static DoublePredicate isDblNotEqual(double value) {
         return dblNot(isDblEqual(value));
     }
 
+    /**
+     * This method builds a <code>DoublePredicate</code> whose parameter is to be compared for inequality to the passed
+     * <code>double</code> constant value. If the absolute value of the difference between the two numbers is greater
+     * than a passed delta, the values will be considered <i>not</i> equal.
+     *
+     * @param value A constant value to be compared to the parameter of the DoublePredicate built by this method.
+     * @param delta A delta value meaning that if the absolute value of the difference between the two numbers to be
+     *              compared is greater than the delta, the values will be considered <i>not</i> equal.
+     * @return A DoublePredicate that compares its parameter to a constant double value for inequality outside of a
+     * delta value.
+     */
+    public static DoublePredicate isDblNotEqual(double value, double delta) {
+        return d -> !DoubleWithDelta.of(value, delta).isEqualWithinDelta(d);
+    }
+
+    /**
+     * Given a <code>DoubleUnaryOperator</code> this method builds a <code>DoublePredicate</code> that determines if the
+     * value returned by that operator is <i>not</i> equal to the passed constant double value. For example:
+     * <pre>
+     *     double[] doubles = IntStream.range(1, 10).asDoubleStream().toArray();
+     *     double[] odds = Arrays.stream(doubles)
+     *             .filter(DblPredicateUtils.isDblNotEqual(DblMapperUtils.dblModulo(2.0D), 0.0D))
+     *             .toArray();
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     double[] odds = Arrays.stream(doubles)
+     *             .filter(isDblNotEqual(dblModulo(2.0D), 0.0D))
+     *             .toArray();
+     * </pre>
+     *
+     * @param operator A DoubleUnaryOperator whose return value is to be compared with a passed constant double value
+     *                 for inequality.
+     * @param value    A value to be compared to the result of the passed operator for inequality.
+     * @return A DoublePredicate whose return value is compared for inequality to a passed constant double value.
+     */
     public static DoublePredicate isDblNotEqual(DoubleUnaryOperator operator, double value) {
         return dblNot(isDblEqual(operator, value));
     }
 
-    public static <R> DoublePredicate isDblMapperNotEqual(DoubleFunction<? extends R> function, R value) {
-        return dblNot(isDblMapperEqual(function, value));
+    /**
+     * Given a <code>DoubleUnaryOperator</code> this method builds a <code>DoublePredicate</code> that determines if a
+     * value returned by that operator is equal to a constant double value, within a delta parameter.
+     * <pre>
+     *     double[] doubles = IntStream.range(1, 10).asDoubleStream().toArray();
+     *     double[] odds = Arrays.stream(doubles)
+     *             .filter(DblPredicateUtils.isDblNotEqual(DblMapperUtils.dblModulo(2.0D), DblPredicateUtils.doubleWithDelta(0.0D, 0.000001D)))
+     *             .toArray();
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     double[] odds = Arrays.stream(doubles)
+     *             .filter(isDblNotEqual(dblModulo(2.0D), doubleWithDelta(0.0D, 0.000001D)))
+     *             .toArray();
+     * </pre>
+     *
+     * @param operator        A DoubleUnaryOperator whose return value is to be compared with a constant double value
+     *                        for inequality, within a delta.
+     * @param doubleWithDelta An object containing a constant double value for comparison, and a double delta.
+     * @return A DoublePredicate whose parameter is to be applied to the passed operator, and the result is compared for
+     * equality to a constant double value. If the difference is less than or equal to a delta value, then the values
+     * are considered equal.
+     */
+    public static DoublePredicate isDblNotEqual(DoubleUnaryOperator operator, DoubleWithDelta doubleWithDelta) {
+        return d -> !doubleWithDelta.isEqualWithinDelta(operator.applyAsDouble(d));
     }
 
-    public static <R> DoublePredicate dblToObjsContains(DoubleFunction<? extends Collection<R>> collectionExtractor, R value) {
+    /**
+     * Given a <code>Collection</code> whose elements are of type &lt;R&gt;, and a <code>DoubleFunction</code> that
+     * returns a value of type &lt;R&gt;, this method builds a <code>DoublePredicate</code> that determines if the given
+     * collection contains the value returned by the double function. More formally, the <code>DoublePredicate</code>
+     * built by this method returns <code>true</code> if and only if the passed collection contains at least one element
+     * e such that <code>(o == null ? e == null : o.equals(e))</code>, o being the value returned from the passed
+     * double function.
+     *
+     * @param collection A Collection of elements of type &lt;R&gt;, to be checked for whether it contains a value
+     *                   returned from a passed DoubleFunction.
+     * @param function   A DoubleFunction returning a value of type &lt;R&gt; to be checked for whether it is contained
+     *                   in a passed Collection.
+     * @param <R>        The type of elements in the passed Collection. Also, the type of the value returned by the
+     *                   passed DoubleFunction.
+     * @return A DoublePredicate that applies the given DoubleFunction to its parameter, resulting in a value of type
+     * &lt;R&gt;. The DoublePredicate checks that the returned value is contained in a passed Collection.
+     */
+    public static <R> DoublePredicate dblToObjContains(Collection<? extends R> collection, DoubleFunction<? extends R> function) {
+        return d -> collection != null && collection.contains(function.apply(d));
+    }
+
+    /**
+     * Given a <code>DoubleFunction</code> that returns a <code>Collection&lt;R&gt;</code>, this method builds a
+     * <code>DoublePredicate</code> that determines if the collection returned by that double function contains the
+     * passed <code>value</code> of type &lt;R&gt;. More formally, the <code>DoublePredicate</code> built by this method
+     * returns <code>true</code> if and only if the returned collection contains at least one element e such that
+     * <code>(o == null ? e == null : o.equals(e))</code>, o being the passed constant value of type &lt;R&gt;.
+     * <p>
+     * This method is similar to {@link #dblToObjContains(Collection, DoubleFunction)}, but instead of a built
+     * predicate checking whether a passed collection contains a value returned by a function, in this method it checks
+     * whether a collection returned by a double function contains a passed value.
+     *
+     * @param function A DoubleFunction that returns a Collection of elements of type &lt;R&gt;.
+     * @param value    A value of type &lt;R&gt; to be checked for whether a Collection returned by the above Function
+     *                 contains it.
+     * @param <R>      The type of elements for collections returned by a passed DoubleFunction. Also, the type of the
+     *                 passed value.
+     * @return A DoublePredicate that applies the given double function to its parameter resulting in a
+     * Collection&lt;R&gt;. The DoublePredicate checks that the returned Collection contains a passed constant value of
+     * type &lt;R&gt;.
+     */
+    public static <R> DoublePredicate inverseDblToObjContains(DoubleFunction<? extends Collection<R>> function, R value) {
         return d -> {
-            Collection<R> collection = collectionExtractor.apply(d);
+            Collection<R> collection = function.apply(d);
             return collection != null && collection.contains(value);
         };
     }
 
-    public static <T> Predicate<T> objToDblsContains(Function<T, double[]> collectionExtractor, double value) {
-        return t -> {
-            double[] doubles = collectionExtractor.apply(t);
-            return DblStreamUtils.dblAnyMatch(doubles, isDblEqual(value));
-        };
-    }
-
-    public static <R> DoublePredicate inverseDblToObjContains(Collection<? extends R> collection, DoubleFunction<? extends R> function) {
-        return d -> collection != null && collection.contains(function.apply(d));
-    }
-
-    public static <T> Predicate<T> inverseObjToDblContains(double[] doubles, ToDoubleFunction<? super T> function) {
+    /**
+     * Given a <code>double</code> array, and a <code>ToDoubleFunction</code> that takes an element of type &lt;T&gt;,
+     * this method builds a <code>Predicate</code> that determines if the given array contains the value returned by the
+     * <code>ToDoubleFunction</code>.
+     *
+     * @param doubles  An array of doubles, to be checked for whether it contains a value returned from a passed
+     *                 ToDoubleFunction.
+     * @param function A ToDoubleFunction taking a value of type &lt;T&gt;, whose return value is to be checked for
+     *                 whether it is contained in a passed array.
+     * @param <T>      The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies the given ToDoubleFunction to its parameter of type &lt;T&gt;. The Predicate
+     * checks that the returned value is contained in a passed array of doubles.
+     */
+    public static <T> Predicate<T> objToDblContains(double[] doubles, ToDoubleFunction<? super T> function) {
         return t -> doubles != null && DblStreamUtils.dblAnyMatch(doubles, isDblEqual(function.applyAsDouble(t)));
     }
 
-    public static <R> DoublePredicate dblContainsKey(Map<R, ?> map, DoubleFunction<? extends R> function) {
-        return d -> map != null && map.containsKey(function.apply(d));
+    /**
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns an array of doubles, this
+     * method builds a <code>Predicate</code> that determines if the array returned by that function contains the passed
+     * constant double value.
+     * <p>
+     * This method is similar to {@link #objToDblContains(double[], ToDoubleFunction)}, but instead of a built
+     * predicate checking whether a passed array contains a value returned by a function, in this method it checks
+     * whether an array returned by a function contains a passed double value.
+     *
+     * @param function A Function that returns an array of doubles.
+     * @param value    A constant double value to be checked for whether an array of doubles returned by the above
+     *                 Function contains it.
+     * @param <T>      The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies the given function to its parameter resulting in a double array. The Predicate
+     * checks that the returned array contains a passed constant double value.
+     */
+    public static <T> Predicate<T> inverseObjToDblContains(Function<T, double[]> function, double value) {
+        return t -> t != null && DblStreamUtils.dblAnyMatch(function.apply(t), isDblEqual(value));
     }
 
-    public static <R> DoublePredicate dblContainsValue(Map<?, R> map, DoubleFunction<? extends R> function) {
-        return d -> map != null && map.containsValue(function.apply(d));
-    }
-
-    public static DoublePredicate dblContainsChar(DoubleFunction<? extends CharSequence> function, int searchChar) {
-        return d -> CharSequenceUtils.contains(function.apply(d), searchChar);
-    }
-
-    public static DoublePredicate dblContainsSequence(DoubleFunction<? extends CharSequence> function, CharSequence searchSeq) {
-        return d -> CharSequenceUtils.contains(function.apply(d), searchSeq);
-    }
-
-    public static DoublePredicate dblContainsIgnoreCase(DoubleFunction<? extends CharSequence> function, CharSequence searchSeq) {
-        return d -> CharSequenceUtils.containsIgnoreCase(function.apply(d), searchSeq);
-    }
-
-    public static DoublePredicate dblIsAlpha(DoubleFunction<? extends CharSequence> function) {
-        return d -> isCharacterMatch(function.apply(d), Character::isLetter);
-    }
-
-    public static DoublePredicate dblIsAlphanumeric(DoubleFunction<? extends CharSequence> function) {
-        return d -> isCharacterMatch(function.apply(d), Character::isLetterOrDigit);
-    }
-
-    public static DoublePredicate dblIsNumeric(DoubleFunction<? extends CharSequence> function) {
-        return d -> isCharacterMatch(function.apply(d), Character::isDigit);
-    }
-
-    public static DoublePredicate dblStartsWith(DoubleFunction<? extends CharSequence> function, CharSequence prefix) {
-        return d -> CharSequenceUtils.startsWith(function.apply(d), prefix);
-    }
-
-    public static DoublePredicate dblStartsWithIgnoreCase(DoubleFunction<? extends CharSequence> function, CharSequence prefix) {
-        return d -> CharSequenceUtils.startsWithIgnoreCase(function.apply(d), prefix);
-    }
-
-    public static DoublePredicate dblEndsWith(DoubleFunction<? extends CharSequence> function, CharSequence suffix) {
-        return d -> CharSequenceUtils.endsWith(function.apply(d), suffix);
-    }
-
-    public static DoublePredicate dblEndsWithIgnoreCase(DoubleFunction<? extends CharSequence> function, CharSequence suffix) {
-        return d -> CharSequenceUtils.endsWithIgnoreCase(function.apply(d), suffix);
-    }
-
-    public static DoublePredicate dblAnyCharsMatch(DoubleFunction<? extends CharSequence> function, IntPredicate charPredicate) {
-        return d -> {
-            CharSequence sequence = function.apply(d);
-            return sequence != null && sequence.codePoints().anyMatch(charPredicate);
-        };
-    }
-
-    public static DoublePredicate dblAllCharsMatch(DoubleFunction<? extends CharSequence> function, IntPredicate charPredicate) {
-        return d -> isCharacterMatch(function.apply(d), charPredicate);
-    }
-
-    public static DoublePredicate dblNoCharsMatch(DoubleFunction<? extends CharSequence> function, IntPredicate charPredicate) {
-        return d -> {
-            CharSequence sequence = function.apply(d);
-            return sequence != null && sequence.codePoints().noneMatch(charPredicate);
-        };
-    }
-
-    public static <R> DoublePredicate isDblNull(DoubleFunction<? extends R> function) {
+    /**
+     * Given a DoubleFunction that returns a value of type &lt;R&gt;, this method builds a <code>DoublePredicate</code>
+     * that determines whether that returned value is <code>null</code>.
+     *
+     * @param function A DoubleFunction that returns a value of an arbitrary type.
+     * @return A DoublePredicate that applies a DoubleFunction to its parameter, which returns a value of an arbitrary
+     * type. The predicate determines whether that value is null.
+     */
+    public static DoublePredicate dblIsNull(DoubleFunction<?> function) {
         return d -> Objects.isNull(function.apply(d));
     }
 
-    public static <R> DoublePredicate isDblNotNull(DoubleFunction<? extends R> function) {
-        return dblNot(isDblNull(function));
+    /**
+     * Given a DoubleFunction that returns a value of type &lt;R&gt;, this method builds a <code>DoublePredicate</code>
+     * that determines whether that returned value is <i>not</i> <code>null</code>.
+     *
+     * @param function A DoubleFunction that returns a value of an arbitrary type.
+     * @return A DoublePredicate that applies a DoubleFunction to its parameter, which returns a value of an arbitrary
+     * type. The predicate determines whether that value is not null.
+     */
+    public static DoublePredicate dblIsNotNull(DoubleFunction<?> function) {
+        return dblNot(dblIsNull(function));
     }
 
+    /**
+     * Builds a <code>DoublePredicate</code> that determines whether a value is greater than a passed constant double
+     * value.
+     *
+     * @param compareTo A constant double value to be compared to the target value of a DoublePredicate built by this
+     *                  method.
+     * @return A DoublePredicate that compares its target value to a passed constant double value and determines
+     * whether it is greater than that value.
+     */
     public static DoublePredicate dblGt(double compareTo) {
         return d -> d > compareTo;
     }
 
+    /**
+     * Given a <code>DoubleFunction</code> that returns a value of type &lt;R&gt;, and a constant value of type
+     * &lt;R&gt;, this method builds a <code>DoublePredicate</code> that applies that function to its target value, and
+     * determines whether the returned <code>Comparable</code> value is greater than a passed constant value of type
+     * &lt;R&gt; (also a <code>Comparable</code>).
+     *
+     * @param function  A DoubleFunction whose return value of type &lt;R&gt; is to be compared to the passed Comparable
+     *                  value of type &lt;R&gt;.
+     * @param compareTo A constant value of type &lt;R&gt; to be compared to the return value of a DoubleFunction.
+     * @param <R>       The return type of the passed DoubleFunction parameter. Also, the type of the passed constant
+     *                  value.
+     * @return A DoublePredicate that applies a DoubleFunction to its target value, and compares its Comparable return
+     * value to a passed constant value to determine whether the return value is greater.
+     */
     public static <R extends Comparable<R>> DoublePredicate dblGt(DoubleFunction<? extends R> function, R compareTo) {
         return d -> Objects.compare(function.apply(d), compareTo, nullsLast(naturalOrder())) > 0;
     }
 
+    /**
+     * Given a <code>ToDoubleFunction</code> that takes an element of type &lt;T&gt;, this method builds a
+     * <code>Predicate</code> that compares the return value of that function, and determines whether it is greater than
+     * a passed constant double value.
+     *
+     * @param function  A ToDoubleFunction that takes an element of type &lt;T&gt;, whose return value is to be compared
+     *                  by the Predicate built by this method, with a passed constant double value to see whether it is
+     *                  greater.
+     * @param compareTo A constant double value to be compared with a value returned by a passed ToDoubleFunction.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies a ToDoubleFunction to its target element, and compares its double return value
+     * to a passed constant value to determine whether the return value is greater.
+     */
+    public static <T> Predicate<T> toDblGt(ToDoubleFunction<? super T> function, double compareTo) {
+        return t -> t != null && function.applyAsDouble(t) > compareTo;
+    }
+
+    /**
+     * Builds a <code>DoublePredicate</code> that determines whether a value is greater than or equal to a passed
+     * constant double value.
+     *
+     * @param compareTo A constant double value to be compared to the target value of a DoublePredicate built by this
+     *                  method.
+     * @return A DoublePredicate that compares its target value to a passed constant double value and determines
+     * whether it is greater than or equal to that value.
+     */
     public static DoublePredicate dblGte(double compareTo) {
         return d -> d >= compareTo;
     }
 
+    /**
+     * Given a <code>DoubleFunction</code> that returns a value of type &lt;R&gt;, and a constant value of type
+     * &lt;R&gt;, this method builds a <code>DoublePredicate</code> that applies that function to its target value, and
+     * determines whether the returned <code>Comparable</code> value is greater than or equal to a passed constant value
+     * of type &lt;R&gt; (also a <code>Comparable</code>).
+     *
+     * @param function  A DoubleFunction whose return value of type &lt;R&gt; is to be compared to the passed Comparable
+     *                  value of type &lt;R&gt;.
+     * @param compareTo A constant value of type &lt;R&gt; to be compared to the return value of a DoubleFunction.
+     * @param <R>       The return type of the passed DoubleFunction parameter. Also, the type of the passed constant
+     *                  value.
+     * @return A DoublePredicate that applies a DoubleFunction to its target value, and compares its Comparable return
+     * value to a passed constant value to determine whether the return value is greater or equal to it.
+     */
     public static <R extends Comparable<R>> DoublePredicate dblGte(DoubleFunction<? extends R> function, R compareTo) {
         return d -> Objects.compare(function.apply(d), compareTo, nullsLast(naturalOrder())) >= 0;
     }
 
+    /**
+     * Given a <code>ToDoubleFunction</code> that takes an element of type &lt;T&gt;, this method builds a
+     * <code>Predicate</code> that compares the return value of that function, and determines whether it is greater than
+     * or equal to a passed constant double value.
+     *
+     * @param function  A ToDoubleFunction that takes an element of type &lt;T&gt;, whose return value is to be compared
+     *                  by the Predicate built by this method, with a passed constant double value to see whether it is
+     *                  greater than or equal to it.
+     * @param compareTo A constant double value to be compared with a value returned by a passed ToDoubleFunction.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies a ToDoubleFunction to its target element, and compares its double return value
+     * to a passed constant value to determine whether the return value is greater than or equal to it.
+     */
+    public static <T> Predicate<T> toDblGte(ToDoubleFunction<? super T> function, double compareTo) {
+        return t -> t != null && function.applyAsDouble(t) >= compareTo;
+    }
+
+    /**
+     * Builds a <code>DoublePredicate</code> that determines whether a value is less than a passed constant double
+     * value.
+     *
+     * @param compareTo A constant double value to be compared to the target value of a DoublePredicate built by this
+     *                  method.
+     * @return A DoublePredicate that compares its target value to a passed constant double value and determines
+     * whether it is less than that value.
+     */
     public static DoublePredicate dblLt(double compareTo) {
         return d -> d < compareTo;
     }
 
+    /**
+     * Given a <code>DoubleFunction</code> that returns a value of type &lt;R&gt;, and a constant value of type
+     * &lt;R&gt;, this method builds a <code>DoublePredicate</code> that applies that function to its target value, and
+     * determines whether the returned <code>Comparable</code> value is less than a passed constant value of type
+     * &lt;R&gt; (also a <code>Comparable</code>).
+     *
+     * @param function  A DoubleFunction whose return value of type &lt;R&gt; is to be compared to the passed Comparable
+     *                  value of type &lt;R&gt;.
+     * @param compareTo A constant value of type &lt;R&gt; to be compared to the return value of a DoubleFunction.
+     * @param <R>       The return type of the passed DoubleFunction parameter. Also, the type of the passed constant
+     *                  value.
+     * @return A DoublePredicate that applies a DoubleFunction to its target value, and compares its Comparable return
+     * value to a passed constant value to determine whether the return value is less than it.
+     */
     public static <R extends Comparable<R>> DoublePredicate dblLt(DoubleFunction<? extends R> function, R compareTo) {
         return d -> Objects.compare(function.apply(d), compareTo, nullsLast(naturalOrder())) < 0;
     }
 
+    /**
+     * Given a <code>ToDoubleFunction</code> that takes an element of type &lt;T&gt;, this method builds a
+     * <code>Predicate</code> that compares the return value of that function, and determines whether it is less than a
+     * passed constant double value.
+     *
+     * @param function  A ToDoubleFunction that takes an element of type &lt;T&gt;, whose return value is to be compared
+     *                  by the Predicate built by this method, with a passed constant double value to see whether it is
+     *                  less than it.
+     * @param compareTo A constant double value to be compared with a value returned by a passed ToDoubleFunction.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies a ToDoubleFunction to its target element, and compares its double return value
+     * to a passed constant value to determine whether the return value is less than it.
+     */
+    public static <T> Predicate<T> toDblLt(ToDoubleFunction<? super T> function, double compareTo) {
+        return t -> t != null && function.applyAsDouble(t) < compareTo;
+    }
+
+    /**
+     * Builds a <code>DoublePredicate</code> that determines whether a value is less than or equal to a passed constant
+     * double value.
+     *
+     * @param compareTo A constant double value to be compared to the target value of a DoublePredicate built by this
+     *                  method.
+     * @return A DoublePredicate that compares its target value to a passed constant double value and determines
+     * whether it is less than or equal to that value.
+     */
     public static DoublePredicate dblLte(double compareTo) {
         return d -> d <= compareTo;
     }
 
+    /**
+     * Given a <code>DoubleFunction</code> that returns a value of type &lt;R&gt;, and a constant value of type
+     * &lt;R&gt;, this method builds a <code>DoublePredicate</code> that applies that function to its target value, and
+     * determines whether the returned <code>Comparable</code> value is less than or equal to a passed constant value of
+     * type &lt;R&gt; (also a <code>Comparable</code>).
+     *
+     * @param function  A DoubleFunction whose return value of type &lt;R&gt; is to be compared to the passed Comparable
+     *                  value of type &lt;R&gt;.
+     * @param compareTo A constant value of type &lt;R&gt; to be compared to the return value of a DoubleFunction.
+     * @param <R>       The return type of the passed DoubleFunction parameter. Also, the type of the passed constant
+     *                  value.
+     * @return A DoublePredicate that applies a DoubleFunction to its target value, and compares its Comparable return
+     * value to a passed constant value to determine whether the return value is less or equal to it.
+     */
     public static <R extends Comparable<R>> DoublePredicate dblLte(DoubleFunction<? extends R> function, R compareTo) {
         return d -> Objects.compare(function.apply(d), compareTo, nullsLast(naturalOrder())) <= 0;
     }
 
-    public static <R> DoublePredicate isDblCollEmpty(DoubleFunction<? extends Collection<R>> function) {
+    /**
+     * Given a <code>ToDoubleFunction</code> that takes an element of type &lt;T&gt;, this method builds a
+     * <code>Predicate</code> that compares the return value of that function, and determines whether it is less than or
+     * equal to a passed constant double value.
+     *
+     * @param function  A ToDoubleFunction that takes an element of type &lt;T&gt;, whose return value is to be compared
+     *                  by the Predicate built by this method, with a passed constant double value to see whether it is
+     *                  less than or equal to it.
+     * @param compareTo A constant double value to be compared with a value returned by a passed ToDoubleFunction.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies a ToDoubleFunction to its target element, and compares its double return value
+     * to a passed constant value to determine whether the return value is less than or equal to it.
+     */
+    public static <T> Predicate<T> toDblLte(ToDoubleFunction<? super T> function, double compareTo) {
+        return t -> t != null && function.applyAsDouble(t) <= compareTo;
+    }
+
+    /**
+     * Given a <code>DoubleFunction</code> that returns a <code>Collection</code> of elements of an arbitrary type, this
+     * method builds a <code>DoublePredicate</code> that determines whether the returned <code>Collection</code> is
+     * empty.
+     *
+     * @param function A DoubleFunction that returns a <code>Collection</code> of elements of an arbitrary type.
+     * @return A DoublePredicate that applies its parameter to a DoubleFunction that returns a Collection of elements of
+     * an arbitrary type. The DoublePredicate determines whether the returned Collection is empty.
+     */
+    public static DoublePredicate isDblCollEmpty(DoubleFunction<? extends Collection<?>> function) {
         return d -> CollectionUtils.isEmpty(function.apply(d));
     }
 
-    public static <R> DoublePredicate isDblCollNotEmpty(DoubleFunction<? extends Collection<R>> function) {
+    /**
+     * Given a <code>DoubleFunction</code> that returns a <code>Collection</code> of elements of an arbitrary type, this
+     * method builds a <code>DoublePredicate</code> that determines whether the returned <code>Collection</code> is
+     * <i>not</i> empty.
+     *
+     * @param function A DoubleFunction that returns a <code>Collection</code> of elements of an arbitrary type.
+     * @return A DoublePredicate that applies its parameter to a DoubleFunction that returns a Collection of elements of
+     * an arbitrary type. The DoublePredicate determines whether the returned Collection is <i>not</i> empty.
+     */
+    public static DoublePredicate isDblCollNotEmpty(DoubleFunction<? extends Collection<?>> function) {
         return dblNot(isDblCollEmpty(function));
     }
 
+    /**
+     * Given a <code>Function</code> that returns an array of doubles, this method builds a <code>Predicate</code> that
+     * determines whether the returned array is empty.
+     *
+     * @param function A Function that returns an array of doubles.
+     * @param <T>      The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies its parameter to a Function that returns an array of doubles. The Predicate
+     * determines whether the returned array is empty.
+     */
+    public static <T> Predicate<T> isDblArrayEmpty(Function<? super T, double[]> function) {
+        return t -> {
+            double[] doubles = t == null ? null : function.apply(t);
+            return doubles == null || doubles.length == 0;
+        };
+    }
+
+    /**
+     * Given a <code>Function</code> that returns an array of doubles, this method builds a <code>Predicate</code> that
+     * determines whether the returned array is <i>not</i> empty.
+     *
+     * @param function A Function that returns an array of doubles.
+     * @param <T>      The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies its parameter to a Function that returns an array of doubles. The Predicate
+     * determines whether the returned array is <i>not</i> empty.
+     */
+    public static <T> Predicate<T> isDblArrayNotEmpty(Function<? super T, double[]> function) {
+        return not(isDblArrayEmpty(function));
+    }
+
+    /**
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns an array of doubles, and a
+     * <code>DoublePredicate</code>, this method builds a <code>Predicate</code> that determines whether all doubles
+     * in the returned array match the <code>DoublePredicate</code>.
+     *
+     * @param function  A Function that takes en element of type &lt;T&gt; and returns an array of doubles.
+     * @param predicate A DoublePredicate that will be applied to all elements of an array of doubles returned by the
+     *                  passed Function.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies its target element of type &lt;T&gt; to a Function that returns an array of
+     * doubles. The Predicate determines whether all elements in that array match a passed DoublePredicate.
+     */
     public static <T> Predicate<T> objToDblsAllMatch(Function<T, ? extends double[]> function, DoublePredicate predicate) {
         return t -> t != null && DblStreamUtils.dblAllMatch(function.apply(t), predicate);
     }
 
+    /**
+     * Given a <code>DoubleFunction</code> that returns a <code>Collection</code> of type &lt;R&gt;, and a
+     * <code>Predicate</code>, this method builds a <code>DoublePredicate</code> that determines whether all
+     * elements in the returned <code>Collection</code> match the <code>Predicate</code>.
+     *
+     * @param function  A DoubleFunction that returns a Collection of elements of type &lt;R&gt;.
+     * @param predicate A Predicate that will be applied to all elements of a Collection returned by the passed
+     *                  DoubleFunction.
+     * @param <R>       The type of the elements of a Collection returned by a passed DoubleFunction. Also the type of
+     *                  elements taken by a passed Predicate that will be applied to all elements of that Collection.
+     * @return A DoublePredicate that applies its parameter to a DoubleFunction that returns a Collection of elements of
+     * type &lt;R&gt;. The DoublePredicate determines whether all elements in that Collection match a passed Predicate.
+     */
     public static <R> DoublePredicate dblToObjsAllMatch(DoubleFunction<? extends Collection<R>> function, Predicate<R> predicate) {
         return d -> StreamUtils.allMatch(function.apply(d), predicate);
     }
@@ -341,5 +776,9 @@ public final class DblPredicateUtils {
 
     public static <U> DoublePredicate dblMapAndFilter(DoubleFunction<? extends U> function, Predicate<? super U> predicate) {
         return d -> predicate.test(function.apply(d));
+    }
+
+    public static DoubleWithDelta doubleWithDelta(double value, double delta) {
+        return DoubleWithDelta.of(value, delta);
     }
 }

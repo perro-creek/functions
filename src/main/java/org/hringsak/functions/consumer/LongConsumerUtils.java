@@ -2,6 +2,7 @@ package org.hringsak.functions.consumer;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
 import java.util.function.Function;
 import java.util.function.LongConsumer;
 import java.util.function.LongFunction;
@@ -31,6 +32,39 @@ public final class LongConsumerUtils {
     @SuppressWarnings("unused")
     public static LongConsumer longConsumer(LongConsumer consumer) {
         return consumer;
+    }
+
+    /**
+     * Simply casts a method reference, which takes no parameters and returns void, to a <code>LongConsumer</code>. This
+     * could be useful in a situation where you have a method that takes no parameters, and has no return value,
+     * which you would like to call in a stream, for example, in the <code>LongStream.forEach(...)</code> method. In the
+     * following example, assume that <code>processLong()</code> takes a single <code>long</code> parameter and has no
+     * return value, and <code>logCurrentState()</code> takes no parameter and has no return value:
+     * <pre>
+     *     long[] longs = ...
+     *     Arrays.stream(longs).forEach(LongConsumerUtils.longConsumer(this::processLong)
+     *             .andThen(LongConsumerUtils.longConsumer(this::logCurrentState)));
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     Arrays.stream(longs).forEach(longConsumer(this::processLong)
+     *             .andThen(longConsumer(this::logCurrentState)));
+     * </pre>
+     * Admittedly, the fact that we are using <code>forEach(...)</code> here, using object state for the logging, and
+     * not returning any values, makes this code imperative, and not functional. However, casting a
+     * <code>Runnable</code> to a <code>LongConsumer</code> does come in handy at times.
+     * <p>
+     * Note that this method can also be used to cast a <code>Supplier</code> method reference to a
+     * <code>LongConsumer</code>, that is a reference to a method that takes no parameters, and returns an object of any
+     * type.
+     *
+     * @param runnable A method reference taking no parameters and having a return value of any type, including no
+     *                 return value, to be cast to a LongConsumer.
+     * @return A Runnable or Supplier method reference cast to a LongConsumer.
+     */
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    public static LongConsumer longConsumer(Runnable runnable) {
+        return l -> runnable.run();
     }
 
     /**

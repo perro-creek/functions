@@ -2,6 +2,7 @@ package org.hringsak.functions.consumer;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
@@ -31,6 +32,39 @@ public final class IntConsumerUtils {
     @SuppressWarnings("unused")
     public static IntConsumer intConsumer(IntConsumer consumer) {
         return consumer;
+    }
+
+    /**
+     * Simply casts a method reference, which takes no parameters and returns void, to an <code>IntConsumer</code>. This
+     * could be useful in a situation where you have a method that takes no parameters, and has no return value, which
+     * you would like to call in a stream, for example, in the <code>IntStream.forEach(...)</code> method. In the
+     * following example, assume that <code>processInt()</code> takes a single <code>int</code> parameter and has no
+     * return value, and <code>logCurrentState()</code> takes no parameters and has no return value:
+     * <pre>
+     *     int[] ints = ...
+     *     Arrays.stream(ints).forEach(IntConsumerUtils.intConsumer(this::processInt)
+     *             .andThen(IntConsumerUtils.intConsumer(this::logCurrentState)));
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     Arrays.stream(ints).forEach(intConsumer(this::processInt)
+     *             .andThen(intConsumer(this::logCurrentState)));
+     * </pre>
+     * Admittedly, the fact that we are using <code>forEach(...)</code> here, using object state for the logging, and
+     * not returning any values, makes this code imperative, and not functional. However, casting a
+     * <code>Runnable</code> to an <code>IntConsumer</code> does come in handy at times.
+     * <p>
+     * Note that this method can also be used to cast a <code>Supplier</code> method reference to an
+     * <code>IntConsumer</code>, that is a reference to a method that takes no parameters, and returns an object of
+     * any type.
+     *
+     * @param runnable A method reference taking no parameters and having a return value of any type, including no
+     *                 return value, to be cast to an IntConsumer.
+     * @return A Runnable or Supplier method reference cast to an IntConsumer.
+     */
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    public static IntConsumer intConsumer(Runnable runnable) {
+        return i -> runnable.run();
     }
 
     /**
