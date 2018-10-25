@@ -228,4 +228,34 @@ class DblMapperUtilsSpec extends Specification {
         1.0D   || 'trueValue'
         2.0D   || 'falseValue'
     }
+
+    def 'add'() {
+        expect:
+        def result = dblAdd(2.0D).applyAsDouble(1.0D)
+        result == 3.0D
+    }
+
+    def 'subtract'() {
+        expect:
+        def result = dblSubtract(1.0D).applyAsDouble(2.0D)
+        result == 1.0D
+    }
+
+    def 'multiply'() {
+        expect:
+        def result = dblMultiply(2.0D).applyAsDouble(2.0D)
+        result == 4.0D
+    }
+
+    def 'divide'() {
+        expect:
+        def result = dblDivide(2.0D).applyAsDouble(4.0D)
+        result == 2.0D
+    }
+
+    def 'modulo'() {
+        expect:
+        def result = dblModulo(2.0D).applyAsDouble(3.0D)
+        result == 1.0D
+    }
 }

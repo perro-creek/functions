@@ -41,6 +41,43 @@ public final class ConsumerUtils {
     }
 
     /**
+     * Simply casts a method reference, which takes no parameters and returns void, to a <code>Consumer</code>. This
+     * could be useful in a situation where you have a method that takes no parameters, and has no return value, which
+     * you would like to call in a stream, for example, in the <code>Stream.forEach(...)</code> method. In the following
+     * example, assume that <code>processWidget()</code> and <code>saveWidget</code> both take a single
+     * <code>Widget</code> parameter and have no return value, and <code>logCurrentState()</code> takes no parameter and
+     * has no return value:
+     * <pre>
+     *     Collection&lt;Widget&gt; widgets = ...
+     *     widgets.forEach(ConsumerUtils.consumer(this::processWidget)
+     *             .andThen(ConsumerUtils.consumer(this::logCurrentState))
+     *             .andThen(this::saveWidget));
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     widgets.forEach(consumer(this::processWidget)
+     *             .andThen(consumer(this::logCurrentState))
+     *             .andThen(this::saveWidget));
+     * </pre>
+     * Admittedly, the fact that we are using <code>forEach(...)</code> here, using object state for the logging, and
+     * not returning any values, makes this code imperative, and not functional. However, casting a
+     * <code>Runnable</code> to a <code>Consumer</code> does come in handy at times.
+     * <p>
+     * Note that this method can also be used to cast a <code>Supplier</code> method reference to a
+     * <code>Consumer</code>, that is a reference to a method that takes no parameters, and returns an object of any
+     * type.
+     *
+     * @param runnable A method reference taking no parameters and having a return value of any type, including no
+     *                 return value, to be cast to a Consumer.
+     * @param <T>      The type of the single parameter to the Consumer.
+     * @return A Runnable or Supplier method reference cast to a Consumer.
+     */
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    public static <T> Consumer<T> consumer(Runnable runnable) {
+        return t -> runnable.run();
+    }
+
+    /**
      * Builds a consumer from a passed <code>BiConsumer</code>, which can be very useful in the common situation where
      * you are streaming through a collection of elements, and have a method to call that takes two parameters - the
      * first one being the element on which you are streaming, and the second being some constant value that will be
