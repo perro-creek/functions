@@ -1,13 +1,11 @@
 package org.hringsak.functions.predicate;
 
+import org.hringsak.functions.mapper.DblMapperUtils;
 import org.hringsak.functions.stream.DblStreamUtils;
 import org.hringsak.functions.stream.StreamUtils;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
@@ -256,13 +254,13 @@ public final class DblPredicateUtils {
      * <pre>
      *     double[] doubles = IntStream.range(1, 10).asDoubleStream().toArray();
      *     double[] evens = Arrays.stream(doubles)
-     *             .filter(DblPredicateUtils.isDblEqual(DblMapperUtils.dblModulo(2.0D), DblPredicateUtils.doubleWithDelta(0.0D, 0.000001D)))
+     *             .filter(DblPredicateUtils.isDblEqual(DblMapperUtils.dblModulo(2.0D), DblPredicateUtils.dblWithDelta(0.0D, 0.000001D)))
      *             .toArray();
      * </pre>
      * Or, with static imports:
      * <pre>
      *     double[] evens = Arrays.stream(doubles)
-     *             .filter(isDblEqual(dblModulo(2.0D), doubleWithDelta(0.0D, 0.000001D)))
+     *             .filter(isDblEqual(dblModulo(2.0D), dblWithDelta(0.0D, 0.000001D)))
      *             .toArray();
      * </pre>
      *
@@ -334,13 +332,13 @@ public final class DblPredicateUtils {
      * <pre>
      *     double[] doubles = IntStream.range(1, 10).asDoubleStream().toArray();
      *     double[] odds = Arrays.stream(doubles)
-     *             .filter(DblPredicateUtils.isDblNotEqual(DblMapperUtils.dblModulo(2.0D), DblPredicateUtils.doubleWithDelta(0.0D, 0.000001D)))
+     *             .filter(DblPredicateUtils.isDblNotEqual(DblMapperUtils.dblModulo(2.0D), DblPredicateUtils.dblWithDelta(0.0D, 0.000001D)))
      *             .toArray();
      * </pre>
      * Or, with static imports:
      * <pre>
      *     double[] odds = Arrays.stream(doubles)
-     *             .filter(isDblNotEqual(dblModulo(2.0D), doubleWithDelta(0.0D, 0.000001D)))
+     *             .filter(isDblNotEqual(dblModulo(2.0D), dblWithDelta(0.0D, 0.000001D)))
      *             .toArray();
      * </pre>
      *
@@ -744,41 +742,143 @@ public final class DblPredicateUtils {
         return d -> StreamUtils.allMatch(function.apply(d), predicate);
     }
 
+    /**
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns an array of doubles, and a
+     * <code>DoublePredicate</code>, this method builds a <code>Predicate</code> that determines whether any of the
+     * doubles in the returned array match the <code>DoublePredicate</code>.
+     *
+     * @param function  A Function that takes en element of type &lt;T&gt; and returns an array of doubles.
+     * @param predicate A DoublePredicate that will be applied to all elements of an array of doubles returned by the
+     *                  passed Function to determine whether any match.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies its target element of type &lt;T&gt; to a Function that returns an array of
+     * doubles. The Predicate determines whether any of the elements in that array match a passed DoublePredicate.
+     */
     public static <T> Predicate<T> objToDblsAnyMatch(Function<T, ? extends double[]> function, DoublePredicate predicate) {
         return t -> t != null && DblStreamUtils.dblAnyMatch(function.apply(t), predicate);
     }
 
+    /**
+     * Given a <code>DoubleFunction</code> that returns a <code>Collection</code> of type &lt;R&gt;, and a
+     * <code>Predicate</code>, this method builds a <code>DoublePredicate</code> that determines whether any of the
+     * elements in the returned <code>Collection</code> match the <code>Predicate</code>.
+     *
+     * @param function  A DoubleFunction that returns a Collection of elements of type &lt;R&gt;.
+     * @param predicate A Predicate that will be applied to all elements of a Collection returned by the passed
+     *                  DoubleFunction to determine whether any match.
+     * @param <R>       The type of the elements of a Collection returned by a passed DoubleFunction. Also the type of
+     *                  elements taken by a passed Predicate that will be applied to all elements of that Collection.
+     * @return A DoublePredicate that applies its parameter to a DoubleFunction that returns a Collection of elements of
+     * type &lt;R&gt;. The DoublePredicate determines whether any of the elements in that Collection match a passed
+     * Predicate.
+     */
     public static <R> DoublePredicate dblToObjsAnyMatch(DoubleFunction<? extends Collection<R>> function, Predicate<R> predicate) {
         return d -> StreamUtils.anyMatch(function.apply(d), predicate);
     }
 
+    /**
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns an array of doubles, and a
+     * <code>DoublePredicate</code>, this method builds a <code>Predicate</code> that determines whether none of the
+     * doubles in the returned array match the <code>DoublePredicate</code>.
+     *
+     * @param function  A Function that takes en element of type &lt;T&gt; and returns an array of doubles.
+     * @param predicate A DoublePredicate that will be applied to all elements of an array of doubles returned by the
+     *                  passed Function to determine whether none match.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies its target element of type &lt;T&gt; to a Function that returns an array of
+     * doubles. The Predicate determines whether none of the elements in that array match a passed DoublePredicate.
+     */
     public static <T> Predicate<T> objToDblsNoneMatch(Function<T, ? extends double[]> function, DoublePredicate predicate) {
         return t -> t != null && DblStreamUtils.dblNoneMatch(function.apply(t), predicate);
     }
 
+    /**
+     * Given a <code>DoubleFunction</code> that returns a <code>Collection</code> of type &lt;R&gt;, and a
+     * <code>Predicate</code>, this method builds a <code>DoublePredicate</code> that determines whether none of the
+     * elements in the returned <code>Collection</code> match the <code>Predicate</code>.
+     *
+     * @param function  A DoubleFunction that returns a Collection of elements of type &lt;R&gt;.
+     * @param predicate A Predicate that will be applied to all elements of a Collection returned by the passed
+     *                  DoubleFunction to determine whether none match.
+     * @param <R>       The type of the elements of a Collection returned by a passed DoubleFunction. Also the type of
+     *                  elements taken by a passed Predicate that will be applied to all elements of that Collection.
+     * @return A DoublePredicate that applies its parameter to a DoubleFunction that returns a Collection of elements of
+     * type &lt;R&gt;. The DoublePredicate determines whether none of the elements in that Collection match a passed
+     * Predicate.
+     */
     public static <R> DoublePredicate dblToObjsNoneMatch(DoubleFunction<? extends Collection<R>> function, Predicate<R> predicate) {
         return d -> StreamUtils.noneMatch(function.apply(d), predicate);
     }
 
-    public static DoublePredicate dblDistinctByKey(DoubleFunction<?> keyExtractor) {
-        Set<? super Object> uniqueKeys = new HashSet<>();
-        return d -> uniqueKeys.add(keyExtractor.apply(d));
-    }
-
-    public static DoublePredicate dblDistinctByKeyParallel(DoubleFunction<?> keyExtractor) {
-        Set<? super Object> uniqueKeys = Collections.synchronizedSet(new HashSet<>());
-        return d -> uniqueKeys.add(keyExtractor.apply(d));
-    }
-
+    /**
+     * Given a <code>ToDoubleFunction</code> taking a value of type &lt;T&gt;, and a <code>DoublePredicate</code>, this
+     * method builds a <code>Predicate</code> that takes an element of type &lt;T&gt;, and applies the return value of
+     * the <code>ToDoubleFunction</code> to the given predicate. It is a way of adapting a <code>DoublePredicate</code>
+     * to a <code>Stream</code> of a different type. For example, the
+     * {@link DblStreamUtils#indexOfFirstDbl(double[], DoublePredicate)} method uses this predicate in its
+     * implementation (Note that the <code>dblPairWithIndex()</code> below refers to
+     * {@link DblMapperUtils#dblPairWithIndex()}):
+     * <pre>
+     * public static int indexOfFirstDbl(double[] doubles, DoublePredicate doublePredicate) {
+     *     return defaultDblStream(doubles)
+     *         .mapToObj(dblPairWithIndex())
+     *         .filter(mapToDblAndFilter(DoubleIndexPair::getDoubleValue, doublePredicate))
+     *         .mapToInt(DoubleIndexPair::getIndex)
+     *         .findFirst()
+     *         .orElse(-1);
+     * }
+     * </pre>
+     * The map-and-filter predicate is necessary in this case because we have a predicate that operates on the original
+     * <code>double</code> type of the stream, but a mapping operation has changed the type to a
+     * <code>DoubleIndexPair</code>. The <code>DoubleIndexPair::getDoubleValue</code> method reference, passed as the
+     * <code>ToDoubleFunction</code> argument to this method, retrieves the original double value before the
+     * <code>DoublePredicate</code> evaluates it.
+     * <p>
+     * As a side note, the pairing of an object with another can be very useful in streaming operations. In this case,
+     * we need to have both the double value and its index available at the same point in the stream, so we temporarily
+     * pair the two together, before mapping to just the index.
+     *
+     * @param function  A ToDoubleFunction to transform an element of type &lt;T&gt; to a double before it is passed to
+     *                  a DoublePredicate.
+     * @param predicate A DoublePredicate whose value will be retrieved from a given transformer function.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that takes an element of type &lt;T&gt;, and applies the return value of a passed
+     * ToDoubleFunction to a passed DoublePredicate.
+     */
     public static <T> Predicate<T> mapToDblAndFilter(ToDoubleFunction<? super T> function, DoublePredicate predicate) {
         return t -> predicate.test(function.applyAsDouble(t));
     }
 
-    public static <U> DoublePredicate dblMapAndFilter(DoubleFunction<? extends U> function, Predicate<? super U> predicate) {
+    /**
+     * Given a <code>DoubleFunction</code> that returns a value of type &lt;T&gt;, and a <code>Predicate</code>, this
+     * method builds a <code>DoublePredicate</code> that applies the return value of the <code>DoubleFunction</code> to
+     * the given predicate. It is a way of adapting a double value to a <code>Predicate</code>. This method is the
+     * inverse of {@link #mapToDblAndFilter(ToDoubleFunction, DoublePredicate)}. In that method, we map from a value of
+     * type &lt;T&gt; to a <code>double</code>, and then apply a <code>DoublePredicate</code>. In this method we map
+     * from a <code>double</code> to a value of type &lt;T&gt;, and then apply a predicate.
+     *
+     * @param function  A DoubleFunction to transform a double value to an element of type &lt;T&gt; before it is passed
+     *                  to a Predicate.
+     * @param predicate A Predicate whose value will be retrieved from a given DoubleFunction.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A DoublePredicate that applies the return value of a passed ToDoubleFunction to a passed Predicate.
+     */
+    public static <T> DoublePredicate dblMapAndFilter(DoubleFunction<? extends T> function, Predicate<? super T> predicate) {
         return d -> predicate.test(function.apply(d));
     }
 
-    public static DoubleWithDelta doubleWithDelta(double value, double delta) {
+    /**
+     * Combines a <code>double</code> value for use in a comparison, with a delta. When an equality comparison is made,
+     * if the difference in values is smaller than the delta, then the values are considered equal. This method is used
+     * to build the second parameter to the {@link #isDblEqual(DoubleUnaryOperator, DoubleWithDelta)} and
+     * {@link #isDblNotEqual(DoubleUnaryOperator, DoubleWithDelta)} methods.
+     *
+     * @param value A double value to be compared with another value.
+     * @param delta A delta value to be used - if the difference of two values is within it, they are still considered
+     *              <i>equal</i>.
+     * @return An object encapsulating a double value for comparison, and a delta value.
+     */
+    public static DoubleWithDelta dblWithDelta(double value, double delta) {
         return DoubleWithDelta.of(value, delta);
     }
 }

@@ -1,5 +1,6 @@
 package org.hringsak.functions.predicate;
 
+import org.hringsak.functions.mapper.MapperUtils;
 import org.hringsak.functions.stream.StreamUtils;
 
 import java.util.Collection;
@@ -956,8 +957,9 @@ public final class PredicateUtils {
      * Given a <code>Function</code> that takes an element of type &lt;T&gt; returning a value of type &lt;R&gt;, and a
      * <code>Predicate</code> that takes an element of type &lt;R&gt;, this method builds a <code>Predicate</code> that
      * takes an element of type &lt;T&gt;, and applies the return value of the function to the given predicate. It is a
-     * way of adapting a given element to a predicate taking a different element type. For example, the
-     * {@link StreamUtils#indexOfFirst(Collection, Predicate)} method uses this predicate in its implementation:
+     * way of adapting a given predicate to another of a different type. For example, the
+     * {@link StreamUtils#indexOfFirst(Collection, Predicate)} method uses this predicate in its implementation (Note
+     * that the <code>pairWithIndex()</code> method below refers to {@link MapperUtils#pairWithIndex()}):
      * <pre>
      * public static &lt;T&gt; int indexOfFirst(Collection&lt;T&gt; objects, Predicate&lt;T&gt; predicate) {
      *     return defaultStream(objects)
@@ -968,13 +970,13 @@ public final class PredicateUtils {
      *         .orElse(-1);
      * }
      * </pre>
-     * This map-and-filter predicate is necessary in that case because we have a predicate that operates on the original
+     * The map-and-filter predicate is necessary in this case because we have a predicate that operates on the original
      * element type of the stream, but a mapping operation has changed the type to a <code>ObjectIndexPair</code>. The
-     * <code>ObjectIndexPair::getObject</code> method reference gets retrieves the original element before the predicate
+     * <code>ObjectIndexPair::getObject</code> method reference retrieves the original element before the predicate
      * evaluates it.
      *
      * @param function  A Function to transform an element of type &lt;T&gt; to one of type &lt;R&gt; before it is
-     *                  passed to a Predicate   .
+     *                  passed to a Predicate.
      * @param predicate A Predicate taking an element of type &lt;R&gt;, whose value will be retrieved from a given
      *                  transformer function.
      * @param <T>       The type of the element taken by the Predicate built by this method.
