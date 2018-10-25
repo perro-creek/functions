@@ -7,7 +7,6 @@ import java.util.function.DoubleFunction
 import java.util.function.DoublePredicate
 import java.util.function.Function
 import java.util.function.ToDoubleFunction
-import java.util.stream.IntStream
 
 import static org.hringsak.functions.predicate.DblFilterUtils.dblFilter
 import static org.hringsak.functions.predicate.DblPredicateUtils.*
@@ -83,7 +82,7 @@ class DblPredicateUtilsSpec extends Specification {
 
     def 'is double equal passing function and constant value with delta returns expected value'() {
         expect:
-        def predicate = isDblEqual({ d -> d + 1.0D }, doubleWithDelta(2.0D, 0.01D))
+        def predicate = isDblEqual({ d -> d + 1.0D }, dblWithDelta(2.0D, 0.01D))
         def doubles = [1.0001D, 2.0001D, 3.0001D] as double[]
         dblFilter(doubles, predicate) == [1.0001D] as double[]
     }
@@ -111,7 +110,7 @@ class DblPredicateUtilsSpec extends Specification {
 
     def 'is double not equal passing function and constant value with delta returns expected value'() {
         expect:
-        def predicate = isDblNotEqual({ d -> d + 1.0D }, doubleWithDelta(2.0D, 0.01D))
+        def predicate = isDblNotEqual({ d -> d + 1.0D }, dblWithDelta(2.0D, 0.01D))
         def doubles = [1.0001D, 2.0001D, 3.0001D] as double[]
         dblFilter(doubles, predicate) == [2.0001D, 3.0001D] as double[]
     }
@@ -332,30 +331,6 @@ class DblPredicateUtilsSpec extends Specification {
         def function = { d -> [String.valueOf(d)] }
         def predicate = dblToObjsNoneMatch(function, { s -> s == '2.0' })
         dblFilter([1.0D, 2.0D, 3.0D] as double[], predicate) == [1.0D, 3.0D] as double[]
-    }
-
-    def 'double distinct by key filters objects with unique key values'() {
-        expect:
-        makeEntriesDistinctByKey().length == DISTINCT_KEY_SIZE
-    }
-
-    double[] makeEntriesDistinctByKey() {
-        IntStream.range(0, RAW_LIST_SIZE)
-                .asDoubleStream()
-                .filter(dblDistinctByKey(keyExtractor))
-                .toArray()
-    }
-
-    def 'double distinct by key parallel filters objects with unique key values'() {
-        expect:
-        makeEntriesDistinctByKeyParallel().length == DISTINCT_KEY_SIZE
-    }
-
-    double[] makeEntriesDistinctByKeyParallel() {
-        IntStream.range(0, RAW_LIST_SIZE).parallel()
-                .asDoubleStream()
-                .filter(dblDistinctByKeyParallel(keyExtractor))
-                .toArray()
     }
 
     def 'map to double and filter returns expected value'() {
