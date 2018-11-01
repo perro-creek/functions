@@ -1,6 +1,6 @@
 package org.hringsak.functions.stream;
 
-import org.hringsak.functions.CollectorUtils;
+import org.hringsak.functions.collector.CollectorUtils;
 import org.hringsak.functions.mapper.ObjectIndexPair;
 
 import java.util.Arrays;
@@ -23,7 +23,6 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
 import static org.hringsak.functions.mapper.MapperUtils.pairWithIndex;
 import static org.hringsak.functions.predicate.PredicateUtils.contains;
-import static org.hringsak.functions.predicate.PredicateUtils.inverseContains;
 import static org.hringsak.functions.predicate.PredicateUtils.mapAndFilter;
 import static org.hringsak.functions.predicate.PredicateUtils.not;
 

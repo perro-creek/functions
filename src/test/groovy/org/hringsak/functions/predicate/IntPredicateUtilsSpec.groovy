@@ -89,7 +89,21 @@ class IntPredicateUtilsSpec extends Specification {
 
     def 'int to object contains returns expected value'() {
         expect:
-        def predicate = intToObjContains({ i -> i == 1 ? null : [String.valueOf(i)] }, '2')
+        def predicate = intToObjContains(['2'], { i -> String.valueOf(i) })
+        def ints = [1, 2, 3] as int[]
+        intFilter(ints, predicate) == [2] as int[]
+    }
+
+    def 'int to object contains passing null collection returns expected value'() {
+        expect:
+        def predicate = intToObjContains(null, { i -> String.valueOf(i) })
+        def ints = [1, 2, 3] as int[]
+        intFilter(ints, predicate) == [] as int[]
+    }
+
+    def 'inverse int to object contains returns expected value'() {
+        expect:
+        def predicate = inverseIntToObjContains({ i -> i == 1 ? null : [String.valueOf(i)] }, '2')
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [2] as int[]
     }
@@ -99,20 +113,6 @@ class IntPredicateUtilsSpec extends Specification {
         def predicate = objToIntsContains({ String s -> [Integer.valueOf(s)] as int[] }, 2)
         def strings = ['1', '2', '3']
         filter(strings, predicate) == ['2']
-    }
-
-    def 'inverse int to object contains returns expected value'() {
-        expect:
-        def predicate = inverseIntToObjContains(['2'], { i -> String.valueOf(i) })
-        def ints = [1, 2, 3] as int[]
-        intFilter(ints, predicate) == [2] as int[]
-    }
-
-    def 'inverse int to object contains passing null collection returns expected value'() {
-        expect:
-        def predicate = inverseIntToObjContains(null, { i -> String.valueOf(i) })
-        def ints = [1, 2, 3] as int[]
-        intFilter(ints, predicate) == [] as int[]
     }
 
     def 'inverse object to int contains returns expected value'() {

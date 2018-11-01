@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static org.hringsak.functions.CollectorUtils.toPartitionedList;
+import static org.hringsak.functions.collector.CollectorUtils.toPartitionedList;
 import static org.hringsak.functions.mapper.DblMapperUtils.dblPairWithIndex;
 import static org.hringsak.functions.predicate.DblPredicateUtils.mapToDblAndFilter;
 
