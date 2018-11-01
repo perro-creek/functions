@@ -9,7 +9,7 @@ import java.util.stream.Collector;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.hringsak.functions.CollectorUtils.toMapFromEntry;
+import static org.hringsak.functions.collector.CollectorUtils.toMapFromEntry;
 import static org.hringsak.functions.mapper.MapperUtils.flatMapper;
 import static org.hringsak.functions.mapper.MapperUtils.mapper;
 import static org.hringsak.functions.mapper.MapperUtils.pairOf;

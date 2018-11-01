@@ -1,6 +1,6 @@
-package org.hringsak.functions
+package org.hringsak.functions.comparator
 
-import org.hringsak.functions.ComparatorUtils
+import org.hringsak.functions.comparator.ComparatorUtils
 import spock.lang.Specification
 import spock.lang.Unroll
 

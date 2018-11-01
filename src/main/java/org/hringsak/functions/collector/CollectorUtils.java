@@ -1,4 +1,4 @@
-package org.hringsak.functions;
+package org.hringsak.functions.collector;
 
 import org.hringsak.functions.internal.Invariants;
 

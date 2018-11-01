@@ -28,7 +28,7 @@ public final class DblPredicateUtils {
 
     /**
      * Simply casts a method reference, which takes a single parameter of type <code>double</code> or
-     * <code>Double</code> and returns a <code>boolean</code> or <code>Boolean</code>), to a
+     * <code>Double</code>, and returns a <code>boolean</code> or <code>Boolean</code>, to a
      * <code>DoublePredicate</code>. This could be useful in a situation where methods of the
      * <code>DoublePredicate</code> functional interface are to be called on a method reference. For example:
      * <pre>
@@ -39,11 +39,11 @@ public final class DblPredicateUtils {
      *             .toArray();
      *     }
      *
-     *     private boolean isGreaterThanOrEqualToMin() {
+     *     private boolean isGreaterThanOrEqualToMin(double target) {
      *         ...
      *     }
      *
-     *     private boolean isLessThanOrEqualToMax() {
+     *     private boolean isLessThanOrEqualToMax(double target) {
      *         ...
      *     }
      * </pre>
@@ -60,12 +60,12 @@ public final class DblPredicateUtils {
 
     /**
      * Builds a <code>DoublePredicate</code> from a passed <code>BiPredicate&lt;Double, U&gt;</code>, which can be very
-     * useful in the common situation where you are streaming through a collection of elements, and have a predicate
-     * method to call that takes two parameters - the first one being the <code>double</code> element on which you are
-     * streaming, and the second being some constant value that will be passed to all invocations. This would typically
-     * be called from within a chain of method calls based on a <code>DoubleStream</code>. In the following example,
-     * assume the <code>Stock</code> objects passed to the <code>getHighestPriceOfStockBelowLimit(...)</code> method are
-     * to be filtered based on whether their price is less than a limit for the passed <code>Client</code>:
+     * useful in the common situation where you are streaming through a collection of elements, and have a double
+     * predicate method to call that takes two parameters - the first one being the <code>double</code> element on which
+     * you are streaming, and the second being some constant value that will be passed to all invocations. This would
+     * typically be called from within a chain of method calls based on a <code>DoubleStream</code>. In the following
+     * example, assume the <code>Stock</code> objects passed to the <code>getHighestPriceOfStockBelowLimit(...)</code>
+     * method are to be filtered based on whether their price is less than a limit for the passed <code>Client</code>:
      * <pre>
      *     private double[] getHighestPriceOfStockBelowLimit(Collection&lt;Stock&gt; stocks, Client client) {
      *         return stocks.stream()
@@ -104,15 +104,14 @@ public final class DblPredicateUtils {
 
     /**
      * Builds a <code>DoublePredicate</code> from a passed <code>BiPredicate&lt;Double, U&gt;</code>, which can be very
-     * useful in the common situation where you are streaming through a collection of elements, and have a predicate
-     * method to call that takes two parameters. In the
-     * <code>BiPredicate</code> passed to this method, the parameters are basically the same as in the call to
-     * {@link #dblPredicate(BiPredicate, Object)}, but in the inverse order. Here, the first parameter is a constant
-     * value that will be passed to all invocations of the method, and the second parameter is the target
-     * <code>double</code> element on which you are streaming. This would typically be called from within a chain of
-     * method calls based on a <code>DoubleStream</code>. In the following example, assume the <code>Stock</code>
-     * objects passed to the <code>getHighestPriceOfStockBelowLimit(...)</code> method are to be filtered based on
-     * whether their price is less than a limit for the passed <code>Client</code>:
+     * useful in the common situation where you are streaming through a collection of elements, and have a double
+     * predicate method to call that takes two parameters. In the <code>BiPredicate</code> passed to this method, the
+     * parameters are basically the same as in the call to {@link #dblPredicate(BiPredicate, Object)}, but in the
+     * inverse order. Here, the first parameter is a constant value that will be passed to all invocations of the
+     * method, and the second parameter is the target <code>double</code> element on which you are streaming. This would
+     * typically be called from within a chain of method calls based on a <code>DoubleStream</code>. In the following
+     * example, assume the <code>Stock</code> objects passed to the <code>getHighestPriceOfStockBelowLimit(...)</code>
+     * method are to be filtered based on whether their price is less than a limit for the passed <code>Client</code>:
      * <pre>
      *     private double[] getHighestPriceOfStockBelowLimit(Collection&lt;Stock&gt; stocks, Client client) {
      *         return stocks.stream()
@@ -150,7 +149,7 @@ public final class DblPredicateUtils {
     }
 
     /**
-     * Builds a predicate based on a passed constant <code>boolean</code> value. The target element of type
+     * Builds a double predicate based on a passed constant <code>boolean</code> value. The target element of type
      * <code>double</code> that is passed to the predicate is ignored, and the constant value is simply returned. This
      * comes in handy when combining one predicate with another using <code>Predicate.and(...)</code> or
      * <code>Predicate.or(...)</code>. Consider the following example:
@@ -191,7 +190,7 @@ public final class DblPredicateUtils {
      * always be negated via <code>predicate.negate()</code>, however using this method may improve readability.
      *
      * @param predicate A DoublePredicate whose result is to be negated.
-     * @return A DoublePredicate to be negated.
+     * @return A negated DoublePredicate.
      */
     public static DoublePredicate dblNot(DoublePredicate predicate) {
         return predicate.negate();

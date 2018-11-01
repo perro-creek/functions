@@ -1,4 +1,4 @@
-package org.hringsak.functions;
+package org.hringsak.functions.comparator;
 
 import org.hringsak.functions.mapper.MapperUtils;
 

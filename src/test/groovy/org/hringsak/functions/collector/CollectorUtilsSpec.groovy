@@ -1,5 +1,6 @@
-package org.hringsak.functions
+package org.hringsak.functions.collector
 
+import org.hringsak.functions.TestValue
 import org.hringsak.functions.internal.Pair
 import org.hringsak.functions.internal.StringUtils
 import spock.lang.Specification
@@ -9,7 +10,7 @@ import java.util.function.Predicate
 import java.util.stream.Stream
 
 import static java.util.stream.Collectors.*
-import static org.hringsak.functions.CollectorUtils.*
+import static org.hringsak.functions.collector.CollectorUtils.*
 
 class CollectorUtilsSpec extends Specification {
 

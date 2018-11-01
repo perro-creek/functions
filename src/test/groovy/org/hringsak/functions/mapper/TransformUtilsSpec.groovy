@@ -9,7 +9,7 @@ import java.util.function.Function
 import static java.util.function.Function.identity
 import static java.util.stream.Collectors.toCollection
 import static java.util.stream.Collectors.toList
-import static org.hringsak.functions.CollectorUtils.toEnumSet
+import static org.hringsak.functions.collector.CollectorUtils.toEnumSet
 import static org.hringsak.functions.mapper.MapperUtils.keyValueMapper
 import static org.hringsak.functions.mapper.TransformUtils.*
 
