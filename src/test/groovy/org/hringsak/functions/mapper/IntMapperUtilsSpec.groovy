@@ -224,4 +224,34 @@ class IntMapperUtilsSpec extends Specification {
         1      || 'trueValue'
         2      || 'falseValue'
     }
+
+    def 'add'() {
+        expect:
+        def result = intAdd(2).applyAsInt(1)
+        result == 3
+    }
+
+    def 'subtract'() {
+        expect:
+        def result = intSubtract(1).applyAsInt(2)
+        result == 1
+    }
+
+    def 'multiply'() {
+        expect:
+        def result = intMultiply(2).applyAsInt(2)
+        result == 4
+    }
+
+    def 'divide'() {
+        expect:
+        def result = intDivide(2).applyAsInt(4)
+        result == 2
+    }
+
+    def 'modulo'() {
+        expect:
+        def result = intModulo(2).applyAsInt(3)
+        result == 1
+    }
 }

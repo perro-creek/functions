@@ -52,52 +52,9 @@ class IntPredicateUtilsSpec extends Specification {
         false        | false
     }
 
-    def 'from int mapper passing target "#target" returns #expected'() {
-        expect:
-        def predicate = fromIntMapper { i -> i % 2 == 0 }
-        def ints = [1, 2, 3] as int[]
-        intFilter(ints, predicate) == [2] as int[]
-    }
-
     def 'int not returns expected value'() {
         expect:
         def predicate = intNot { i -> i % 2 == 0 }
-        def ints = [1, 2, 3] as int[]
-        intFilter(ints, predicate) == [1, 3] as int[]
-    }
-
-    @Unroll
-    def 'is int sequence empty with function value "#functionValue" returns expected value'() {
-
-        expect:
-        def predicate = isIntSeqEmpty { i -> i == 2 ? functionValue : String.valueOf(i) }
-        def ints = [1, 2, 3] as int[]
-        intFilter(ints, predicate) == expected as int[]
-
-        where:
-        functionValue || expected
-        'test'        || []
-        ''            || [2]
-        null          || [2]
-    }
-
-    def 'is int sequence not empty returns expected value'() {
-        expect:
-        def predicate = isIntSeqNotEmpty { i -> i == 2 ? String.valueOf(i) : '' }
-        def ints = [1, 2, 3] as int[]
-        intFilter(ints, predicate) == [2] as int[]
-    }
-
-    def 'int equals ignore case passing function and constant value returns expected value'() {
-        expect:
-        def predicate = intEqualsIgnoreCase({ i -> [(1): 'One', (2): 'Two', (3): 'Three'].get(i) }, 'two')
-        def ints = [1, 2, 3] as int[]
-        intFilter(ints, predicate) == [2] as int[]
-    }
-
-    def 'int not equals ignore case passing function and constant value returns expected value'() {
-        expect:
-        def predicate = intNotEqualsIgnoreCase({ i -> [(1): 'One', (2): 'Two', (3): 'Three'].get(i) }, 'two')
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [1, 3] as int[]
     }
@@ -116,13 +73,6 @@ class IntPredicateUtilsSpec extends Specification {
         intFilter(ints, predicate) == [1] as int[]
     }
 
-    def 'is int mapper equal passing function and constant value returns expected value'() {
-        expect:
-        def predicate = isIntMapperEqual({ i -> String.valueOf(i) }, '2')
-        def ints = [1, 2, 3] as int[]
-        intFilter(ints, predicate) == [2] as int[]
-    }
-
     def 'is int not equal passing constant value returns expected value'() {
         expect:
         def predicate = isIntNotEqual(2)
@@ -137,16 +87,9 @@ class IntPredicateUtilsSpec extends Specification {
         intFilter(ints, predicate) == [2, 3] as int[]
     }
 
-    def 'is int mapper not equal passing function and constant value returns expected value'() {
+    def 'int to object contains returns expected value'() {
         expect:
-        def predicate = isIntMapperNotEqual({ i -> String.valueOf(i) }, '2')
-        def ints = [1, 2, 3] as int[]
-        intFilter(ints, predicate) == [1, 3] as int[]
-    }
-
-    def 'int to objects contains returns expected value'() {
-        expect:
-        def predicate = intToObjsContains({ i -> i == 1 ? null : [String.valueOf(i)] }, '2')
+        def predicate = intToObjContains({ i -> i == 1 ? null : [String.valueOf(i)] }, '2')
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [2] as int[]
     }

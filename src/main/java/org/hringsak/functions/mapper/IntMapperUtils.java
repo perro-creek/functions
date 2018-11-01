@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
+import java.util.function.IntUnaryOperator;
 import java.util.function.ToIntBiFunction;
 import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
@@ -478,5 +480,57 @@ public final class IntMapperUtils {
      */
     public static <K, V> IntKeyValueMapper<K, V> intKeyValueMapper(IntFunction<K> keyMapper, IntFunction<V> valueMapper) {
         return IntKeyValueMapper.of(keyMapper, valueMapper);
+    }
+
+    /**
+     * Builds an <code>IntUnaryOperator</code> that adds a constant value to an <code>int</code> parameter.
+     *
+     * @param toAdd A constant int value to be added to the parameter of an IntUnaryOperator.
+     * @return An IntUnaryOperator to whose parameter a constant int value will be added.
+     */
+    public static IntUnaryOperator intAdd(int toAdd) {
+        return i -> i + toAdd;
+    }
+
+    /**
+     * Builds an <code>IntUnaryOperator</code> that subtracts a constant value from an <code>int</code> parameter.
+     *
+     * @param toSubtract A constant int value to be subtracted from the parameter of an IntUnaryOperator.
+     * @return An IntUnaryOperator from whose parameter a constant int value will be subtracted.
+     */
+    public static IntUnaryOperator intSubtract(int toSubtract) {
+        return i -> i - toSubtract;
+    }
+
+    /**
+     * Builds an <code>IntUnaryOperator</code> that multiplies a constant value with an <code>int</code> parameter.
+     *
+     * @param factor A constant int value to be multiplied with the parameter of an IntUnaryOperator.
+     * @return An IntUnaryOperator whose parameter will be multiplied by a constant int value.
+     */
+    public static IntUnaryOperator intMultiply(int factor) {
+        return i -> i * factor;
+    }
+
+    /**
+     * Builds an <code>IntUnaryOperator</code> that divides its <code>int</code> parameter by a constant value.
+     *
+     * @param divisor A constant int value to be divided into the parameter of an IntUnaryOperator.
+     * @return An IntUnaryOperator whose parameter will be divided by a constant int value.
+     */
+    public static IntUnaryOperator intDivide(int divisor) {
+        return i -> i / divisor;
+    }
+
+    /**
+     * Builds an <code>IntUnaryOperator</code> that divides its <code>int</code> parameter by a constant value to
+     * get a remainder.
+     *
+     * @param divisor A constant int value to be divided into the parameter of an IntUnaryOperator to get a
+     *                remainder.
+     * @return An IntUnaryOperator whose parameter will be divided by a constant int value to get a remainder.
+     */
+    public static IntUnaryOperator intModulo(int divisor) {
+        return i -> i % divisor;
     }
 }
