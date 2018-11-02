@@ -1,14 +1,11 @@
 package org.hringsak.functions.predicate;
 
+import org.hringsak.functions.mapper.IntMapperUtils;
 import org.hringsak.functions.stream.IntStreamUtils;
 import org.hringsak.functions.stream.StreamUtils;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -19,7 +16,7 @@ import java.util.function.ToIntFunction;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
-import static org.hringsak.functions.predicate.CharSequenceUtils.isCharacterMatch;
+import static org.hringsak.functions.predicate.PredicateUtils.not;
 
 /**
  * Methods that build predicates specifically those involving primitive <code>int</code> types.
@@ -293,177 +290,491 @@ public final class IntPredicateUtils {
         return i -> collection != null && collection.contains(function.apply(i));
     }
 
-    public static <R> IntPredicate inverseIntToObjContains(IntFunction<? extends Collection<R>> collectionExtractor, R value) {
+    /**
+     * Given an <code>IntFunction</code> that returns a <code>Collection&lt;R&gt;</code>, this method builds an
+     * <code>IntPredicate</code> that determines if the collection returned by that int function contains the passed
+     * <code>value</code> of type &lt;R&gt;. More formally, the <code>IntPredicate</code> built by this method returns
+     * <code>true</code> if and only if the returned collection contains at least one element e such that
+     * <code>(o == null ? e == null : o.equals(e))</code>, o being the passed constant value of type &lt;R&gt;.
+     * <p>
+     * This method is similar to {@link #intToObjContains(Collection, IntFunction)}, but instead of a built predicate
+     * checking whether a passed collection contains a value returned by a function, in this method it checks whether
+     * a collection returned by an int function contains a passed value.
+     *
+     * @param function An IntFunction that returns a Collection of elements of type &lt;R&gt;.
+     * @param value    A value of type &lt;R&gt; to be checked for whether a Collection returned by the above
+     *                 IntFunction contains it.
+     * @param <R>      The type of elements for collections returned by a passed IntFunction. Also, the type of the
+     *                 passed value.
+     * @return An IntPredicate that applies the given int function to its parameter resulting in a
+     * Collection&lt;R&gt;. The IntPredicate checks that the returned Collection contains a passed constant value of
+     * type &lt;R&gt;.
+     */
+    public static <R> IntPredicate inverseIntToObjContains(IntFunction<? extends Collection<R>> function, R value) {
         return i -> {
-            Collection<R> collection = collectionExtractor.apply(i);
+            Collection<R> collection = function.apply(i);
             return collection != null && collection.contains(value);
         };
     }
 
-    public static <T> Predicate<T> objToIntsContains(Function<T, int[]> collectionExtractor, int value) {
+    /**
+     * Given an <code>int</code> array, and a <code>ToIntFunction</code> that takes an element of type &lt;T&gt;,
+     * this method builds a <code>Predicate</code> that determines if the given array contains the value returned by the
+     * <code>ToIntFunction</code>.
+     *
+     * @param ints     An array of ints, to be checked for whether it contains a value returned from a passed
+     *                 ToIntFunction.
+     * @param function A ToIntFunction taking a value of type &lt;T&gt;, whose return value is to be checked for
+     *                 whether it is contained in a passed array.
+     * @param <T>      The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies the given ToIntFunction to its parameter of type &lt;T&gt;. The Predicate
+     * checks that the returned value is contained in a passed array of ints.
+     */
+    public static <T> Predicate<T> objToIntContains(int[] ints, ToIntFunction<? super T> function) {
+        return t -> ints != null && IntStreamUtils.intAnyMatch(ints, isIntEqual(function.applyAsInt(t)));
+    }
+
+    /**
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns an array of ints, this method
+     * builds a <code>Predicate</code> that determines if the array returned by that function contains the passed
+     * constant int value.
+     * <p>
+     * This method is similar to {@link #objToIntContains(int[], ToIntFunction)}, but instead of a built predicate
+     * checking whether a passed array contains a value returned by a function, in this method it checks
+     * whether an array returned by a function contains a passed int value.
+     *
+     * @param function A Function that returns an array of ints.
+     * @param value    A constant int value to be checked for whether an array of ints returned by the above Function
+     *                 contains it.
+     * @param <T>      The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies the given function to its parameter resulting in an int array. The Predicate
+     * checks that the returned array contains a passed constant int value.
+     */
+    public static <T> Predicate<T> inverseObjToIntContains(Function<T, int[]> function, int value) {
         return t -> {
-            int[] ints = collectionExtractor.apply(t);
+            int[] ints = function.apply(t);
             return IntStreamUtils.intAnyMatch(ints, isIntEqual(value));
         };
     }
 
-    public static <T> Predicate<T> inverseObjToIntContains(int[] ints, ToIntFunction<? super T> function) {
-        return t -> ints != null && IntStreamUtils.intAnyMatch(ints, isIntEqual(function.applyAsInt(t)));
-    }
-
-    public static <R> IntPredicate intContainsKey(Map<R, ?> map, IntFunction<? extends R> extractor) {
-        return i -> map != null && map.containsKey(extractor.apply(i));
-    }
-
-    public static <R> IntPredicate intContainsValue(Map<?, R> map, IntFunction<? extends R> extractor) {
-        return i -> map != null && map.containsValue(extractor.apply(i));
-    }
-
-    public static IntPredicate intContainsChar(IntFunction<? extends CharSequence> extractor, int searchChar) {
-        return i -> CharSequenceUtils.contains(extractor.apply(i), searchChar);
-    }
-
-    public static IntPredicate intContainsSequence(IntFunction<? extends CharSequence> extractor, CharSequence searchSeq) {
-        return i -> CharSequenceUtils.contains(extractor.apply(i), searchSeq);
-    }
-
-    public static IntPredicate intContainsIgnoreCase(IntFunction<? extends CharSequence> extractor, CharSequence searchSeq) {
-        return i -> CharSequenceUtils.containsIgnoreCase(extractor.apply(i), searchSeq);
-    }
-
-    public static IntPredicate intIsAlpha(IntFunction<? extends CharSequence> extractor) {
-        return i -> CharSequenceUtils.isCharacterMatch(extractor.apply(i), Character::isLetter);
-    }
-
-    public static IntPredicate intIsAlphanumeric(IntFunction<? extends CharSequence> extractor) {
-        return i -> CharSequenceUtils.isCharacterMatch(extractor.apply(i), Character::isLetterOrDigit);
-    }
-
-    public static IntPredicate intIsNumeric(IntFunction<? extends CharSequence> extractor) {
-        return i -> CharSequenceUtils.isCharacterMatch(extractor.apply(i), Character::isDigit);
-    }
-
-    public static IntPredicate intStartsWith(IntFunction<? extends CharSequence> extractor, CharSequence prefix) {
-        return i -> CharSequenceUtils.startsWith(extractor.apply(i), prefix);
-    }
-
-    public static IntPredicate intStartsWithIgnoreCase(IntFunction<? extends CharSequence> extractor, CharSequence prefix) {
-        return i -> CharSequenceUtils.startsWithIgnoreCase(extractor.apply(i), prefix);
-    }
-
-    public static IntPredicate intEndsWith(IntFunction<? extends CharSequence> extractor, CharSequence suffix) {
-        return i -> CharSequenceUtils.endsWith(extractor.apply(i), suffix);
-    }
-
-    public static IntPredicate intEndsWithIgnoreCase(IntFunction<? extends CharSequence> extractor, CharSequence suffix) {
-        return i -> CharSequenceUtils.endsWithIgnoreCase(extractor.apply(i), suffix);
-    }
-
-    public static IntPredicate intAnyCharsMatch(IntFunction<? extends CharSequence> function, IntPredicate charPredicate) {
-        return i -> {
-            CharSequence sequence = function.apply(i);
-            return sequence != null && sequence.codePoints().anyMatch(charPredicate);
-        };
-    }
-
-    public static IntPredicate intAllCharsMatch(IntFunction<? extends CharSequence> function, IntPredicate charPredicate) {
-        return i -> isCharacterMatch(function.apply(i), charPredicate);
-    }
-
-    public static IntPredicate intNoCharsMatch(IntFunction<? extends CharSequence> function, IntPredicate charPredicate) {
-        return i -> {
-            CharSequence sequence = function.apply(i);
-            return sequence != null && sequence.codePoints().noneMatch(charPredicate);
-        };
-    }
-
-    public static <R> IntPredicate isIntNull(IntFunction<? extends R> function) {
+    /**
+     * Given an <code>IntFunction</code> that returns a value of an arbitrary type, this method builds an
+     * <code>IntPredicate</code> that determines whether that returned value is <code>null</code>.
+     *
+     * @param function An IntFunction that returns a value of an arbitrary type.
+     * @return An IntPredicate that applies an IntFunction to its parameter, which returns a value of an arbitrary type.
+     * The predicate determines whether that value is null.
+     */
+    public static IntPredicate isIntNull(IntFunction<?> function) {
         return i -> Objects.isNull(function.apply(i));
     }
 
-    public static <R> IntPredicate isIntNotNull(IntFunction<? extends R> function) {
+    /**
+     * Given an <code>IntFunction</code> that returns a value of an arbitrary type, this method builds an
+     * <code>IntPredicate</code> that determines whether that returned value is <i>not</i> <code>null</code>.
+     *
+     * @param function An IntFunction that returns a value of an arbitrary type.
+     * @return An IntPredicate that applies an IntFunction to its parameter, which returns a value of an arbitrary type.
+     * The predicate determines whether that value is not null.
+     */
+    public static IntPredicate isIntNotNull(IntFunction<?> function) {
         return intNot(isIntNull(function));
     }
 
+    /**
+     * Builds an <code>IntPredicate</code> that determines whether a value is greater than a passed constant int value.
+     *
+     * @param compareTo A constant int value to be compared to the target value of an IntPredicate built by this method.
+     * @return An IntPredicate that compares its target value to a passed constant int value and determines whether it
+     * is greater than that value.
+     */
     public static IntPredicate intGt(int compareTo) {
         return i -> i > compareTo;
     }
 
+    /**
+     * Given an <code>IntFunction</code> that returns a value of type &lt;R&gt;, and a constant value of type &lt;R&gt;,
+     * this method builds an <code>IntPredicate</code> that applies that function to its target value, and determines
+     * whether the returned <code>Comparable</code> value is greater than a passed constant value of type &lt;R&gt;
+     * (also a <code>Comparable</code>).
+     *
+     * @param function  An IntFunction whose return value of type &lt;R&gt; is to be compared to the passed Comparable
+     *                  value of type &lt;R&gt;.
+     * @param compareTo A constant value of type &lt;R&gt; to be compared to the return value of an IntFunction.
+     * @param <R>       The return type of the passed IntFunction parameter. Also, the type of the passed constant
+     *                  value.
+     * @return An IntPredicate that applies an IntFunction to its target value, and compares its Comparable return value
+     * to a passed constant value to determine whether the return value is greater.
+     */
     public static <R extends Comparable<R>> IntPredicate intGt(IntFunction<? extends R> function, R compareTo) {
         return i -> Objects.compare(function.apply(i), compareTo, nullsLast(naturalOrder())) > 0;
     }
 
+    /**
+     * Given a <code>ToIntFunction</code> that takes an element of type &lt;T&gt;, this method builds a
+     * <code>Predicate</code> that compares the return value of that function, and determines whether it is greater than
+     * a passed constant int value.
+     *
+     * @param function  A ToIntFunction that takes an element of type &lt;T&gt;, whose return value is to be compared
+     *                  by the Predicate built by this method, with a passed constant int value to see whether it is
+     *                  greater.
+     * @param compareTo A constant int value to be compared with a value returned by a passed ToIntFunction.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies a ToIntFunction to its target element, and compares its int return value to a
+     * passed constant value to determine whether the return value is greater.
+     */
+    public static <T> Predicate<T> toIntGt(ToIntFunction<? super T> function, int compareTo) {
+        return t -> t != null && function.applyAsInt(t) > compareTo;
+    }
+
+    /**
+     * Builds an <code>IntPredicate</code> that determines whether a value is greater than or equal to a passed constant
+     * int value.
+     *
+     * @param compareTo A constant int value to be compared to the target value of an IntPredicate built by this method.
+     * @return An IntPredicate that compares its target value to a passed constant int value and determines whether it
+     * is greater than or equal to that value.
+     */
     public static IntPredicate intGte(int compareTo) {
         return i -> i >= compareTo;
     }
 
+    /**
+     * Given an <code>IntFunction</code> that returns a value of type &lt;R&gt;, and a constant value of type &lt;R&gt;,
+     * this method builds an <code>IntPredicate</code> that applies that function to its target value, and determines
+     * whether the returned <code>Comparable</code> value is greater than or equal to a passed constant value of type
+     * &lt;R&gt; (also a <code>Comparable</code>).
+     *
+     * @param function  An IntFunction whose return value of type &lt;R&gt; is to be compared to the passed Comparable
+     *                  value of type &lt;R&gt;.
+     * @param compareTo A constant value of type &lt;R&gt; to be compared to the return value of an IntFunction.
+     * @param <R>       The return type of the passed IntFunction parameter. Also, the type of the passed constant
+     *                  value.
+     * @return An IntPredicate that applies an IntFunction to its target value, and compares its Comparable return
+     * value to a passed constant value to determine whether the return value is greater or equal to it.
+     */
     public static <R extends Comparable<R>> IntPredicate intGte(IntFunction<? extends R> function, R compareTo) {
         return i -> Objects.compare(function.apply(i), compareTo, nullsLast(naturalOrder())) >= 0;
     }
 
+    /**
+     * Given a <code>ToIntFunction</code> that takes an element of type &lt;T&gt;, this method builds a
+     * <code>Predicate</code> that compares the return value of that function, and determines whether it is greater than
+     * or equal to a passed constant int value.
+     *
+     * @param function  A ToIntFunction that takes an element of type &lt;T&gt;, whose return value is to be compared
+     *                  by the Predicate built by this method, with a passed constant int value to see whether it is
+     *                  greater than or equal to it.
+     * @param compareTo A constant int value to be compared with a value returned by a passed ToIntFunction.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies a ToIntFunction to its target element, and compares its int return value to a
+     * passed constant value to determine whether the return value is greater than or equal to it.
+     */
+    public static <T> Predicate<T> toIntGte(ToIntFunction<? super T> function, int compareTo) {
+        return t -> t != null && function.applyAsInt(t) >= compareTo;
+    }
+
+    /**
+     * Builds an <code>IntPredicate</code> that determines whether a value is less than a passed constant int value.
+     *
+     * @param compareTo A constant int value to be compared to the target value of an IntPredicate built by this method.
+     * @return An IntPredicate that compares its target value to a passed constant int value and determines whether it
+     * is less than that value.
+     */
     public static IntPredicate intLt(int compareTo) {
         return i -> i < compareTo;
     }
 
+    /**
+     * Given an <code>IntFunction</code> that returns a value of type &lt;R&gt;, and a constant value of type &lt;R&gt;,
+     * this method builds an <code>IntPredicate</code> that applies that function to its target value, and determines
+     * whether the returned <code>Comparable</code> value is less than a passed constant value of type &lt;R&gt; (also a
+     * <code>Comparable</code>).
+     *
+     * @param function  An IntFunction whose return value of type &lt;R&gt; is to be compared to the passed Comparable
+     *                  value of type &lt;R&gt;.
+     * @param compareTo A constant value of type &lt;R&gt; to be compared to the return value of an IntFunction.
+     * @param <R>       The return type of the passed IntFunction parameter. Also, the type of the passed constant
+     *                  value.
+     * @return An IntPredicate that applies an IntFunction to its target value, and compares its Comparable return
+     * value to a passed constant value to determine whether the return value is less than it.
+     */
     public static <R extends Comparable<R>> IntPredicate intLt(IntFunction<? extends R> function, R compareTo) {
         return i -> Objects.compare(function.apply(i), compareTo, nullsLast(naturalOrder())) < 0;
     }
 
+    /**
+     * Given a <code>ToIntFunction</code> that takes an element of type &lt;T&gt;, this method builds a
+     * <code>Predicate</code> that compares the return value of that function, and determines whether it is less than a
+     * passed constant int value.
+     *
+     * @param function  A ToIntFunction that takes an element of type &lt;T&gt;, whose return value is to be compared
+     *                  by the Predicate built by this method, with a passed constant int value to see whether it is
+     *                  less than it.
+     * @param compareTo A constant int value to be compared with a value returned by a passed ToIntFunction.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies a ToIntFunction to its target element, and compares its int return value to a
+     * passed constant value to determine whether the return value is less than it.
+     */
+    public static <T> Predicate<T> toIntLt(ToIntFunction<? super T> function, int compareTo) {
+        return t -> t != null && function.applyAsInt(t) < compareTo;
+    }
+
+    /**
+     * Builds an <code>IntPredicate</code> that determines whether a value is less than or equal to a passed constant
+     * int value.
+     *
+     * @param compareTo A constant int value to be compared to the target value of an IntPredicate built by this method.
+     * @return An IntPredicate that compares its target value to a passed constant int value and determines whether it
+     * is less than or equal to that value.
+     */
     public static IntPredicate intLte(int compareTo) {
         return i -> i <= compareTo;
     }
 
+    /**
+     * Given an <code>IntFunction</code> that returns a value of type &lt;R&gt;, and a constant value of type &lt;R&gt;,
+     * this method builds an <code>IntPredicate</code> that applies that function to its target value, and determines
+     * whether the returned <code>Comparable</code> value is less than or equal to a passed constant value of type
+     * &lt;R&gt; (also a <code>Comparable</code>).
+     *
+     * @param function  An IntFunction whose return value of type &lt;R&gt; is to be compared to the passed Comparable
+     *                  value of type &lt;R&gt;.
+     * @param compareTo A constant value of type &lt;R&gt; to be compared to the return value of an IntFunction.
+     * @param <R>       The return type of the passed IntFunction parameter. Also, the type of the passed constant
+     *                  value.
+     * @return An IntPredicate that applies an IntFunction to its target value, and compares its Comparable return value
+     * to a passed constant value to determine whether the return value is less or equal to it.
+     */
     public static <R extends Comparable<R>> IntPredicate intLte(IntFunction<? extends R> function, R compareTo) {
         return i -> Objects.compare(function.apply(i), compareTo, nullsLast(naturalOrder())) <= 0;
     }
 
-    public static <R> IntPredicate isIntCollEmpty(IntFunction<? extends Collection<R>> function) {
+    /**
+     * Given a <code>ToIntFunction</code> that takes an element of type &lt;T&gt;, this method builds a
+     * <code>Predicate</code> that compares the return value of that function, and determines whether it is less than or
+     * equal to a passed constant int value.
+     *
+     * @param function  A ToIntFunction that takes an element of type &lt;T&gt;, whose return value is to be compared
+     *                  by the Predicate built by this method, with a passed constant int value to see whether it is
+     *                  less than or equal to it.
+     * @param compareTo A constant int value to be compared with a value returned by a passed ToIntFunction.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies a ToIntFunction to its target element, and compares its int return value to a
+     * passed constant value to determine whether the return value is less than or equal to it.
+     */
+    public static <T> Predicate<T> toIntLte(ToIntFunction<? super T> function, int compareTo) {
+        return t -> t != null && function.applyAsInt(t) <= compareTo;
+    }
+
+    /**
+     * Given an <code>IntFunction</code> that returns a <code>Collection</code> of elements of an arbitrary type, this
+     * method builds an <code>IntPredicate</code> that determines whether the returned <code>Collection</code> is empty.
+     *
+     * @param function An IntFunction that returns a <code>Collection</code> of elements of an arbitrary type.
+     * @return An IntPredicate that applies its parameter to an IntFunction that returns a Collection of elements of an
+     * arbitrary type. The IntPredicate determines whether the returned Collection is empty.
+     */
+    public static IntPredicate isIntCollEmpty(IntFunction<? extends Collection<?>> function) {
         return i -> CollectionUtils.isEmpty(function.apply(i));
     }
 
-    public static <R> IntPredicate isIntCollNotEmpty(IntFunction<? extends Collection<R>> function) {
+    /**
+     * Given an <code>IntFunction</code> that returns a <code>Collection</code> of elements of an arbitrary type, this
+     * method builds an <code>IntPredicate</code> that determines whether the returned <code>Collection</code> is
+     * <i>not</i> empty.
+     *
+     * @param function An IntFunction that returns a <code>Collection</code> of elements of an arbitrary type.
+     * @return An IntPredicate that applies its parameter to an IntFunction that returns a Collection of elements of an
+     * arbitrary type. The IntPredicate determines whether the returned Collection is <i>not</i> empty.
+     */
+    public static IntPredicate isIntCollNotEmpty(IntFunction<? extends Collection<?>> function) {
         return intNot(isIntCollEmpty(function));
     }
 
+    /**
+     * Given a <code>Function</code> that returns an array of int, this method builds a <code>Predicate</code> that
+     * determines whether the returned array is empty.
+     *
+     * @param function A Function that returns an array of ints.
+     * @param <T>      The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies its parameter to a Function that returns an array of ints. The Predicate
+     * determines whether the returned array is empty.
+     */
+    public static <T> Predicate<T> isIntArrayEmpty(Function<? super T, int[]> function) {
+        return t -> {
+            int[] ints = t == null ? null : function.apply(t);
+            return ints == null || ints.length == 0;
+        };
+    }
+
+    /**
+     * Given a <code>Function</code> that returns an array of ints, this method builds a <code>Predicate</code> that
+     * determines whether the returned array is <i>not</i> empty.
+     *
+     * @param function A Function that returns an array of ints.
+     * @param <T>      The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies its parameter to a Function that returns an array of ints. The Predicate
+     * determines whether the returned array is <i>not</i> empty.
+     */
+    public static <T> Predicate<T> isIntArrayNotEmpty(Function<? super T, int[]> function) {
+        return not(isIntArrayEmpty(function));
+    }
+
+    /**
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns an array of ints, and an
+     * <code>IntPredicate</code>, this method builds a <code>Predicate</code> that determines whether all ints in the
+     * returned array match the <code>IntPredicate</code>.
+     *
+     * @param function  A Function that takes en element of type &lt;T&gt; and returns an array of ints.
+     * @param predicate An IntPredicate that will be applied to all elements of an array of ints returned by the passed
+     *                  Function.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies its target element of type &lt;T&gt; to a Function that returns an array of
+     * ints. The Predicate determines whether all elements in that array match a passed IntPredicate.
+     */
     public static <T> Predicate<T> objToIntsAllMatch(Function<T, ? extends int[]> function, IntPredicate predicate) {
         return t -> t != null && IntStreamUtils.intAllMatch(function.apply(t), predicate);
     }
 
+    /**
+     * Given an <code>IntFunction</code> that returns a <code>Collection</code> of type &lt;R&gt;, and a
+     * <code>Predicate</code>, this method builds an <code>IntPredicate</code> that determines whether all elements in
+     * the returned <code>Collection</code> match the <code>Predicate</code>.
+     *
+     * @param function  An IntFunction that returns a Collection of elements of type &lt;R&gt;.
+     * @param predicate A Predicate that will be applied to all elements of a Collection returned by the passed
+     *                  IntFunction.
+     * @param <R>       The type of the elements of a Collection returned by a passed IntFunction. Also the type of
+     *                  elements taken by a passed Predicate that will be applied to all elements of that Collection.
+     * @return An IntPredicate that applies its parameter to an IntFunction that returns a Collection of elements of
+     * type &lt;R&gt;. The IntPredicate determines whether all elements in that Collection match a passed Predicate.
+     */
     public static <R> IntPredicate intToObjectsAllMatch(IntFunction<? extends Collection<R>> function, Predicate<R> predicate) {
         return i -> StreamUtils.allMatch(function.apply(i), predicate);
     }
 
+    /**
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns an array of ints, and an
+     * <code>IntPredicate</code>, this method builds a <code>Predicate</code> that determines whether any of the ints in
+     * the returned array match the <code>IntPredicate</code>.
+     *
+     * @param function  A Function that takes en element of type &lt;T&gt; and returns an array of ints.
+     * @param predicate An IntPredicate that will be applied to all elements of an array of ints returned by the passed
+     *                  Function to determine whether any match.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies its target element of type &lt;T&gt; to a Function that returns an array of
+     * ints. The Predicate determines whether any of the elements in that array match a passed IntPredicate.
+     */
     public static <T> Predicate<T> objToIntsAnyMatch(Function<T, ? extends int[]> function, IntPredicate predicate) {
         return t -> t != null && IntStreamUtils.intAnyMatch(function.apply(t), predicate);
     }
 
+    /**
+     * Given an <code>IntFunction</code> that returns a <code>Collection</code> of type &lt;R&gt;, and a
+     * <code>Predicate</code>, this method builds an <code>IntPredicate</code> that determines whether any of the
+     * elements in the returned <code>Collection</code> match the <code>Predicate</code>.
+     *
+     * @param function  An IntFunction that returns a Collection of elements of type &lt;R&gt;.
+     * @param predicate A Predicate that will be applied to all elements of a Collection returned by the passed
+     *                  IntFunction to determine whether any match.
+     * @param <R>       The type of the elements of a Collection returned by a passed IntFunction. Also the type of
+     *                  elements taken by a passed Predicate that will be applied to all elements of that Collection.
+     * @return An IntPredicate that applies its parameter to an IntFunction that returns a Collection of elements of
+     * type &lt;R&gt;. The IntPredicate determines whether any of the elements in that Collection match a passed
+     * Predicate.
+     */
     public static <R> IntPredicate intToObjectsAnyMatch(IntFunction<? extends Collection<R>> function, Predicate<R> predicate) {
         return i -> StreamUtils.anyMatch(function.apply(i), predicate);
     }
 
+    /**
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt; and returns an array of ints, and an
+     * <code>IntPredicate</code>, this method builds a <code>Predicate</code> that determines whether none of the ints
+     * in the returned array match the <code>IntPredicate</code>.
+     *
+     * @param function  A Function that takes en element of type &lt;T&gt; and returns an array of ints.
+     * @param predicate An IntPredicate that will be applied to all elements of an array of ints returned by the passed
+     *                  Function to determine whether none match.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that applies its target element of type &lt;T&gt; to a Function that returns an array of
+     * ints. The Predicate determines whether none of the elements in that array match a passed IntPredicate.
+     */
     public static <T> Predicate<T> objToIntsNoneMatch(Function<T, ? extends int[]> function, IntPredicate predicate) {
         return t -> t != null && IntStreamUtils.intNoneMatch(function.apply(t), predicate);
     }
 
+    /**
+     * Given an <code>IntFunction</code> that returns a <code>Collection</code> of type &lt;R&gt;, and a
+     * <code>Predicate</code>, this method builds an <code>IntPredicate</code> that determines whether none of the
+     * elements in the returned <code>Collection</code> match the <code>Predicate</code>.
+     *
+     * @param function  An IntFunction that returns a Collection of elements of type &lt;R&gt;.
+     * @param predicate A Predicate that will be applied to all elements of a Collection returned by the passed
+     *                  IntFunction to determine whether none match.
+     * @param <R>       The type of the elements of a Collection returned by a passed IntFunction. Also the type of
+     *                  elements taken by a passed Predicate that will be applied to all elements of that Collection.
+     * @return An IntPredicate that applies its parameter to an IntFunction that returns a Collection of elements of
+     * type &lt;R&gt;. The IntPredicate determines whether none of the elements in that Collection match a passed
+     * Predicate.
+     */
     public static <R> IntPredicate intToObjectsNoneMatch(IntFunction<? extends Collection<R>> function, Predicate<R> predicate) {
         return i -> StreamUtils.noneMatch(function.apply(i), predicate);
     }
 
-    public static IntPredicate intDistinctByKey(IntFunction<?> keyExtractor) {
-        Set<? super Object> uniqueKeys = new HashSet<>();
-        return i -> uniqueKeys.add(keyExtractor.apply(i));
+    /**
+     * Given a <code>ToIntFunction</code> taking a value of type &lt;T&gt;, and an <code>IntPredicate</code>, this
+     * method builds a <code>Predicate</code> that takes an element of type &lt;T&gt;, and applies the return value of
+     * the <code>ToIntFunction</code> to the given predicate. It is a way of adapting an <code>IntPredicate</code> to a
+     * <code>Stream</code> of a different type. For example, the
+     * {@link IntStreamUtils#indexOfFirstInt(int[], IntPredicate)} method uses this predicate in its implementation
+     * (Note that the <code>intPairWithIndex()</code> below refers to {@link IntMapperUtils#intPairWithIndex()}):
+     * <pre>
+     * public static int indexOfFirstInt(int[] ints, IntPredicate intPredicate) {
+     *     return defaultIntStream(ints)
+     *         .mapToObj(intPairWithIndex())
+     *         .filter(mapToIntAndFilter(IntIndexPair::getIntValue, intPredicate))
+     *         .mapToInt(IntIndexPair::getIndex)
+     *         .findFirst()
+     *         .orElse(-1);
+     * }
+     * </pre>
+     * The map-and-filter predicate is necessary in this case because we have a predicate that operates on the original
+     * <code>int</code> type of the stream, but a mapping operation has changed the type to an
+     * <code>IntIndexPair</code>. The <code>IntIndexPair::getIntValue</code> method reference, passed as the
+     * <code>ToIntFunction</code> argument to this method, retrieves the original int value before the
+     * <code>IntPredicate</code> evaluates it.
+     * <p>
+     * As a side note, the pairing of an object with another can be very useful in streaming operations. In this case,
+     * we need to have both the int value and its index available at the same point in the stream, so we temporarily
+     * pair the two together, before mapping to just the index.
+     *
+     * @param function  A ToIntFunction to transform an element of type &lt;T&gt; to an int before it is passed to an
+     *                  IntPredicate.
+     * @param predicate An IntPredicate whose value will be retrieved from a given transformer function.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return A Predicate that takes an element of type &lt;T&gt;, and applies the return value of a passed
+     * ToIntFunction to a passed IntPredicate.
+     */
+    public static <T> Predicate<T> mapToIntAndFilter(ToIntFunction<? super T> function, IntPredicate predicate) {
+        return i -> predicate.test(function.applyAsInt(i));
     }
 
-    public static IntPredicate intDistinctByKeyParallel(IntFunction<?> keyExtractor) {
-        Set<? super Object> uniqueKeys = Collections.synchronizedSet(new HashSet<>());
-        return i -> uniqueKeys.add(keyExtractor.apply(i));
-    }
-
-    public static <T> Predicate<T> mapToIntAndFilter(ToIntFunction<? super T> transformer, IntPredicate predicate) {
-        return i -> predicate.test(transformer.applyAsInt(i));
-    }
-
-    public static <U> IntPredicate intMapAndFilter(IntFunction<? extends U> transformer, Predicate<? super U> predicate) {
-        return i -> predicate.test(transformer.apply(i));
+    /**
+     * Given an <code>IntFunction</code> that returns a value of type &lt;T&gt;, and a <code>Predicate</code>, this
+     * method builds an <code>IntPredicate</code> that applies the return value of the <code>IntFunction</code> to the
+     * given predicate. It is a way of adapting a int value to a <code>Predicate</code>. This method is the inverse of
+     * {@link #mapToIntAndFilter(ToIntFunction, IntPredicate)}. In that method, we map from a value of type &lt;T&gt; to
+     * an <code>int</code>, and then apply an <code>IntPredicate</code>. In this method we map from an <code>int</code>
+     * to a value of type &lt;T&gt;, and then apply a <code>Predicate&lt;T&gt;</code>.
+     *
+     * @param function  An IntFunction to transform an int value to an element of type &lt;T&gt; before it is passed to
+     *                  a Predicate.
+     * @param predicate A Predicate whose value will be retrieved from a given IntFunction.
+     * @param <T>       The type of the element taken by the Predicate built by this method.
+     * @return An IntPredicate that applies the return value of a passed IntFunction to a passed Predicate.
+     */
+    public static <T> IntPredicate intMapAndFilter(IntFunction<? extends T> function, Predicate<? super T> predicate) {
+        return i -> predicate.test(function.apply(i));
     }
 }

@@ -1,6 +1,7 @@
 package org.hringsak.functions.collector;
 
 import org.hringsak.functions.internal.Invariants;
+import org.hringsak.functions.stream.DblStreamUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -173,7 +174,7 @@ public final class CollectorUtils {
     }
 
     /**
-     * Builds a <code>Collector</code> that accumulates a stream of elements into a stream of lists of those elements,
+     * Builds a <code>Collector</code> that accumulates a stream of elements into a list of lists of those elements,
      * each limited to the passed <code>partitionSize</code>. For example, given the following code:
      * <pre>
      *     IntStream.range(0, 100)
@@ -205,6 +206,35 @@ public final class CollectorUtils {
         return Collector.of(ArrayList::new, listPartitionAccumulator(partitionSize), combiner(List::addAll));
     }
 
+    /**
+     * Builds a <code>Collector</code> that accumulates a stream of elements into a list of arbitrary objects of type
+     * &lt;R&gt;, into which those elements are accumulated. For example, this method is used in the implementation of
+     * {@link DblStreamUtils#toPartitionedDblList(double[], int)}:
+     * <pre>
+     *     public static List&lt;double[]&gt; toPartitionedDblList(double[] doubles, int partitionSize) {
+     *         return defaultDblStream(doubles)
+     *             .boxed()
+     *             .collect(toPartitionedList(partitionSize, DblStreamUtils::toListOfArrays));
+     *     }
+     *
+     *     private static List&lt;double[]&gt; toListOfArrays(List&lt;List&lt;Double&gt;&gt; partitions) {
+     *         return partitions.stream()
+     *             .map(DblStreamUtils::listToArray)
+     *             .collect(toList());
+     *     }
+     * </pre>
+     * The {@link DblStreamUtils#toPartitionedDblList(double[], int)} method partitions an array of doubles into a
+     * <code>List&lt;double[]&gt;</code>.
+     *
+     * @param partitionSize The size limit for the maximum number of elements that may be accumulated into each object
+     *                      of type &lt;R&gt;.
+     * @param finisher      A finisher function that accumulates each partition List&lt;T&gt; into an object of type
+     *                      &lt;R&gt;.
+     * @param <T>           The type of the elements in the collection to be partitioned.
+     * @param <R>           The type of the object, into which a partition of elements will be accumulated.
+     * @return A Collector that accumulates into a list of objects of type &lt;R&gt;, each accumulating a maximum number
+     * of partitioned elements, given by partitionSize.
+     */
     @SuppressWarnings("WeakerAccess")
     public static <T, R> Collector<T, List<List<T>>, List<R>> toPartitionedList(int partitionSize, Function<List<List<T>>, List<R>> finisher) {
         Invariants.checkArgument(partitionSize > 0, "The 'partitionSize' argument must be greater than zero");

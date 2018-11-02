@@ -385,8 +385,8 @@ public final class DblPredicateUtils {
      * whether a collection returned by a double function contains a passed value.
      *
      * @param function A DoubleFunction that returns a Collection of elements of type &lt;R&gt;.
-     * @param value    A value of type &lt;R&gt; to be checked for whether a Collection returned by the above Function
-     *                 contains it.
+     * @param value    A value of type &lt;R&gt; to be checked for whether a Collection returned by the above
+     *                 DoubleFunction contains it.
      * @param <R>      The type of elements for collections returned by a passed DoubleFunction. Also, the type of the
      *                 passed value.
      * @return A DoublePredicate that applies the given double function to its parameter resulting in a
@@ -438,8 +438,8 @@ public final class DblPredicateUtils {
     }
 
     /**
-     * Given a DoubleFunction that returns a value of type &lt;R&gt;, this method builds a <code>DoublePredicate</code>
-     * that determines whether that returned value is <code>null</code>.
+     * Given a <code>DoubleFunction</code> that returns a value of an arbitrary type, this method builds a
+     * <code>DoublePredicate</code> that determines whether that returned value is <code>null</code>.
      *
      * @param function A DoubleFunction that returns a value of an arbitrary type.
      * @return A DoublePredicate that applies a DoubleFunction to its parameter, which returns a value of an arbitrary
@@ -450,8 +450,8 @@ public final class DblPredicateUtils {
     }
 
     /**
-     * Given a DoubleFunction that returns a value of type &lt;R&gt;, this method builds a <code>DoublePredicate</code>
-     * that determines whether that returned value is <i>not</i> <code>null</code>.
+     * Given a <code>DoubleFunction</code> that returns a value of an arbitrary type, this method builds a
+     * <code>DoublePredicate</code> that determines whether that returned value is <i>not</i> <code>null</code>.
      *
      * @param function A DoubleFunction that returns a value of an arbitrary type.
      * @return A DoublePredicate that applies a DoubleFunction to its parameter, which returns a value of an arbitrary
@@ -854,13 +854,13 @@ public final class DblPredicateUtils {
      * the given predicate. It is a way of adapting a double value to a <code>Predicate</code>. This method is the
      * inverse of {@link #mapToDblAndFilter(ToDoubleFunction, DoublePredicate)}. In that method, we map from a value of
      * type &lt;T&gt; to a <code>double</code>, and then apply a <code>DoublePredicate</code>. In this method we map
-     * from a <code>double</code> to a value of type &lt;T&gt;, and then apply a predicate.
+     * from a <code>double</code> to a value of type &lt;T&gt;, and then apply a <code>Predicate&lt;T&gt;</code>.
      *
      * @param function  A DoubleFunction to transform a double value to an element of type &lt;T&gt; before it is passed
      *                  to a Predicate.
      * @param predicate A Predicate whose value will be retrieved from a given DoubleFunction.
      * @param <T>       The type of the element taken by the Predicate built by this method.
-     * @return A DoublePredicate that applies the return value of a passed ToDoubleFunction to a passed Predicate.
+     * @return A DoublePredicate that applies the return value of a passed DoubleFunction to a passed Predicate.
      */
     public static <T> DoublePredicate dblMapAndFilter(DoubleFunction<? extends T> function, Predicate<? super T> predicate) {
         return d -> predicate.test(function.apply(d));
