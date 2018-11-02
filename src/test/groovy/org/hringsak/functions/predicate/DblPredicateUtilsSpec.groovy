@@ -14,10 +14,6 @@ import static org.hringsak.functions.predicate.FilterUtils.filter
 
 class DblPredicateUtilsSpec extends Specification {
 
-    static final int RAW_LIST_SIZE = 1000
-    static final double DISTINCT_KEY_SIZE = 100.0D
-    def keyExtractor = { double d -> Double.valueOf(d % DISTINCT_KEY_SIZE) }
-
     def 'double predicate passing target returns expected value'() {
         expect:
         def predicate = dblPredicate { d -> d % 2 == 0 } as DoublePredicate
