@@ -9,6 +9,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
+import java.util.function.LongUnaryOperator;
 import java.util.function.ToLongBiFunction;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
@@ -369,16 +370,16 @@ public final class LongMapperUtils {
      * <code>LongFunction</code> that returns a <code>Pair&lt;U, V&gt;</code>. It is intended to be used in a stream.
      * The <code>Pair&lt;U, V&gt;</code> built by this <code>LongFunction</code> will consist of an element returned
      * by the passed <code>function</code>, and an object of type &lt;V&gt; whose element in the passed
-     * <code>List</code> is associated with the current double, in encounter order. The double function returned from
+     * <code>List</code> is associated with the current long, in encounter order. The long function returned from
      * this method is <i>not</i> intended to be used with parallel streams.
      * <p>
-     * If the passed <code>List</code> has more elements than the double array being streamed, the extra elements are
-     * ignored. If it has fewer elements, any values returned by the passed double <code>function</code>, that do not
+     * If the passed <code>List</code> has more elements than the long array being streamed, the extra elements are
+     * ignored. If it has fewer elements, any values returned by the passed long <code>function</code>, that do not
      * have associated values in the list, will be paired with a <code>null</code> value.
      *
      * @param function   A LongFunction that will return a value of type &lt;U&gt;, which will become the left element
      *                   in a Pair, returned by the LongFunction built by this method.
-     * @param pairedList A List whose elements are to be paired with elements retrieved by the passed double function.
+     * @param pairedList A List whose elements are to be paired with elements retrieved by the passed long function.
      * @param <U>        The type of the left element, retrieved by the passed function.
      * @param <V>        The type of the right element, retrieved from the passed List.
      * @return A LongFunction that will return a Pair of a value retrieved from the passed function, along with an
@@ -479,5 +480,57 @@ public final class LongMapperUtils {
      */
     public static <K, V> LongKeyValueMapper<K, V> longKeyValueMapper(LongFunction<K> keyMapper, LongFunction<V> valueMapper) {
         return LongKeyValueMapper.of(keyMapper, valueMapper);
+    }
+
+    /**
+     * Builds a <code>LongUnaryOperator</code> that adds a constant value to a <code>long</code> parameter.
+     *
+     * @param toAdd A constant long value to be added to the parameter of a LongUnaryOperator.
+     * @return A LongUnaryOperator to whose parameter a constant long value will be added.
+     */
+    public static LongUnaryOperator longAdd(long toAdd) {
+        return l -> l + toAdd;
+    }
+
+    /**
+     * Builds a <code>LongUnaryOperator</code> that subtracts a constant value from a <code>long</code> parameter.
+     *
+     * @param toSubtract A constant long value to be subtracted from the parameter of a LongUnaryOperator.
+     * @return A LongUnaryOperator from whose parameter a constant long value will be subtracted.
+     */
+    public static LongUnaryOperator longSubtract(long toSubtract) {
+        return l -> l - toSubtract;
+    }
+
+    /**
+     * Builds a <code>LongUnaryOperator</code> that multiplies a constant value with a <code>long</code> parameter.
+     *
+     * @param factor A constant long value to be multiplied with the parameter of a LongUnaryOperator.
+     * @return A LongUnaryOperator whose parameter will be multiplied by a constant long value.
+     */
+    public static LongUnaryOperator longMultiply(long factor) {
+        return l -> l * factor;
+    }
+
+    /**
+     * Builds a <code>LongUnaryOperator</code> that divides its <code>long</code> parameter by a constant value.
+     *
+     * @param divisor A constant long value to be divided into the parameter of a LongUnaryOperator.
+     * @return A LongUnaryOperator whose parameter will be divided by a constant long value.
+     */
+    public static LongUnaryOperator longDivide(long divisor) {
+        return l -> l / divisor;
+    }
+
+    /**
+     * Builds a <code>LongUnaryOperator</code> that divides its <code>long</code> parameter by a constant value to
+     * get a remainder.
+     *
+     * @param divisor A constant long value to be divided into the parameter of a LongUnaryOperator to get a
+     *                remainder.
+     * @return A LongUnaryOperator whose parameter will be divided by a constant long value to get a remainder.
+     */
+    public static LongUnaryOperator longModulo(long divisor) {
+        return l -> l % divisor;
     }
 }

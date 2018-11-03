@@ -112,7 +112,8 @@ public final class IntPredicateUtils {
      * method, and the second parameter is the target <code>int</code> element on which you are streaming. This would
      * typically be called from within a chain of method calls based on an <code>IntStream</code>. In the following
      * example, assume the <code>Stock</code> objects passed to the <code>getHighestPriceOfStockBelowLimit(...)</code>
-     * method are to be filtered based on whether their price is less than a limit for the passed <code>Client</code>:
+     * method are to be filtered based on whether their price is less than a limit for the passed <code>Client</code>.
+     * Also, assume that the monetary values are being stored as integral values in cents:
      * <pre>
      *     private int[] getHighestPriceOfStockBelowLimit(Collection&lt;Stock&gt; stocks, Client client) {
      *         return stocks.stream()
@@ -365,7 +366,7 @@ public final class IntPredicateUtils {
      * @return An IntPredicate that applies an IntFunction to its parameter, which returns a value of an arbitrary type.
      * The predicate determines whether that value is null.
      */
-    public static IntPredicate isIntNull(IntFunction<?> function) {
+    public static IntPredicate intIsNull(IntFunction<?> function) {
         return i -> Objects.isNull(function.apply(i));
     }
 
@@ -377,8 +378,8 @@ public final class IntPredicateUtils {
      * @return An IntPredicate that applies an IntFunction to its parameter, which returns a value of an arbitrary type.
      * The predicate determines whether that value is not null.
      */
-    public static IntPredicate isIntNotNull(IntFunction<?> function) {
-        return intNot(isIntNull(function));
+    public static IntPredicate intIsNotNull(IntFunction<?> function) {
+        return intNot(intIsNull(function));
     }
 
     /**
