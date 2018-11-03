@@ -228,4 +228,34 @@ class LongMapperUtilsSpec extends Specification {
         1L     || 'trueValue'
         2L     || 'falseValue'
     }
+
+    def 'long add'() {
+        expect:
+        def result = longAdd(2L).applyAsLong(1L)
+        result == 3L
+    }
+
+    def 'long subtract'() {
+        expect:
+        def result = longSubtract(1L).applyAsLong(2L)
+        result == 1L
+    }
+
+    def 'long multiply'() {
+        expect:
+        def result = longMultiply(2L).applyAsLong(2L)
+        result == 4L
+    }
+
+    def 'long divide'() {
+        expect:
+        def result = longDivide(2L).applyAsLong(4L)
+        result == 2L
+    }
+
+    def 'long modulo'() {
+        expect:
+        def result = longModulo(2L).applyAsLong(3L)
+        result == 1L
+    }
 }

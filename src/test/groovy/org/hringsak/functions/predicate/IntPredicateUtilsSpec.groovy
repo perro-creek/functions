@@ -125,16 +125,16 @@ class IntPredicateUtilsSpec extends Specification {
         filter(strings, predicate) == ['2']
     }
 
-    def 'is int null passing function returns expected value'() {
+    def 'int is null passing function returns expected value'() {
         expect:
-        def predicate = isIntNull { i -> i == 2 ? null : String.valueOf(i) }
+        def predicate = intIsNull() { i -> i == 2 ? null : String.valueOf(i) }
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [2] as int[]
     }
 
-    def 'is int not null passing function returns expected value'() {
+    def 'int is not null passing function returns expected value'() {
         expect:
-        def predicate = isIntNotNull { i -> i == 2 ? null : String.valueOf(i) }
+        def predicate = intIsNotNull() { i -> i == 2 ? null : String.valueOf(i) }
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [1, 3] as int[]
     }
