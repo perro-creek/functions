@@ -43,6 +43,23 @@ class LongFilterUtilsSpec extends Specification {
         'null'   | null as long[] || [] as Set
     }
 
+    def 'long filter distinct returns list with distinct values'() {
+        expect:
+        longFilterDistinct([1L, 2L, 3L, 2L] as long[], isLongEqual(2L)) == [2L] as long[]
+    }
+
+    @Unroll
+    def 'long filter distinct returns #expected for #scenario parameter'() {
+
+        expect:
+        longFilterDistinct(longs, longConstant(true)) == expected as long[]
+
+        where:
+        scenario | longs          || expected
+        'empty'  | [] as long[]   || []
+        'null'   | null as long[] || []
+    }
+
     def 'long filter with predicate and collector returns expected results'() {
         expect:
         longFilter([1L, 2L, 3L] as long[], LongFilterCollector.of(longGt(2L), toList())) == [3L]
@@ -60,16 +77,16 @@ class LongFilterUtilsSpec extends Specification {
         'null'   | null as long[] || []
     }
 
-    def 'long filter distinct returns list with distinct values'() {
+    def 'long filter distinct with predicate and collector returns expected results'() {
         expect:
-        longFilterDistinct([1L, 2L, 3L, 2L] as long[], isLongEqual(2L)) == [2L]
+        longFilterDistinct([3L, 1L, 2L, 3L] as long[], LongFilterCollector.of(longGt(2L), toList())) == [3L]
     }
 
     @Unroll
-    def 'long filter distinct returns #expected for #scenario parameter'() {
+    def 'long filter distinct with predicate and collector returns #expected for #scenario parameter'() {
 
         expect:
-        longFilterDistinct(longs, longConstant(true)) == expected
+        longFilterDistinct(longs, longFilterAndThen(longConstant(true), toList())) == expected
 
         where:
         scenario | longs          || expected

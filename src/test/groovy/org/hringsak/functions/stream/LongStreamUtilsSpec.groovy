@@ -3,7 +3,6 @@ package org.hringsak.functions.stream
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.stream.LongStreamUtils.*
 
@@ -193,7 +192,7 @@ class LongStreamUtilsSpec extends Specification {
         expect:
         def predicate = { l -> l > compareValue }
         def supplier = { -1L }
-        findFirstLongDefaultSupplier([1L, 2L, 3L] as long[], findLongDefaultSupplier(predicate, supplier)) == expected
+        findFirstLongDefault([1L, 2L, 3L] as long[], findLongDefaultSupplier(predicate, supplier)) == expected
 
         where:
         compareValue | expected
@@ -238,48 +237,6 @@ class LongStreamUtilsSpec extends Specification {
         compareValue | expected
         2L           | false
         3L           | true
-    }
-
-    def 'long join returns expected results'() {
-        expect:
-        longJoin([1L, 2L, 3L] as long[], { l -> String.valueOf(l) }) == '1,2,3'
-    }
-
-    @Unroll
-    def 'long join returns "#expected" for delimiter "#delimiter"'() {
-
-        expect:
-        longJoin([1L, 2L, 3L] as long[], { l -> String.valueOf(l) }, delimiter) == expected
-
-        where:
-        delimiter || expected
-        ','       || '1,2,3'
-        ', '      || '1, 2, 3'
-    }
-
-    @Unroll
-    def 'long join returns "#expected" for delimiter "#delimiter", prefix "#prefix", and suffix "#suffix"'() {
-
-        expect:
-        def joiner = joining(delimiter, prefix, suffix)
-        longJoin([1L, 2L, 3L] as long[], { l -> String.valueOf(l) }, joiner) == expected
-
-        where:
-        delimiter | prefix | suffix  || expected
-        ','       | 'pre+' | '+post' || 'pre+1,2,3+post'
-        ', '      | ''     | ''      || '1, 2, 3'
-    }
-
-    @Unroll
-    def 'long join returns empty string for #scenario parameter'() {
-
-        expect:
-        longJoin(values, { l -> String.valueOf(l) }) == ''
-
-        where:
-        scenario | values
-        'empty'  | [] as long[]
-        'null'   | null
     }
 
     @Unroll

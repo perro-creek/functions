@@ -3,7 +3,6 @@ package org.hringsak.functions.stream
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.stream.IntStreamUtils.*
 
@@ -193,7 +192,7 @@ class IntStreamUtilsSpec extends Specification {
         expect:
         def predicate = { i -> i > compareValue }
         def supplier = { -1 }
-        findFirstIntDefaultSupplier([1, 2, 3] as int[], findIntDefaultSupplier(predicate, supplier)) == expected
+        findFirstIntDefault([1, 2, 3] as int[], findIntDefaultSupplier(predicate, supplier)) == expected
 
         where:
         compareValue | expected
@@ -238,48 +237,6 @@ class IntStreamUtilsSpec extends Specification {
         compareValue | expected
         2            | false
         3            | true
-    }
-
-    def 'int join returns expected results'() {
-        expect:
-        intJoin([1, 2, 3] as int[], { i -> String.valueOf(i) }) == '1,2,3'
-    }
-
-    @Unroll
-    def 'int join returns "#expected" for delimiter "#delimiter"'() {
-
-        expect:
-        intJoin([1, 2, 3] as int[], { i -> String.valueOf(i) }, delimiter) == expected
-
-        where:
-        delimiter || expected
-        ','       || '1,2,3'
-        ', '      || '1, 2, 3'
-    }
-
-    @Unroll
-    def 'int join returns "#expected" for delimiter "#delimiter", prefix "#prefix", and suffix "#suffix"'() {
-
-        expect:
-        def joiner = joining(delimiter, prefix, suffix)
-        intJoin([1, 2, 3] as int[], { i -> String.valueOf(i) }, joiner) == expected
-
-        where:
-        delimiter | prefix | suffix  || expected
-        ','       | 'pre+' | '+post' || 'pre+1,2,3+post'
-        ', '      | ''     | ''      || '1, 2, 3'
-    }
-
-    @Unroll
-    def 'int join returns empty string for #scenario parameter'() {
-
-        expect:
-        intJoin(values, { i -> String.valueOf(i) }) == ''
-
-        where:
-        scenario | values
-        'empty'  | [] as int[]
-        'null'   | null
     }
 
     @Unroll

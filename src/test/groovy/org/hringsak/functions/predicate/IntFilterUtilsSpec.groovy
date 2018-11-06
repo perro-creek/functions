@@ -43,7 +43,24 @@ class IntFilterUtilsSpec extends Specification {
         'null'   | null as int[] || [] as Set
     }
 
-    def 'int filter with predicate and collector returns expected results'() {
+    def 'int filter distinct returns list with distinct values'() {
+        expect:
+        intFilterDistinct([1, 2, 3, 2] as int[], isIntEqual(2)) == [2] as int[]
+    }
+
+    @Unroll
+    def 'int filter distinct returns #expected for #scenario parameter'() {
+
+        expect:
+        intFilterDistinct(ints, intConstant(true)) == expected as int[]
+
+        where:
+        scenario | ints          || expected
+        'empty'  | [] as int[]   || []
+        'null'   | null as int[] || []
+    }
+
+    def 'int filter distinct with predicate and collector returns expected results'() {
         expect:
         intFilter([1, 2, 3] as int[], IntFilterCollector.of(intGt(2), toList())) == [3]
     }
@@ -60,16 +77,16 @@ class IntFilterUtilsSpec extends Specification {
         'null'   | null as int[] || []
     }
 
-    def 'int filter distinct returns list with distinct values'() {
+    def 'int filter with predicate and collector returns expected results'() {
         expect:
-        intFilterDistinct([1, 2, 3, 2] as int[], isIntEqual(2)) == [2]
+        intFilterDistinct([3, 1, 2, 3] as int[], IntFilterCollector.of(intGt(2), toList())) == [3]
     }
 
     @Unroll
-    def 'int filter distinct returns #expected for #scenario parameter'() {
+    def 'int filter distinct with predicate and collector returns #expected for #scenario parameter'() {
 
         expect:
-        intFilterDistinct(ints, intConstant(true)) == expected
+        intFilterDistinct(ints, intFilterAndThen(intConstant(true), toList())) == expected
 
         where:
         scenario | ints          || expected

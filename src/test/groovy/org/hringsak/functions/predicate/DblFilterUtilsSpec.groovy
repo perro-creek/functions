@@ -43,6 +43,23 @@ class DblFilterUtilsSpec extends Specification {
         'null'                       | null as double[]   || [] as Set
     }
 
+    def 'double filter distinct returns list with distinct values'() {
+        expect:
+        dblFilterDistinct([1.0D, 2.0D, 3.0D, 2.0D] as double[], isDblEqual(2.0D)) == [2.0D] as double[]
+    }
+
+    @Unroll
+    def 'double filter distinct returns #expected for #scenario parameter'() {
+
+        expect:
+        dblFilterDistinct(doubles, dblConstant(true)) == expected as double[]
+
+        where:
+        scenario                     | doubles            || expected
+        'empty'                      | [] as double[]     || []
+        'null'                       | null as double[]   || []
+    }
+
     def 'double filter with predicate and collector returns expected results'() {
         expect:
         dblFilter([1.0D, 2.0D, 3.0D] as double[], DoubleFilterCollector.of(dblGt(2.0D), toList())) == [3.0D]
@@ -60,16 +77,16 @@ class DblFilterUtilsSpec extends Specification {
         'null'                       | null as double[]   || []
     }
 
-    def 'double filter distinct returns list with distinct values'() {
+    def 'double filter distinct with predicate and collector returns expected results'() {
         expect:
-        dblFilterDistinct([1.0D, 2.0D, 3.0D, 2.0D] as double[], isDblEqual(2.0D)) == [2.0D]
+        dblFilterDistinct([3.0D, 1.0D, 2.0D, 3.0D] as double[], DoubleFilterCollector.of(dblGt(2.0D), toList())) == [3.0D]
     }
 
     @Unroll
-    def 'double filter distinct returns #expected for #scenario parameter'() {
+    def 'double filter distinct with predicate and collector returns #expected for #scenario parameter'() {
 
         expect:
-        dblFilterDistinct(doubles, dblConstant(true)) == expected
+        dblFilterDistinct(doubles, dblFilterAndThen(dblConstant(true), toList())) == expected
 
         where:
         scenario                     | doubles            || expected

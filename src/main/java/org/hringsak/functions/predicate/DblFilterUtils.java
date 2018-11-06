@@ -1,14 +1,11 @@
 package org.hringsak.functions.predicate;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.function.DoublePredicate;
 import java.util.stream.Collector;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.hringsak.functions.predicate.DblPredicateUtils.dblPredicate;
 import static org.hringsak.functions.stream.DblStreamUtils.defaultDblStream;
 
 /**
@@ -45,19 +42,18 @@ public final class DblFilterUtils {
     }
 
     /**
-     * Filters an array of doubles, based a predicate, into a list of distinct Double instances (according to
-     * <code>Double.compare(double, double)</code>).
+     * Filters an array of doubles, based a predicate, into an array of distinct <code>double</code> values (according
+     * to <code>Double.compare(double, double)</code>).
      *
      * @param doubles   An array of doubles to be filtered.
      * @param predicate A predicate with which to filter the doubles array.
-     * @return A List of Double objects filtered from an array of double.
+     * @return An array of distinct double values filtered, using the passed predicate, from the input array.
      */
-    public static List<Double> dblFilterDistinct(double[] doubles, DoublePredicate predicate) {
+    public static double[] dblFilterDistinct(double[] doubles, DoublePredicate predicate) {
         return defaultDblStream(doubles)
-                .filter(dblPredicate(predicate))
+                .filter(predicate)
                 .distinct()
-                .boxed()
-                .collect(toList());
+                .toArray();
     }
 
     /**
@@ -83,6 +79,35 @@ public final class DblFilterUtils {
     public static <C extends Collection<Double>> C dblFilter(double[] doubles, DoubleFilterCollector<C> filterCollector) {
         return defaultDblStream(doubles)
                 .filter(filterCollector.getFilter())
+                .boxed()
+                .collect(filterCollector.getCollector());
+    }
+
+    /**
+     * Filters an array of doubles, based a predicate, into an array of distinct <code>double</code> values. This
+     * overload takes an object that is built using the {@link #dblFilterAndThen(DoublePredicate, Collector)} method,
+     * which allows you to specify both a <code>DoublePredicate</code> and a <code>Collector</code> to build any type of
+     * <code>Collection</code> as a result. For example:
+     * <pre>
+     *     double[] doubles = ...
+     *     List&lt;Double&gt; = DblFilterUtils.dblFilter(doubles, DblFilterUtils.dblFilterAndThen(DblPredicateUtils.dblGt(1.0D), Collectors.toCollection(LinkedList::new)));
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     List&lt;Double&gt; = dblFilter(doubles, dblFilterAndThen(dblGt(1.0D), toCollection(LinkedList::new)));
+     * </pre>
+     *
+     * @param doubles         An array of doubles to be filtered.
+     * @param filterCollector An object containing a predicate with which to filter the doubles array, and a Collector
+     *                        to accumulate results into a Collection.
+     * @param <C>             The type of the resulting Collection.
+     * @return An array of distinct double values filtered, using a predicate from the passed filterCollector, from the
+     * input array.
+     */
+    public static <C extends Collection<Double>> C dblFilterDistinct(double[] doubles, DoubleFilterCollector<C> filterCollector) {
+        return defaultDblStream(doubles)
+                .filter(filterCollector.getFilter())
+                .distinct()
                 .boxed()
                 .collect(filterCollector.getCollector());
     }

@@ -1,14 +1,11 @@
 package org.hringsak.functions.predicate;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.function.LongPredicate;
 import java.util.stream.Collector;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.hringsak.functions.predicate.LongPredicateUtils.longPredicate;
 import static org.hringsak.functions.stream.LongStreamUtils.defaultLongStream;
 
 /**
@@ -45,19 +42,18 @@ public final class LongFilterUtils {
     }
 
     /**
-     * Filters an array of <code>long</code> primitives, based a predicate, into a list of distinct <code>Long</code>
-     * instances (according to <code>Long.compare(long, long)</code>).
+     * Filters an array of longs, based a predicate, into an array of distinct <code>long</code> values (according
+     * to <code>Long.compare(long, long)</code>).
      *
-     * @param longs      An array of longs to be filtered.
+     * @param longs   An array of longs to be filtered.
      * @param predicate A predicate with which to filter the longs array.
-     * @return A List of Long objects filtered from an array of long.
+     * @return An array of distinct long values filtered, using the passed predicate, from the input array.
      */
-    public static List<Long> longFilterDistinct(long[] longs, LongPredicate predicate) {
+    public static long[] longFilterDistinct(long[] longs, LongPredicate predicate) {
         return defaultLongStream(longs)
-                .filter(longPredicate(predicate))
+                .filter(predicate)
                 .distinct()
-                .boxed()
-                .collect(toList());
+                .toArray();
     }
 
     /**
@@ -75,14 +71,43 @@ public final class LongFilterUtils {
      * </pre>
      *
      * @param longs            An array of longs to be filtered.
-     * @param filterCollector An object containing a predicate with which to filter the longs array, and a Collector
-     *                        to accumulate results longo a Collection.
+     * @param filterCollector An object containing a predicate with which to filter the longs array, and a Collector to
+     *                        accumulate results into a Collection.
      * @param <C>             The type of the resulting Collection.
      * @return A Collection of Long objects filtered from an array of long.
      */
     public static <C extends Collection<Long>> C longFilter(long[] longs, LongFilterCollector<C> filterCollector) {
         return defaultLongStream(longs)
                 .filter(filterCollector.getFilter())
+                .boxed()
+                .collect(filterCollector.getCollector());
+    }
+
+    /**
+     * Filters an array of longs, based a predicate, into an array of distinct <code>long</code> values. This overload
+     * takes an object that is built using the {@link #longFilterAndThen(LongPredicate, Collector)} method, which allows
+     * you to specify both a <code>LongPredicate</code> and a <code>Collector</code> to build any type of
+     * <code>Collection</code> as a result. For example:
+     * <pre>
+     *     long[] longs = ...
+     *     List&lt;Long&gt; = LongFilterUtils.longFilter(longs, LongFilterUtils.longFilterAndThen(LongPredicateUtils.longGt(1L), Collectors.toCollection(LinkedList::new)));
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     List&lt;Long&gt; = longFilter(longs, longFilterAndThen(longGt(1L), toCollection(LinkedList::new)));
+     * </pre>
+     *
+     * @param longs An array of longs to be filtered.
+     * @param filterCollector An object containing a predicate with which to filter the longs array, and a Collector to
+     *                        accumulate results into a Collection.
+     * @param <C>             The type of the resulting Collection.
+     * @return An array of distinct long values filtered, using a predicate from the passed filterCollector, from the
+     * input array.
+     */
+    public static <C extends Collection<Long>> C longFilterDistinct(long[] longs, LongFilterCollector<C> filterCollector) {
+        return defaultLongStream(longs)
+                .filter(filterCollector.getFilter())
+                .distinct()
                 .boxed()
                 .collect(filterCollector.getCollector());
     }
