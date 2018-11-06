@@ -13,9 +13,9 @@ import static org.junit.Assert.assertTrue;
 public class IntStreamUtilsTest {
 
     private int[] inputArray;
+    private IntStream inputPrimitiveStream;
     private Collection<Integer> inputCollection;
     private Stream<Integer> inputStream;
-    private IntStream inputPrimitiveStream;
     private IntStream result;
 
     @Test
@@ -52,6 +52,39 @@ public class IntStreamUtilsTest {
     public void testDefaultStreamForPopulatedArray() {
         givenInputArray(1, 2);
         whenDefaultStreamIsRetrievedFromArray();
+        thenExpectStream(1, 2);
+    }
+
+    @Test
+    public void testDefaultStreamForNullPrimitiveStream() {
+        givenNullInputPrimitiveStream();
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
+        thenExpectStream();
+    }
+
+    private void givenNullInputPrimitiveStream() {
+        inputPrimitiveStream = null;
+    }
+
+    private void whenDefaultStreamIsRetrievedFromPrimitiveStream() {
+        result = defaultIntStream(inputPrimitiveStream);
+    }
+
+    @Test
+    public void testDefaultStreamForEmptyPrimitiveStream() {
+        givenInputPrimitiveStream();
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
+        thenExpectStream();
+    }
+
+    private void givenInputPrimitiveStream(int... values) {
+        inputPrimitiveStream = IntStream.of(values);
+    }
+
+    @Test
+    public void testDefaultStreamForPopulatedPrimitiveStream() {
+        givenInputPrimitiveStream(1, 2);
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
         thenExpectStream(1, 2);
     }
 
@@ -118,39 +151,6 @@ public class IntStreamUtilsTest {
     public void testDefaultStreamForPopulatedStream() {
         givenInputStream(1, 2);
         whenDefaultStreamIsRetrievedFromStream();
-        thenExpectStream(1, 2);
-    }
-
-    @Test
-    public void testDefaultStreamForNullPrimitiveStream() {
-        givenNullInputPrimitiveStream();
-        whenDefaultStreamIsRetrievedFromPrimitiveStream();
-        thenExpectStream();
-    }
-
-    private void givenNullInputPrimitiveStream() {
-        inputPrimitiveStream = null;
-    }
-
-    private void whenDefaultStreamIsRetrievedFromPrimitiveStream() {
-        result = defaultIntStream(inputPrimitiveStream);
-    }
-
-    @Test
-    public void testDefaultStreamForEmptyPrimitiveStream() {
-        givenInputPrimitiveStream();
-        whenDefaultStreamIsRetrievedFromPrimitiveStream();
-        thenExpectStream();
-    }
-
-    private void givenInputPrimitiveStream(int... values) {
-        inputPrimitiveStream = IntStream.of(values);
-    }
-
-    @Test
-    public void testDefaultStreamForPopulatedPrimitiveStream() {
-        givenInputPrimitiveStream(1, 2);
-        whenDefaultStreamIsRetrievedFromPrimitiveStream();
         thenExpectStream(1, 2);
     }
 }

@@ -13,9 +13,9 @@ import static org.junit.Assert.assertTrue;
 public class LongStreamUtilsTest {
 
     private long[] inputArray;
+    private LongStream inputPrimitiveStream;
     private Collection<Long> inputCollection;
     private Stream<Long> inputStream;
-    private LongStream inputPrimitiveStream;
     private LongStream result;
 
     @Test
@@ -52,6 +52,39 @@ public class LongStreamUtilsTest {
     public void testDefaultStreamForPopulatedArray() {
         givenInputArray(1L, 2L);
         whenDefaultStreamIsRetrievedFromArray();
+        thenExpectStream(1L, 2L);
+    }
+
+    @Test
+    public void testDefaultStreamForNullPrimitiveStream() {
+        givenNullInputPrimitiveStream();
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
+        thenExpectStream();
+    }
+
+    private void givenNullInputPrimitiveStream() {
+        inputPrimitiveStream = null;
+    }
+
+    private void whenDefaultStreamIsRetrievedFromPrimitiveStream() {
+        result = defaultLongStream(inputPrimitiveStream);
+    }
+
+    @Test
+    public void testDefaultStreamForEmptyPrimitiveStream() {
+        givenInputPrimitiveStream();
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
+        thenExpectStream();
+    }
+
+    private void givenInputPrimitiveStream(long... values) {
+        inputPrimitiveStream = LongStream.of(values);
+    }
+
+    @Test
+    public void testDefaultStreamForPopulatedPrimitiveStream() {
+        givenInputPrimitiveStream(1L, 2L);
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
         thenExpectStream(1L, 2L);
     }
 
@@ -118,39 +151,6 @@ public class LongStreamUtilsTest {
     public void testDefaultStreamForPopulatedStream() {
         givenInputStream(1L, 2L);
         whenDefaultStreamIsRetrievedFromStream();
-        thenExpectStream(1L, 2L);
-    }
-
-    @Test
-    public void testDefaultStreamForNullPrimitiveStream() {
-        givenNullInputPrimitiveStream();
-        whenDefaultStreamIsRetrievedFromPrimitiveStream();
-        thenExpectStream();
-    }
-
-    private void givenNullInputPrimitiveStream() {
-        inputPrimitiveStream = null;
-    }
-
-    private void whenDefaultStreamIsRetrievedFromPrimitiveStream() {
-        result = defaultLongStream(inputPrimitiveStream);
-    }
-
-    @Test
-    public void testDefaultStreamForEmptyPrimitiveStream() {
-        givenInputPrimitiveStream();
-        whenDefaultStreamIsRetrievedFromPrimitiveStream();
-        thenExpectStream();
-    }
-
-    private void givenInputPrimitiveStream(long... values) {
-        inputPrimitiveStream = LongStream.of(values);
-    }
-
-    @Test
-    public void testDefaultStreamForPopulatedPrimitiveStream() {
-        givenInputPrimitiveStream(1L, 2L);
-        whenDefaultStreamIsRetrievedFromPrimitiveStream();
         thenExpectStream(1L, 2L);
     }
 }

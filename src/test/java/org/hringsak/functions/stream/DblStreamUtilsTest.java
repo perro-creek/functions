@@ -13,9 +13,9 @@ import static org.junit.Assert.assertTrue;
 public class DblStreamUtilsTest {
 
     private double[] inputArray;
+    private DoubleStream inputPrimitiveStream;
     private Collection<Double> inputCollection;
     private Stream<Double> inputStream;
-    private DoubleStream inputPrimitiveStream;
     private DoubleStream result;
 
     @Test
@@ -55,6 +55,38 @@ public class DblStreamUtilsTest {
         thenExpectStream(1.0D, 2.0D);
     }
 
+    @Test
+    public void testDefaultStreamForNullPrimitiveStream() {
+        givenNullInputPrimitiveStream();
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
+        thenExpectStream();
+    }
+
+    private void givenNullInputPrimitiveStream() {
+        inputPrimitiveStream = null;
+    }
+
+    private void whenDefaultStreamIsRetrievedFromPrimitiveStream() {
+        result = defaultDblStream(inputPrimitiveStream);
+    }
+
+    @Test
+    public void testDefaultStreamForEmptyPrimitiveStream() {
+        givenInputPrimitiveStream();
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
+        thenExpectStream();
+    }
+
+    private void givenInputPrimitiveStream(double... values) {
+        inputPrimitiveStream = DoubleStream.of(values);
+    }
+
+    @Test
+    public void testDefaultStreamForPopulatedPrimitiveStream() {
+        givenInputPrimitiveStream(1.0D, 2.0D);
+        whenDefaultStreamIsRetrievedFromPrimitiveStream();
+        thenExpectStream(1.0D, 2.0D);
+    }
     @Test
     public void testDefaultStreamForNullCollection() {
         givenNullInputCollection();
@@ -118,39 +150,6 @@ public class DblStreamUtilsTest {
     public void testDefaultStreamForPopulatedStream() {
         givenInputStream(1.0D, 2.0D);
         whenDefaultStreamIsRetrievedFromStream();
-        thenExpectStream(1.0D, 2.0D);
-    }
-
-    @Test
-    public void testDefaultStreamForNullPrimitiveStream() {
-        givenNullInputPrimitiveStream();
-        whenDefaultStreamIsRetrievedFromPrimitiveStream();
-        thenExpectStream();
-    }
-
-    private void givenNullInputPrimitiveStream() {
-        inputPrimitiveStream = null;
-    }
-
-    private void whenDefaultStreamIsRetrievedFromPrimitiveStream() {
-        result = defaultDblStream(inputPrimitiveStream);
-    }
-
-    @Test
-    public void testDefaultStreamForEmptyPrimitiveStream() {
-        givenInputPrimitiveStream();
-        whenDefaultStreamIsRetrievedFromPrimitiveStream();
-        thenExpectStream();
-    }
-
-    private void givenInputPrimitiveStream(double... values) {
-        inputPrimitiveStream = DoubleStream.of(values);
-    }
-
-    @Test
-    public void testDefaultStreamForPopulatedPrimitiveStream() {
-        givenInputPrimitiveStream(1.0D, 2.0D);
-        whenDefaultStreamIsRetrievedFromPrimitiveStream();
         thenExpectStream(1.0D, 2.0D);
     }
 }

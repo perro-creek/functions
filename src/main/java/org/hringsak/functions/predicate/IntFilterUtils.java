@@ -1,14 +1,11 @@
 package org.hringsak.functions.predicate;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.function.IntPredicate;
 import java.util.stream.Collector;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.hringsak.functions.predicate.IntPredicateUtils.intPredicate;
 import static org.hringsak.functions.stream.IntStreamUtils.defaultIntStream;
 
 /**
@@ -45,19 +42,18 @@ public final class IntFilterUtils {
     }
 
     /**
-     * Filters an array of ints, based a predicate, into a list of distinct <code>Integer</code> instances (according to
+     * Filters an array of ints, based a predicate, into an array of distinct <code>int</code> values (according to
      * <code>Integer.compare(int, int)</code>).
      *
      * @param ints   An array of ints to be filtered.
      * @param predicate A predicate with which to filter the ints array.
-     * @return A List of Integer objects filtered from an array of int.
+     * @return An array of distinct int values filtered, using the passed predicate, from the input array.
      */
-    public static List<Integer> intFilterDistinct(int[] ints, IntPredicate predicate) {
+    public static int[] intFilterDistinct(int[] ints, IntPredicate predicate) {
         return defaultIntStream(ints)
-                .filter(intPredicate(predicate))
+                .filter(predicate)
                 .distinct()
-                .boxed()
-                .collect(toList());
+                .toArray();
     }
 
     /**
@@ -83,6 +79,35 @@ public final class IntFilterUtils {
     public static <C extends Collection<Integer>> C intFilter(int[] ints, IntFilterCollector<C> filterCollector) {
         return defaultIntStream(ints)
                 .filter(filterCollector.getFilter())
+                .boxed()
+                .collect(filterCollector.getCollector());
+    }
+
+    /**
+     * Filters an array of ints, based a predicate, into an array of distinct <code>int</code> values. This overload
+     * takes an object that is built using the {@link #intFilterAndThen(IntPredicate, Collector)} method, which allows
+     * you to specify both an <code>IntPredicate</code> and a <code>Collector</code> to build any type of
+     * <code>Collection</code> as a result. For example:
+     * <pre>
+     *     int[] ints = ...
+     *     List&lt;Integer&gt; = IntFilterUtils.intFilter(ints, IntFilterUtils.intFilterAndThen(IntPredicateUtils.intGt(1), Collectors.toCollection(LinkedList::new)));
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     List&lt;Integer&gt; = intFilter(ints, intFilterAndThen(intGt(1), toCollection(LinkedList::new)));
+     * </pre>
+     *
+     * @param ints         An array of ints to be filtered.
+     * @param filterCollector An object containing a predicate with which to filter the ints array, and a Collector to
+     *                        accumulate results into a Collection.
+     * @param <C>             The type of the resulting Collection.
+     * @return An array of distinct int values filtered, using a predicate from the passed filterCollector, from the
+     * input array.
+     */
+    public static <C extends Collection<Integer>> C intFilterDistinct(int[] ints, IntFilterCollector<C> filterCollector) {
+        return defaultIntStream(ints)
+                .filter(filterCollector.getFilter())
+                .distinct()
                 .boxed()
                 .collect(filterCollector.getCollector());
     }

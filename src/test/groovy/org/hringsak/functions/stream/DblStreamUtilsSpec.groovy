@@ -3,7 +3,6 @@ package org.hringsak.functions.stream
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static java.util.stream.Collectors.joining
 import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.stream.DblStreamUtils.*
 
@@ -238,48 +237,6 @@ class DblStreamUtilsSpec extends Specification {
         compareValue | expected
         2.0D         | false
         3.0D         | true
-    }
-
-    def 'double join returns expected results'() {
-        expect:
-        dblJoin([1.0D, 2.0D, 3.0D] as double[], { d -> String.valueOf(d) }) == '1.0,2.0,3.0'
-    }
-
-    @Unroll
-    def 'double join returns "#expected" for delimiter "#delimiter"'() {
-
-        expect:
-        dblJoin([1.0D, 2.0D, 3.0D] as double[], { d -> String.valueOf(d) }, delimiter) == expected
-
-        where:
-        delimiter || expected
-        ','       || '1.0,2.0,3.0'
-        ', '      || '1.0, 2.0, 3.0'
-    }
-
-    @Unroll
-    def 'double join returns "#expected" for delimiter "#delimiter", prefix "#prefix", and suffix "#suffix"'() {
-
-        expect:
-        def joiner = joining(delimiter, prefix, suffix)
-        dblJoin([1.0D, 2.0D, 3.0D] as double[], { d -> String.valueOf(d) }, joiner) == expected
-
-        where:
-        delimiter | prefix | suffix  || expected
-        ','       | 'pre+' | '+post' || 'pre+1.0,2.0,3.0+post'
-        ', '      | ''     | ''      || '1.0, 2.0, 3.0'
-    }
-
-    @Unroll
-    def 'double join returns empty string for #scenario parameter'() {
-
-        expect:
-        dblJoin(values, { d -> String.valueOf(d) }) == ''
-
-        where:
-        scenario | values
-        'empty'  | [] as double[]
-        'null'   | null
     }
 
     @Unroll
