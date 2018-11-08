@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.DoublePredicate;
 import java.util.function.DoubleSupplier;
-import java.util.function.IntPredicate;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
@@ -26,7 +25,7 @@ public final class DblStreamUtils {
 
     /**
      * Given an array of doubles and a <code>DoublePredicate</code>, returns a <code>boolean</code> value indicating
-     * whether <i>all</i> values in the array match the predicate.
+     * whether <i>all</i> of the values in the array match the predicate.
      *
      * @param doubles   An array of doubles to be checked whether the given DoublePredicate matches all of its values.
      * @param predicate A DoublePredicate to match against the values in the input array.
@@ -66,7 +65,7 @@ public final class DblStreamUtils {
      *
      * @param doubles   An array of doubles to be counted for the number of them that match the given DoublePredicate.
      * @param predicate A DoublePredicate to match against the values in the input array.
-     * @return A long value indicating the number of values a given array that match a given predicate.
+     * @return A long value indicating the number of values in a given array that match a given predicate.
      */
     public static long dblCount(double[] doubles, DoublePredicate predicate) {
         return defaultDblStream(doubles)
@@ -83,7 +82,7 @@ public final class DblStreamUtils {
      *                        findWithDefault object.
      * @param findWithDefault An object representing a DoublePredicate along with a default value.
      * @return The maximum double value in the array that matches the predicate, or the default value if the
-     * array is <code>null</code> or empty, or if no values in it match the predicate.
+     * array is null or empty, or if no values in it match the predicate.
      */
     public static double dblMaxDefault(double[] doubles, FindDoubleWithDefault findWithDefault) {
         return defaultDblStream(doubles)
@@ -101,9 +100,9 @@ public final class DblStreamUtils {
      *                                the supplier in the given findWithDefaultSupplier object.
      * @param findWithDefaultSupplier An object representing a DoublePredicate along with a Supplier of a default value.
      * @return The maximum double value in the array that matches the predicate, or the default value from the supplier
-     * if the array is <code>null</code> or empty, or if no values in it match the predicate.
+     * if the array is null or empty, or if no values in it match the predicate.
      */
-    public static double dblMaxDefaultSupplier(double[] doubles, FindDoubleWithDefaultSupplier findWithDefaultSupplier) {
+    public static double dblMaxDefault(double[] doubles, FindDoubleWithDefaultSupplier findWithDefaultSupplier) {
         return defaultDblStream(doubles)
                 .filter(findWithDefaultSupplier.getPredicate())
                 .max()
@@ -119,7 +118,7 @@ public final class DblStreamUtils {
      *                        findWithDefault object.
      * @param findWithDefault An object representing a DoublePredicate along with a default value.
      * @return The minimum double value in the array that matches the predicate, or the default value if the
-     * array is <code>null</code> or empty, or if no values in it match the predicate.
+     * array is null or empty, or if no values in it match the predicate.
      */
     public static double dblMinDefault(double[] doubles, FindDoubleWithDefault findWithDefault) {
         return defaultDblStream(doubles)
@@ -137,9 +136,9 @@ public final class DblStreamUtils {
      *                                the supplier in the given findWithDefaultSupplier object.
      * @param findWithDefaultSupplier An object representing a DoublePredicate along with a Supplier of a default value.
      * @return The minimum double value in the array that matches the predicate, or the default value from the supplier
-     * if the array is <code>null</code> or empty, or if no values in it match the predicate.
+     * if the array is null or empty, or if no values in it match the predicate.
      */
-    public static double dblMinDefaultSupplier(double[] doubles, FindDoubleWithDefaultSupplier findWithDefaultSupplier) {
+    public static double dblMinDefault(double[] doubles, FindDoubleWithDefaultSupplier findWithDefaultSupplier) {
         return defaultDblStream(doubles)
                 .filter(findWithDefaultSupplier.getPredicate())
                 .min()
@@ -167,7 +166,8 @@ public final class DblStreamUtils {
      *
      * @param doubles   An array of primitive double values.
      * @param predicate A predicate for finding a Double value.
-     * @return A Double value if one is found, otherwise null.
+     * @return A Double value if one is found, otherwise null if the doubles array is null or empty, or if no values in
+     * it match the predicate.
      */
     public static Double findAnyDblDefaultNull(double[] doubles, DoublePredicate predicate) {
         return defaultDblStream(doubles)
@@ -197,7 +197,8 @@ public final class DblStreamUtils {
      * @param doubles         An array of primitive double values.
      * @param findWithDefault An object representing a predicate for finding a value, and a default if one is not found.
      *                        Use the {@link #findDblDefault(DoublePredicate, double)} to provide this parameter.
-     * @return A double value if one is found, otherwise a default value.
+     * @return A double value if one is found, otherwise a default value from findWithDefault if the doubles array is
+     * null or empty, or if no values in it match the predicate.
      */
     public static double findAnyDblDefault(double[] doubles, FindDoubleWithDefault findWithDefault) {
         return defaultDblStream(doubles)
@@ -213,24 +214,25 @@ public final class DblStreamUtils {
      * <pre>
      *     {
      *         ...
-     *         return DblStreamUtils.findAnyDblDefault(doubleArray, DblStreamUtils.findDblDefaultSupplier(
-     *                 DblPredicateUtils.isDblEqual(2.0D, Function.identity()), -1.0D));
+     *         return DblStreamUtils.findAnyDblDefault(doubleArray, DblStreamUtils.findDblDefault(
+     *                 DblPredicateUtils.isDblEqual(2.0D, Function.identity()), Double.valueOf(-1.0D)::doubleValue));
      *     }
      * </pre>
      * Or, with static imports:
      * <pre>
      *     {
      *         ...
-     *         return findAnyDblDefault(doubleArray, findDblDefaultSupplier(isDblEqual(2.0D, identity()), -1.0D));
+     *         return findAnyDblDefault(doubleArray, findDblDefault(isDblEqual(2.0D, identity()), Double.valueOf(-1.0D)::doubleValue));
      *     }
      * </pre>
      *
      * @param doubles                 An array of primitive double values.
      * @param findWithDefaultSupplier An object representing a predicate for finding a value, and a default
      *                                DoubleSupplier if one is not found. Use the
-     *                                {@link #findDblDefaultSupplier(DoublePredicate, DoubleSupplier)} method to provide
+     *                                {@link #findDblDefault(DoublePredicate, DoubleSupplier)} method to provide
      *                                this parameter.
-     * @return A double value if one is found, otherwise a default value.
+     * @return A double value if one is found, otherwise a default value from the DoubleSupplier in
+     * findWithDefaultSupplier if the doubles array is null or empty, or if no values in it match the predicate.
      */
     public static double findAnyDblDefault(double[] doubles, FindDoubleWithDefaultSupplier findWithDefaultSupplier) {
         return defaultDblStream(doubles)
@@ -260,7 +262,8 @@ public final class DblStreamUtils {
      *
      * @param doubles   An array of primitive double values.
      * @param predicate A predicate for finding a Double value.
-     * @return A Double value if one is found, otherwise null.
+     * @return A Double value if one is found, otherwise null if the doubles array is null or empty, or if no values in
+     * it match the predicate.
      */
     public static Double findFirstDblDefaultNull(double[] doubles, DoublePredicate predicate) {
         return defaultDblStream(doubles)
@@ -290,7 +293,8 @@ public final class DblStreamUtils {
      * @param doubles         An array of primitive double values.
      * @param findWithDefault An object representing a predicate for finding a value, and a default if one is not found.
      *                        Use the {@link #findDblDefault(DoublePredicate, double)} to provide this parameter.
-     * @return A double value if one is found, otherwise a default value.
+     * @return A double value if one is found, otherwise a default value from findWithDefault if the doubles array is
+     * null or empty, or if no values in it match the predicate.
      */
     public static double findFirstDblDefault(double[] doubles, FindDoubleWithDefault findWithDefault) {
         return defaultDblStream(doubles)
@@ -306,24 +310,25 @@ public final class DblStreamUtils {
      * <pre>
      *     {
      *         ...
-     *         return DblStreamUtils.findAnyDblDefault(doubleArray, DblStreamUtils.findDblDefaultSupplier(
-     *                 DblPredicateUtils.isDblEqual(2.0D, Function.identity()), -1.0D));
+     *         return DblStreamUtils.findAnyDblDefault(doubleArray, DblStreamUtils.findDblDefault(
+     *                 DblPredicateUtils.isDblEqual(2.0D, Function.identity()), Double.valueOf(-1.0D)::doubleValue));
      *     }
      * </pre>
      * Or, with static imports:
      * <pre>
      *     {
      *         ...
-     *         return findAnyDblDefault(doubleArray, findDblDefaultSupplier(isDblEqual(2.0D, identity()), -1.0D));
+     *         return findAnyDblDefault(doubleArray, findDblDefault(isDblEqual(2.0D, identity()), Double.valueOf(-1.0D)::doubleValue));
      *     }
      * </pre>
      *
      * @param doubles                 An array of primitive double values.
      * @param findWithDefaultSupplier An object representing a predicate for finding a value, and a default
      *                                DoubleSupplier if one is not found. Use the
-     *                                {@link #findDblDefaultSupplier(DoublePredicate, DoubleSupplier)} method to provide
+     *                                {@link #findDblDefault(DoublePredicate, DoubleSupplier)} method to provide
      *                                this parameter.
-     * @return A double value if one is found, otherwise a default value.
+     * @return A double value if one is found, otherwise a default value from the DoubleSupplier in
+     * findWithDefaultSupplier if the doubles array is null or empty, or if no values in it match the predicate.
      */
     public static double findFirstDblDefault(double[] doubles, FindDoubleWithDefaultSupplier findWithDefaultSupplier) {
         return defaultDblStream(doubles)
@@ -355,7 +360,7 @@ public final class DblStreamUtils {
      *                        predicate.
      * @return An object containing a double predicate and default DoubleSupplier.
      */
-    public static FindDoubleWithDefaultSupplier findDblDefaultSupplier(DoublePredicate predicate, DoubleSupplier defaultSupplier) {
+    public static FindDoubleWithDefaultSupplier findDblDefault(DoublePredicate predicate, DoubleSupplier defaultSupplier) {
         return FindDoubleWithDefaultSupplier.of(predicate, defaultSupplier);
     }
 

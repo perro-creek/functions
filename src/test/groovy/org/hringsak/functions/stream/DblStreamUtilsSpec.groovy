@@ -83,7 +83,7 @@ class DblStreamUtilsSpec extends Specification {
 
         expect:
         def predicate = { d -> d > 1.0D }
-        dblMaxDefaultSupplier(doubles, findDblDefaultSupplier(predicate, { -1.0D })) == expected
+        dblMaxDefault(doubles, findDblDefault(predicate, { -1.0D })) == expected
 
         where:
         doubles                        | expected
@@ -111,7 +111,7 @@ class DblStreamUtilsSpec extends Specification {
 
         expect:
         def predicate = { d -> d > 1.0D }
-        dblMinDefaultSupplier(doubles, findDblDefaultSupplier(predicate, { -1.0D })) == expected
+        dblMinDefault(doubles, findDblDefault(predicate, { -1.0D })) == expected
 
         where:
         doubles                        | expected
@@ -152,7 +152,7 @@ class DblStreamUtilsSpec extends Specification {
         expect:
         def predicate = { d -> d > compareValue }
         def supplier = { -1.0D }
-        findAnyDblDefault([1.0D, 2.0D, 3.0D] as double[], findDblDefaultSupplier(predicate, supplier)) == expected
+        findAnyDblDefault([1.0D, 2.0D, 3.0D] as double[], findDblDefault(predicate, supplier)) == expected
 
         where:
         compareValue | expected
@@ -192,7 +192,7 @@ class DblStreamUtilsSpec extends Specification {
         expect:
         def predicate = { d -> d > compareValue }
         def supplier = { -1.0D }
-        findFirstDblDefault([1.0D, 2.0D, 3.0D] as double[], findDblDefaultSupplier(predicate, supplier)) == expected
+        findFirstDblDefault([1.0D, 2.0D, 3.0D] as double[], findDblDefault(predicate, supplier)) == expected
 
         where:
         compareValue | expected

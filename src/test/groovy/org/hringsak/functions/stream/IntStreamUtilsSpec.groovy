@@ -83,7 +83,7 @@ class IntStreamUtilsSpec extends Specification {
 
         expect:
         def predicate = { i -> i > 1 }
-        intMaxDefaultSupplier(ints, findIntDefaultSupplier(predicate, { -1 })) == expected
+        intMaxDefault(ints, findIntDefault(predicate, { -1 })) == expected
 
         where:
         ints               | expected
@@ -111,7 +111,7 @@ class IntStreamUtilsSpec extends Specification {
 
         expect:
         def predicate = { i -> i > 1 }
-        intMinDefaultSupplier(ints, findIntDefaultSupplier(predicate, { -1 })) == expected
+        intMinDefault(ints, findIntDefault(predicate, { -1 })) == expected
 
         where:
         ints               | expected
@@ -152,7 +152,7 @@ class IntStreamUtilsSpec extends Specification {
         expect:
         def predicate = { i -> i > compareValue }
         def supplier = { -1 }
-        findAnyIntDefault([1, 2, 3] as int[], findIntDefaultSupplier(predicate, supplier)) == expected
+        findAnyIntDefault([1, 2, 3] as int[], findIntDefault(predicate, supplier)) == expected
 
         where:
         compareValue | expected
@@ -192,7 +192,7 @@ class IntStreamUtilsSpec extends Specification {
         expect:
         def predicate = { i -> i > compareValue }
         def supplier = { -1 }
-        findFirstIntDefault([1, 2, 3] as int[], findIntDefaultSupplier(predicate, supplier)) == expected
+        findFirstIntDefault([1, 2, 3] as int[], findIntDefault(predicate, supplier)) == expected
 
         where:
         compareValue | expected

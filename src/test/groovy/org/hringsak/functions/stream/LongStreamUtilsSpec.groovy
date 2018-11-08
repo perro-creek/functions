@@ -83,7 +83,7 @@ class LongStreamUtilsSpec extends Specification {
 
         expect:
         def predicate = { l -> l > 1L }
-        longMaxDefaultSupplier(longs, findLongDefaultSupplier(predicate, { -1L })) == expected
+        longMaxDefault(longs, findLongDefaultSupplier(predicate, { -1L })) == expected
 
         where:
         longs                  | expected
@@ -111,7 +111,7 @@ class LongStreamUtilsSpec extends Specification {
 
         expect:
         def predicate = { l -> l > 1L }
-        longMinDefaultSupplier(longs, findLongDefaultSupplier(predicate, { -1L })) == expected
+        longMinDefault(longs, findLongDefaultSupplier(predicate, { -1L })) == expected
 
         where:
         longs                  | expected
