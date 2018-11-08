@@ -82,7 +82,7 @@ public final class LongStreamUtils {
      *                        findWithDefault object.
      * @param findWithDefault An object representing a LongPredicate along with a default value.
      * @return The maximum long value in the array that matches the predicate, or the default value if the array is
-     * <code>null</code> or empty, or if no values in it match the predicate.
+     * null or empty, or if no values in it match the predicate.
      */
     public static long longMaxDefault(long[] longs, FindLongWithDefault findWithDefault) {
         return defaultLongStream(longs)
@@ -100,9 +100,9 @@ public final class LongStreamUtils {
      *                                the supplier in the given findWithDefaultSupplier object.
      * @param findWithDefaultSupplier An object representing a LongPredicate along with a Supplier of a default value.
      * @return The maximum long value in the array that matches the predicate, or the default value from the supplier
-     * if the array is <code>null</code> or empty, or if no values in it match the predicate.
+     * if the array is null or empty, or if no values in it match the predicate.
      */
-    public static long longMaxDefaultSupplier(long[] longs, FindLongWithDefaultSupplier findWithDefaultSupplier) {
+    public static long longMaxDefault(long[] longs, FindLongWithDefaultSupplier findWithDefaultSupplier) {
         return defaultLongStream(longs)
                 .filter(findWithDefaultSupplier.getPredicate())
                 .max()
@@ -118,7 +118,7 @@ public final class LongStreamUtils {
      *                        findWithDefault object.
      * @param findWithDefault An object representing a LongPredicate along with a default value.
      * @return The minimum long value in the array that matches the predicate, or the default value if the array is
-     * <code>null</code> or empty, or if no values in it match the predicate.
+     * null or empty, or if no values in it match the predicate.
      */
     public static long longMinDefault(long[] longs, FindLongWithDefault findWithDefault) {
         return defaultLongStream(longs)
@@ -136,9 +136,9 @@ public final class LongStreamUtils {
      *                                the supplier in the given findWithDefaultSupplier object.
      * @param findWithDefaultSupplier An object representing a LongPredicate along with a Supplier of a default value.
      * @return The minimum long value in the array that matches the predicate, or the default value from the supplier
-     * if the array is <code>null</code> or empty, or if no values in it match the predicate.
+     * if the array is null or empty, or if no values in it match the predicate.
      */
-    public static long longMinDefaultSupplier(long[] longs, FindLongWithDefaultSupplier findWithDefaultSupplier) {
+    public static long longMinDefault(long[] longs, FindLongWithDefaultSupplier findWithDefaultSupplier) {
         return defaultLongStream(longs)
                 .filter(findWithDefaultSupplier.getPredicate())
                 .min()
@@ -166,7 +166,8 @@ public final class LongStreamUtils {
      *
      * @param longs     An array of primitive long values.
      * @param predicate A predicate for finding a Long value.
-     * @return A Long value if one is found, otherwise null.
+     * @return A Long value if one is found, otherwise null if the longs array is null or empty, or if no values in it
+     * match the predicate.
      */
     public static Long findAnyLongDefaultNull(long[] longs, LongPredicate predicate) {
         return defaultLongStream(longs)
@@ -196,7 +197,8 @@ public final class LongStreamUtils {
      * @param longs           An array of primitive long values.
      * @param findWithDefault An object representing a predicate for finding a value, and a default if one is not found.
      *                        Use the {@link #findLongDefault(LongPredicate, long)} to provide this parameter.
-     * @return A long value if one is found, otherwise a default value.
+     * @return A long value if one is found, otherwise a default value from findWithDefault if the longs array is null
+     * or empty, or if no values in it match the predicate.
      */
     public static long findAnyLongDefault(long[] longs, FindLongWithDefault findWithDefault) {
         return defaultLongStream(longs)
@@ -229,7 +231,8 @@ public final class LongStreamUtils {
      *                                LongSupplier if one is not found. Use the
      *                                {@link #findLongDefaultSupplier(LongPredicate, LongSupplier)} method to provide
      *                                this parameter.
-     * @return A long value if one is found, otherwise a default value.
+     * @return A long value if one is found, otherwise a default value from the LongSupplier in findWithDefaultSupplier
+     * if the longs array is null or empty, or if no values in it match the predicate.
      */
     public static long findAnyLongDefault(long[] longs, FindLongWithDefaultSupplier findWithDefaultSupplier) {
         return defaultLongStream(longs)
@@ -259,7 +262,8 @@ public final class LongStreamUtils {
      *
      * @param longs     An array of primitive long values.
      * @param predicate A predicate for finding a Long value.
-     * @return A Long value if one is found, otherwise null.
+     * @return A Long value if one is found, otherwise null if the longs array is null or empty, or if no values in it
+     * match the predicate.
      */
     public static Long findFirstLongDefaultNull(long[] longs, LongPredicate predicate) {
         return defaultLongStream(longs)
@@ -289,7 +293,8 @@ public final class LongStreamUtils {
      * @param longs           An array of primitive long values.
      * @param findWithDefault An object representing a predicate for finding a value, and a default if one is not found.
      *                        Use the {@link #findLongDefault(LongPredicate, long)} to provide this parameter.
-     * @return A long value if one is found, otherwise a default value.
+     * @return A long value if one is found, otherwise a default value from findWithDefault if the longs array is null
+     * or empty, or if no values in it match the predicate.
      */
     public static long findFirstLongDefault(long[] longs, FindLongWithDefault findWithDefault) {
         return defaultLongStream(longs)
@@ -322,7 +327,8 @@ public final class LongStreamUtils {
      *                                if one is not found. Use the
      *                                {@link #findLongDefaultSupplier(LongPredicate, LongSupplier)} method to provide
      *                                this parameter.
-     * @return A long value if one is found, otherwise a default value.
+     * @return A long value if one is found, otherwise a default value from the LongSupplier in findWithDefaultSupplier
+     * if the longs array is null or empty, or if no values in it match the predicate.
      */
     public static long findFirstLongDefault(long[] longs, FindLongWithDefaultSupplier findWithDefaultSupplier) {
         return defaultLongStream(longs)

@@ -82,7 +82,7 @@ public final class IntStreamUtils {
      *                        findWithDefault object.
      * @param findWithDefault An object representing an IntPredicate along with a default value.
      * @return The maximum int value in the array that matches the predicate, or the default value if the array is
-     * <code>null</code> or empty, or if no values in it match the predicate.
+     * null or empty, or if no values in it match the predicate.
      */
     public static int intMaxDefault(int[] ints, FindIntWithDefault findWithDefault) {
         return defaultIntStream(ints)
@@ -100,9 +100,9 @@ public final class IntStreamUtils {
      *                                supplier in the given findWithDefaultSupplier object.
      * @param findWithDefaultSupplier An object representing an IntPredicate along with a Supplier of a default value.
      * @return The maximum int value in the array that matches the predicate, or the default value from the supplier if
-     * the array is <code>null</code> or empty, or if no values in it match the predicate.
+     * the array is null or empty, or if no values in it match the predicate.
      */
-    public static int intMaxDefaultSupplier(int[] ints, FindIntWithDefaultSupplier findWithDefaultSupplier) {
+    public static int intMaxDefault(int[] ints, FindIntWithDefaultSupplier findWithDefaultSupplier) {
         return defaultIntStream(ints)
                 .filter(findWithDefaultSupplier.getPredicate())
                 .max()
@@ -118,7 +118,7 @@ public final class IntStreamUtils {
      *                        findWithDefault object.
      * @param findWithDefault An object representing an IntPredicate along with a default value.
      * @return The minimum int value in the array that matches the predicate, or the default value if the array is
-     * <code>null</code> or empty, or if no values in it match the predicate.
+     * null or empty, or if no values in it match the predicate.
      */
     public static int intMinDefault(int[] ints, FindIntWithDefault findWithDefault) {
         return defaultIntStream(ints)
@@ -136,9 +136,9 @@ public final class IntStreamUtils {
      *                                supplier in the given findWithDefaultSupplier object.
      * @param findWithDefaultSupplier An object representing an IntPredicate along with a Supplier of a default value.
      * @return The minimum int value in the array that matches the predicate, or the default value from the supplier
-     * if the array is <code>null</code> or empty, or if no values in it match the predicate.
+     * if the array is null or empty, or if no values in it match the predicate.
      */
-    public static int intMinDefaultSupplier(int[] ints, FindIntWithDefaultSupplier findWithDefaultSupplier) {
+    public static int intMinDefault(int[] ints, FindIntWithDefaultSupplier findWithDefaultSupplier) {
         return defaultIntStream(ints)
                 .filter(findWithDefaultSupplier.getPredicate())
                 .min()
@@ -166,7 +166,8 @@ public final class IntStreamUtils {
      *
      * @param ints      An array of primitive int values.
      * @param predicate A predicate for finding an Integer value.
-     * @return An Integer value if one is found, otherwise null.
+     * @return An Integer value if one is found, otherwise null if the ints array is null or empty, or if no values in
+     * it match the predicate.
      */
     public static Integer findAnyIntDefaultNull(int[] ints, IntPredicate predicate) {
         return defaultIntStream(ints)
@@ -196,7 +197,8 @@ public final class IntStreamUtils {
      * @param ints            An array of primitive int values.
      * @param findWithDefault An object representing a predicate for finding a value, and a default if one is not found.
      *                        Use the {@link #findIntDefault(IntPredicate, int)} to provide this parameter.
-     * @return An int value if one is found, otherwise a default value.
+     * @return An int value if one is found, otherwise a default value from findWithDefault if the ints array is null or
+     * empty, or if no values in it match the predicate.
      */
     public static int findAnyIntDefault(int[] ints, FindIntWithDefault findWithDefault) {
         return defaultIntStream(ints)
@@ -212,7 +214,7 @@ public final class IntStreamUtils {
      * <pre>
      *     {
      *         ...
-     *         return IntStreamUtils.findAnyIntDefault(intArray, IntStreamUtils.findIntDefaultSupplier(
+     *         return IntStreamUtils.findAnyIntDefault(intArray, IntStreamUtils.findIntDefault(
      *                 IntPredicateUtils.isIntEqual(2, Function.identity()), -1));
      *     }
      * </pre>
@@ -220,16 +222,17 @@ public final class IntStreamUtils {
      * <pre>
      *     {
      *         ...
-     *         return findAnyIntDefault(intArray, findIntDefaultSupplier(isIntEqual(2.0D, identity()), -1));
+     *         return findAnyIntDefault(intArray, findIntDefault(isIntEqual(2.0D, identity()), -1));
      *     }
      * </pre>
      *
      * @param ints                    An array of primitive int values.
      * @param findWithDefaultSupplier An object representing a predicate for finding a value, and a default IntSupplier
      *                                if one is not found. Use the
-     *                                {@link #findIntDefaultSupplier(IntPredicate, IntSupplier)} method to provide this
+     *                                {@link #findIntDefault(IntPredicate, IntSupplier)} method to provide this
      *                                parameter.
-     * @return An int value if one is found, otherwise a default value.
+     * @return An int value if one is found, otherwise a default value from the IntSupplier in findWithDefaultSupplier
+     * if the ints array is null or empty, or if no values in it match the predicate.
      */
     public static int findAnyIntDefault(int[] ints, FindIntWithDefaultSupplier findWithDefaultSupplier) {
         return defaultIntStream(ints)
@@ -259,7 +262,8 @@ public final class IntStreamUtils {
      *
      * @param ints      An array of primitive int values.
      * @param predicate A predicate for finding an Integer value.
-     * @return An Integer value if one is found, otherwise null.
+     * @return An Integer value if one is found, otherwise null if the ints array is null or empty, or if no values in
+     * it match the predicate.
      */
     public static Integer findFirstIntDefaultNull(int[] ints, IntPredicate predicate) {
         return defaultIntStream(ints)
@@ -289,7 +293,8 @@ public final class IntStreamUtils {
      * @param ints            An array of primitive int values.
      * @param findWithDefault An object representing a predicate for finding a value, and a default if one is not found.
      *                        Use the {@link #findIntDefault(IntPredicate, int)} method to provide this parameter.
-     * @return An int value if one is found, otherwise a default value.
+     * @return An int value if one is found, otherwise a default value from findWithDefault if the ints array is null or
+     * empty, or if no values in it match the predicate.
      */
     public static int findFirstIntDefault(int[] ints, FindIntWithDefault findWithDefault) {
         return defaultIntStream(ints)
@@ -305,7 +310,7 @@ public final class IntStreamUtils {
      * <pre>
      *     {
      *         ...
-     *         return IntStreamUtils.findAnyIntDefault(intArray, IntStreamUtils.findIntDefaultSupplier(
+     *         return IntStreamUtils.findAnyIntDefault(intArray, IntStreamUtils.findIntDefault(
      *                 IntPredicateUtils.isIntEqual(2, Function.identity()), -1));
      *     }
      * </pre>
@@ -313,16 +318,17 @@ public final class IntStreamUtils {
      * <pre>
      *     {
      *         ...
-     *         return findAnyIntDefault(intArray, findIntDefaultSupplier(isIntEqual(2, identity()), -1));
+     *         return findAnyIntDefault(intArray, findIntDefault(isIntEqual(2, identity()), -1));
      *     }
      * </pre>
      *
      * @param ints                    An array of primitive int values.
      * @param findWithDefaultSupplier An object representing a predicate for finding a value, and a default IntSupplier
      *                                if one is not found. Use the
-     *                                {@link #findIntDefaultSupplier(IntPredicate, IntSupplier)} method to provide this
+     *                                {@link #findIntDefault(IntPredicate, IntSupplier)} method to provide this
      *                                parameter.
-     * @return An int value if one is found, otherwise a default value.
+     * @return An int value if one is found, otherwise a default value from the IntSupplier in findWithDefaultSupplier
+     * if the ints array is null or empty, or if no values in it match the predicate.
      */
     public static int findFirstIntDefault(int[] ints, FindIntWithDefaultSupplier findWithDefaultSupplier) {
         return defaultIntStream(ints)
@@ -354,7 +360,7 @@ public final class IntStreamUtils {
      *                        predicate.
      * @return An object containing a double predicate and default DoubleSupplier.
      */
-    public static FindIntWithDefaultSupplier findIntDefaultSupplier(IntPredicate predicate, IntSupplier defaultSupplier) {
+    public static FindIntWithDefaultSupplier findIntDefault(IntPredicate predicate, IntSupplier defaultSupplier) {
         return FindIntWithDefaultSupplier.of(predicate, defaultSupplier);
     }
 

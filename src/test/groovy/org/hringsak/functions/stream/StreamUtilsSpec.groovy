@@ -11,6 +11,7 @@ import static java.util.stream.Collectors.toList
 import static org.hringsak.functions.predicate.PredicateUtils.constant
 import static org.hringsak.functions.predicate.PredicateUtils.isEqual
 import static org.hringsak.functions.stream.StreamUtils.*
+import static org.hringsak.functions.stream.StreamUtils.join
 
 class StreamUtilsSpec extends Specification {
 
@@ -78,7 +79,7 @@ class StreamUtilsSpec extends Specification {
     def 'max default passing collection #collection and predicate returns #expected'() {
 
         expect:
-        maxDefault(collection, constant(true)) == expected
+        maxDefaultNull(collection, constant(true)) == expected
 
         where:
         collection         | expected
@@ -120,7 +121,7 @@ class StreamUtilsSpec extends Specification {
     def 'min default passing collection #collection and predicate returns #expected'() {
 
         expect:
-        minDefault(collection, constant(true)) == expected
+        minDefaultNull(collection, constant(true)) == expected
 
         where:
         collection         | expected
@@ -198,10 +199,10 @@ class StreamUtilsSpec extends Specification {
     }
 
     @Unroll
-    def 'find first returns expected value for string length "#length"'() {
+    def 'find first default null returns expected value for string length "#length"'() {
 
         expect:
-        findFirst([null, '', 'test', ''], isEqual({ String s -> s.length() }, length)) == expected
+        findFirstDefaultNull([null, '', 'test', ''], isEqual({ String s -> s.length() }, length)) == expected
 
         where:
         length | expected
@@ -294,7 +295,7 @@ class StreamUtilsSpec extends Specification {
         def values = ['m1', 'm2', 'm3']
 
         expect:
-        StreamUtils.join(values, { t -> t }, delimiter) == expectedString
+        join(values, mapperWithDelimiter({ t -> t }, delimiter)) == expectedString
 
         where:
         delimiter || expectedString
@@ -309,7 +310,7 @@ class StreamUtilsSpec extends Specification {
         def values = ['m1', 'm2', 'm3']
 
         expect:
-        join(values, { t -> t }, joining(delimiter, prefix, suffix)) == expectedString
+        join(values, mapperWithCollector({ t -> t }, joining(delimiter, prefix, suffix))) == expectedString
 
         where:
         delimiter | prefix | suffix  || expectedString
