@@ -7,6 +7,7 @@ import spock.lang.Unroll
 
 import java.util.function.BiFunction
 import java.util.function.Function
+import java.util.function.Supplier
 
 import static java.util.function.Function.identity
 import static java.util.stream.Collectors.toList
@@ -29,11 +30,52 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'mapper with default returns default when target is "#target"'() {
+
+        expect:
+        mapperDefault('default').apply(target) == expectedValue
+
+        where:
+        target   || expectedValue
+        'target' || 'target'
+        null     || 'default'
+    }
+
+    @Unroll
+    def 'mapper with default supplier returns default when target is "#target"'() {
+
+        expect:
+        def supplier = { 'default' } as Supplier
+        mapperDefault(supplier).apply(target) == expectedValue
+
+        where:
+        target   || expectedValue
+        'target' || 'target'
+        null     || 'default'
+    }
+
+    @Unroll
     def 'mapper with default passing target "#target" and mapperResult "#mapperResult" returns "#expected"'() {
 
         expect:
         def function = { s -> mapperResult }
         mapperDefault(function, 'default').apply(target) == expected
+
+        where:
+        target | mapperResult | expected
+        null   | 'test'       | 'default'
+        'test' | null         | 'default'
+        ''     | 'test'       | 'test'
+        'test' | 'test'       | 'test'
+    }
+
+    @Unroll
+    def 'mapper with default supplier passing target "#target" and mapperResult "#mapperResult" returns "#expected"'() {
+
+        expect:
+        def function = { s -> mapperResult }
+        def supplier = { 'default' } as Supplier
+        mapperDefault(function, supplier).apply(target) == expected
 
         where:
         target | mapperResult | expected
