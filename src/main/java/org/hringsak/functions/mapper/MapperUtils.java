@@ -10,6 +10,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import static java.util.function.Function.identity;
@@ -29,15 +31,27 @@ public final class MapperUtils {
      * are to be called on a method reference. In the following example, assume that the <code>Widget.getProductType
      * </code> method returns an enum instance, and we ultimately want to get the enum name:
      * <pre>
-     *     Collection&lt;Widget&gt; widgets = ...
-     *     Collection&lt;String&gt; productTypeNames = widgets.stream()
-     *         .map(MapperUtils.mapper(Widget::getProductType)
-     *             .andThen(ProductType::name))
-     *         .collect(toList());
+     *     public List&lt;String&gt; getProductTypeNames(Collection&lt;Widget&gt; widgets) {
+     *         return Collection&lt;ProductType&gt; productTypes = widgets.stream()
+     *             .map(MapperUtils.mapper(Widget::getProductType)
+     *                 .andThen(ProductType::name))
+     *             .distinct()
+     *             .collect(toList());
+     *     }
      * </pre>
      * The <code>Function.andThen()</code> method can only be called on the method reference because of the cast. An
      * additional benefit of calling this method is the null-checking performed on the target element passed to the
-     * resulting function.
+     * resulting function. For example, the following common idiom is in common use:
+     * <pre>
+     *     Target target = ...
+     *     String str = Optional.of(target).map(Target::someGetter).orElse(null);
+     * </pre>
+     * The same thing could be accomplished in a slightly more simple way with this method:
+     * <pre>
+     *     Target target = ...
+     *     String str = mapper(Target::someGetter).apply(target);
+     * </pre>
+     * It's slightly shorter, and is one fewer method calls.
      *
      * @param function A method reference to be cast to a Function.
      * @param <T>      The type of the single parameter to the Function.
@@ -50,16 +64,137 @@ public final class MapperUtils {
     }
 
     /**
+     * Given a default value of type &lt;T&gt;, returns a <code>UnaryOperator&lt;T&gt;</code> that simply returns the
+     * target element if it is not <code>null</code>, otherwise it returns the passed <code>defaultValue</code>. This
+     * method can be used in combination with any of the mappers built by this class. In the following example, assume
+     * the following code is using static imports for the classes in this library:
+     * <pre>
+     *     public List&lt;ProductType&gt; getProductTypes(Collection&lt;Widget&gt; widgets) {
+     *         return Collection&lt;ProductType&gt; productTypes = widgets.stream()
+     *             .map(Widget::getProductType)
+     *             .map(mapperDefault(ProductType.NONE))
+     *             .distinct()
+     *             .collect(toList());
+     *     }
+     * </pre>
+     * Note that we could have simply done this:
+     * <pre>
+     *     public List&lt;ProductType&gt; getProductTypes(Collection&lt;Widget&gt; widgets) {
+     *         return Collection&lt;ProductType&gt; productTypes = widgets.stream()
+     *             .map(mapperDefault(Widget::getProductType, ProductType.NONE))
+     *             .distinct()
+     *             .collect(toList());
+     *     }
+     * </pre>
+     * That would have been simpler in this case. However, when there is already a lot going on in a particular mapper,
+     * it may be more clear to simply provide a default in its own map method call. Also, this method can be used in a
+     * stream with no other mappers, simply to provide a default for those elements that might be <code>null</code>,
+     * for whatever reason:
+     * <pre>
+     *     private List&lt;String&gt; getDefaultedStrings(Collection&lt;String&gt; strings) {
+     *         return defaultStream(strings)
+     *             .map(mapperDefault(""))
+     *             .collect(toList());
+     *     }
+     * </pre>
+     * The most straightforward way to accomplish the above would be to use a <code>TransformUtils</code> method:
+     * <pre>
+     *     ...
+     *     return transform(strings, mapperDefault(""));
+     *     ...
+     * </pre>
+     *
+     * @param defaultValue The default value to return if the target element of the UnaryOperator built by this method
+     *                     is null.
+     * @param <T>          The type of the target element of the UnaryOperator built by this method.
+     * @return A UnaryOperator that simply returns the target element if it is not <code>null</code>, otherwise it
+     * returns the passed <code>defaultValue</code>. Note that a UnaryOperator can be used in place of a Function,
+     * because it extends Function&lt;T, T&gt;, returning an object of the same type as its parameter.
+     */
+    public static <T> UnaryOperator<T> mapperDefault(T defaultValue) {
+        return t -> t == null ? defaultValue : t;
+    }
+
+    /**
+     * Given a default value of type &lt;T&gt;, returns a <code>UnaryOperator&lt;T&gt;</code> that simply returns the
+     * target element if it is not <code>null</code>, otherwise it returns a default value retrieved from the passed
+     * <code>defaultSupplier</code>. This method can be used in combination with any of the mappers built by this class.
+     * In the following example, assume the following code is using static imports for the classes in this library:
+     * <pre>
+     *     public List&lt;ProductType&gt; getProductTypes(Collection&lt;Widget&gt; widgets, Customer customer) {
+     *         return Collection&lt;ProductType&gt; productTypes = widgets.stream()
+     *             .map(Widget::getProductType)
+     *             .map(mapperDefault(supplier(this::getDefaultProductType, customer)))
+     *             .distinct()
+     *             .collect(toList());
+     *     }
+     *
+     *     private ProductType getDefaultProductType(Customer customer) {
+     *         ...
+     *     }
+     * </pre>
+     * Note that we could have accomplished the same thing this way:
+     * <pre>
+     *     public List&lt;ProductType&gt; getProductTypes(Collection&lt;Widget&gt; widgets) {
+     *         return Collection&lt;ProductType&gt; productTypes = widgets.stream()
+     *             .map(mapperDefault(Widget::getProductType, mapperDefault(supplier(this::getDefaultProductType, customer))))
+     *             .distinct()
+     *             .collect(toList());
+     *     }
+     * </pre>
+     * However, the first example is more straightforward and more readable. Also, this method can be used in a stream
+     * with no other mappers, simply to provide a default for those elements that might be <code>null</code>, for
+     * whatever reason:
+     * <pre>
+     *     private List&lt;String&gt; getDefaultedStrings(Collection&lt;String&gt; strings) {
+     *         return defaultStream(strings)
+     *             .map(mapperDefault(this::getDefaultStr))
+     *             .collect(toList());
+     *     }
+     * </pre>
+     * The most straightforward way to accomplish the above would be to use a <code>TransformUtils</code> method:
+     * <pre>
+     *     ...
+     *     return transform(strings, mapperDefault(this::getDefaultStr));
+     *     ...
+     * </pre>
+     *
+     * @param defaultSupplier The default value to return if the target element of the UnaryOperator built by this
+     *                        method is null.
+     * @param <T>             The type of the target element of the UnaryOperator built by this method.
+     * @return A UnaryOperator that simply returns the target element if it is not <code>null</code>, otherwise it
+     * returns the passed <code>defaultValue</code>. Note that a UnaryOperator can be used in place of a Function,
+     * because it extends Function&lt;T, T&gt;, returning an object of the same type as its parameter.
+     */
+    public static <T> UnaryOperator<T> mapperDefault(Supplier<T> defaultSupplier) {
+        return t -> t == null ? defaultSupplier.get() : t;
+    }
+
+    /**
      * Builds a mapper <code>Function</code> that, if the target element is <code>null</code>, or the result of the
      * <code>Function</code> call on the target element is <code>null</code>, then the passed default value is returned.
      * In the following example, assume that the <code>Widget.getProductType</code> method returns an enum instance, and
      * that if its value is <code>null</code>, then it should default to <code>ProductType.NONE</code>:
      * <pre>
-     *     Collection&lt;Widget&gt; widgets = ...
-     *     Collection&lt;ProductType&gt; productTypes = widgets.stream()
-     *         .map(MapperUtils.mapperDefault(Widget::getProductType, ProductType.NONE))
-     *         .collect(toList());
+     *     public List&lt;ProductType&gt; getProductTypes(Collection&lt;Widget&gt; widgets) {
+     *         return Collection&lt;ProductType&gt; productTypes = widgets.stream()
+     *             .map(MapperUtils.mapperDefault(Widget::getProductType, ProductType.NONE))
+     *             .distinct()
+     *             .collect(toList());
+     *     }
      * </pre>
+     * An additional benefit of calling this method is the null-checking performed on the target element passed to the
+     * resulting function. For example, the following common idiom is in common use:
+     * <pre>
+     *     Target target = ...
+     *     String str = Optional.of(target).map(Target::someGetter).orElse("");
+     * </pre>
+     * The same thing could be accomplished in a slightly more simple way with this method:
+     * <pre>
+     *     Target target = ...
+     *     Object str = mapperDefault(Target::someGetter, "").apply(target);
+     * </pre>
+     * It's slightly shorter, and is one fewer method calls.
      *
      * @param function     A method reference which takes a single parameter of type &lt;T&gt;, and returns a value of
      *                     type &lt;R&gt;.
@@ -72,6 +207,58 @@ public final class MapperUtils {
      */
     public static <T, R> Function<T, R> mapperDefault(Function<? super T, ? extends R> function, R defaultValue) {
         return t -> (t == null || function.apply(t) == null) ? defaultValue : function.apply(t);
+    }
+
+    /**
+     * Builds a mapper <code>Function</code> that, if the target element is <code>null</code>, or the result of the
+     * <code>Function</code> call on the target element is <code>null</code>, then the passed
+     * <code>defaultSupplier</code> is called to provide a default value. In the following example, assume that the
+     * <code>Widget.getProductType</code> method returns an enum instance, and that if its value is <code>null</code>,
+     * then it should default to a default value supplied by a method call:
+     * <pre>
+     *     public List&lt;ProductType&gt; getProductTypes(Collection&lt;Widget&gt; widgets, Customer customer) {
+     *         return Collection&lt;ProductType&gt; productTypes = widgets.stream()
+     *             .map(MapperUtils.mapperDefault(Widget::getProductType, SupplierUtils.supplier(this::getDefaultProductType, customer)))
+     *             .distinct()
+     *             .collect(toList());
+     *     }
+     *
+     *     private ProductType getDefaultProductType(Customer customer) {
+     *         ...
+     *     }
+     * </pre>
+     * Or, with static imports:
+     * <pre>
+     *     return Collection&lt;ProductType&gt; productTypes = widgets.stream()
+     *         .map(mapperDefault(Widget::getProductType, supplier(this::getDefaultProductType, customer)))
+     *         .distinct()
+     *         .collect(toList());
+     * </pre>
+     * An additional benefit of calling this method is the null-checking performed on the target element passed to the
+     * resulting function. For example, the following common idiom is in common use:
+     * <pre>
+     *     Target target = ...
+     *     String str = Optional.of(target).map(Target::someGetter).orElseGet(this::getDefaultStr);
+     * </pre>
+     * The same thing could be accomplished in a slightly more simple way with this method:
+     * <pre>
+     *     Target target = ...
+     *     Object str = mapperDefault(Target::someGetter, this::getDefaultStr).apply(target);
+     * </pre>
+     * It's slightly shorter, and is one fewer method calls.
+     *
+     * @param function        A method reference which takes a single parameter of type &lt;T&gt;, and returns a value of
+     *                        type &lt;R&gt;.
+     * @param defaultSupplier A Supplier of a default value of type &lt;R&gt;, to be called in case the target element,
+     *                        or the result of the Function call on the target element, is null.
+     * @param <T>             The type of the target element on which the mapper Function is to be called.
+     * @param <R>             The type of the result to be returned from the mapper Function built by this method. Also,
+     *                        the return type of the default Supplier.
+     * @return A mapper Function that returns a default value if the target element, or the result of the Function call
+     * on the target element is null.
+     */
+    public static <T, R> Function<T, R> mapperDefault(Function<? super T, ? extends R> function, Supplier<R> defaultSupplier) {
+        return t -> (t == null || function.apply(t) == null) ? defaultSupplier.get() : function.apply(t);
     }
 
     /**
@@ -167,25 +354,18 @@ public final class MapperUtils {
     /**
      * Applies a series to two <code>Function</code> method references, the first taking a parameter of type &lt;T&gt;
      * and returning a value of type &lt;U&gt;, and the second taking a parameter of type &lt;U&gt; and returning a
-     * value of type &lt;R&gt;. The following example illustrates its usage:
-     * <pre>
-     *     List&lt;ObjectThree&gt; transformed = StreamUtils.transform(objects, MapperUtils.mapper(ObjectOne::getObjectTwo, ObjectTwo::getObjectThree));
-     * </pre>
-     * Or, with static imports:
+     * value of type &lt;R&gt;. The following example illustrates its usage (assume there are static imports for the
+     * classes from this library):
      * <pre>
      *     List&lt;ObjectThree&gt; transformed = transform(objects, mapper(ObjectOne::getObjectTwo, ObjectTwo::getObjectThree));
      * </pre>
      * The above are equivalent to:
      * <pre>
-     *     List&lt;ObjectThree&gt; transformed = StreamUtils.transform(objects, MapperUtils.mapper(ObjectOne::getObjectTwo).andThen(ObjectTwo::getObjectThree));
-     * </pre>
-     * Or, with static imports:
-     * <pre>
      *     List&lt;ObjectThree&gt; transformed = transform(objects, mapper(ObjectOne::getObjectTwo).andThen(ObjectTwo::getObjectThree));
      * </pre>
      * The first example calling this method is slightly more concise, but which of the above is more readable is up to
-     * the individual developer. This method provides an alternative way of accomplishing the above transformation. That
-     * being said, there is an additional benefit of using this method. Not only is there null-checking on the target
+     * the individual developer. This method provides an alternative way of accomplishing the above transformation.
+     * There is an additional benefit of using this method, however. Not only is there null-checking on the target
      * element, there is also null-checking on the result of the transformation using the <code>left Function</code>.
      *
      * @param left  A Function to perform a first, preliminary transformation.

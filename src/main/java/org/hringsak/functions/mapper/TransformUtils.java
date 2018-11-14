@@ -68,7 +68,7 @@ public final class TransformUtils {
      */
     public static <T, R> List<R> transformDistinct(Collection<T> objects, Function<T, R> transformer) {
         return defaultStream(objects)
-                .map(mapper(transformer))
+                .map(transformer)
                 .distinct()
                 .collect(toList());
     }

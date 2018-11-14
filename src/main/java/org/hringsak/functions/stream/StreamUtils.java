@@ -495,7 +495,8 @@ public final class StreamUtils {
      * method builds a <code>String</code> of those char sequences joined together using the collector. The
      * {@link #mapperWithCollector(Function, Collector)} should be used to build the second parameter to this method.
      * Because that method takes a <code>Collector&lt;CharSequence, ?, String&gt;</code>, the overloads of the
-     * Java <code>Collectors.joining(...)</code> method may be used, including the one that takes a prefix and a suffix.
+     * Java <code>Collector.joining(...)</code> method may be used, including the one that takes a delimiter, prefix and
+     * suffix.
      *
      * @param objects             A Collection of elements of type &lt;T&gt;, each of which is to be mapped to a
      *                            CharSequence. A String will be built using each individual CharSequence.
@@ -566,6 +567,7 @@ public final class StreamUtils {
      *
      * @param objects       A Collection of elements of type &lt;T&gt; to be partitioned up into a list of lists.
      * @param partitionSize The maximum length of the individual lists in the returned list.
+     * @param <T>           The type of the elements in the objects parameter.
      * @return A List of lists of elements of type &lt;T&gt;, each of whose length is at most partitionSize. The last
      * list may have a length that is less than partitionSize.
      */
@@ -579,6 +581,7 @@ public final class StreamUtils {
      *
      * @param objects       A Collection of elements of type &lt;T&gt; to be partitioned up into a stream of lists.
      * @param partitionSize The maximum length of the individual lists in the returned stream.
+     * @param <T>           The type of the elements in the objects parameter.
      * @return A stream of lists of elements of type &lt;T&gt;, each of whose length is at most partitionSize. The last
      * list may have a length that is less than partitionSize.
      */
@@ -605,6 +608,8 @@ public final class StreamUtils {
      * Given a <code>Collection</code> of elements of type &lt;T&gt;, returns a <code>Stream</code> of those elements.
      *
      * @param objects A Collection of elements of type &lt;T&gt; from which to return a Stream.
+     * @param <T>     The type of the elements in the objects parameter. Also, the type of the elements in the returned
+     *                Stream.
      * @return A Stream from the given Collection of elements of type &lt;T&gt;. Returns an empty Stream if it is null.
      */
     @SuppressWarnings("WeakerAccess")
@@ -617,6 +622,8 @@ public final class StreamUtils {
      * otherwise returns an empty <code>Stream</code>.
      *
      * @param stream An input Stream.
+     * @param <T>    The type of the elements in the objects parameter. Also, the type of the elements in the returned
+     *               Stream.
      * @return The given Stream if it is not null, otherwise an empty Stream.
      */
     @SuppressWarnings("WeakerAccess")
@@ -628,6 +635,8 @@ public final class StreamUtils {
      * Given an array of elements of type &lt;T&gt;, returns a <code>Stream</code> of them.
      *
      * @param array An array of elements of type &lt;T&gt;.
+     * @param <T>   The type of the elements in the array parameter. Also, the type of the elements in the returned
+     *              Stream.
      * @return A Stream from the given array. Returns an empty Stream if it is null.
      */
     @SuppressWarnings("WeakerAccess")
