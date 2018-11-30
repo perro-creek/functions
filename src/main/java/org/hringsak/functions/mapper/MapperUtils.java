@@ -51,7 +51,21 @@ public final class MapperUtils {
      *     Target target = ...
      *     String str = mapper(Target::someGetter).apply(target);
      * </pre>
-     * It's slightly shorter, and is one fewer method calls.
+     * It's slightly shorter, and is one fewer method calls. It also works for chained function calls:
+     * <pre>
+     *     Target target = ...
+     *     String str = Optional.of(target)
+     *         .map(Target::someGetter)
+     *         .map(OtherTarget::someOtherGetter)
+     *         .orElse(null);
+     * </pre>
+     * vs.
+     * <pre>
+     *     Target target = ...
+     *     String str = mapper(Target::someGetter)
+     *         .andThen(mapper(OtherTarget::someOtherGetter))
+     *         .apply(target);
+     * </pre>
      *
      * @param function A method reference to be cast to a Function.
      * @param <T>      The type of the single parameter to the Function.
@@ -194,7 +208,23 @@ public final class MapperUtils {
      *     Target target = ...
      *     Object str = mapperDefault(Target::someGetter, "").apply(target);
      * </pre>
-     * It's slightly shorter, and is one fewer method calls.
+     * It's slightly shorter, and is one fewer method calls. As in {@link #mapper(Function)} above, it also works for
+     * chained function calls, although it would be slightly different:
+     * <pre>
+     *     Target target = ...
+     *     String str = Optional.of(target)
+     *         .map(Target::someGetter)
+     *         .map(OtherTarget::someOtherGetter)
+     *         .orElse("");
+     * </pre>
+     * vs.
+     * <pre>
+     *     Target target = ...
+     *     String str = mapper(Target::someGetter)
+     *         .andThen(mapperDefault(OtherTarget::someOtherGetter, ""))
+     *         .apply(target);
+     * </pre>
+     * The second one is a little more flexible, because you can have different defaults for different function calls.
      *
      * @param function     A method reference which takes a single parameter of type &lt;T&gt;, and returns a value of
      *                     type &lt;R&gt;.
@@ -245,7 +275,8 @@ public final class MapperUtils {
      *     Target target = ...
      *     Object str = mapperDefault(Target::someGetter, this::getDefaultStr).apply(target);
      * </pre>
-     * It's slightly shorter, and is one fewer method calls.
+     * It's slightly shorter, and is one fewer method calls. As in the above {@link #mapperDefault(Function, Object)}
+     * method, it works with chained function calls as well.
      *
      * @param function        A method reference which takes a single parameter of type &lt;T&gt;, and returns a value of
      *                        type &lt;R&gt;.

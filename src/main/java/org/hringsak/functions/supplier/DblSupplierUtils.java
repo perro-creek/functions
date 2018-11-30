@@ -6,6 +6,8 @@ import java.util.function.Function;
 import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
 
+import static org.hringsak.functions.supplier.LazyDoubleSupplier.newLazyDoubleSupplier;
+
 /**
  * Methods that build suppliers, specifically those involving primitive double types.
  */
@@ -121,5 +123,57 @@ public final class DblSupplierUtils {
      */
     public static <T, U> DoubleSupplier dblSupplier(ToDoubleBiFunction<T, U> function, ConstantValues<T, U> constants) {
         return () -> function.applyAsDouble(constants.getLeft(), constants.getRight());
+    }
+
+    /**
+     * Takes a <code>DoubleSupplier</code> and turns it into a lazy supplier. The behavior is that the passed supplier
+     * is called only the first time a value is retrieved, and caches its result for subsequent invocations. Useful in
+     * many situations where retrieving a value is an expensive operation, such as retrieving an object from a database,
+     * or calling a micro-service.
+     *
+     * @param supplier A supplier to be called only once, and whose result will be cached.
+     * @return A lazy DoubleSupplier of a value.
+     */
+    public static DoubleSupplier lazyDblSupplier(DoubleSupplier supplier) {
+        return newLazyDoubleSupplier(supplier);
+    }
+
+    /**
+     * First creates a supplier using the {@link #dblSupplier(ToDoubleFunction, Object)} method, and turns it into a
+     * lazy supplier. The behavior is that the passed supplier is called only the first time a value is retrieved, and
+     * caches its result for subsequent invocations. Useful in many situations where retrieving a value is an expensive
+     * operation, such as retrieving an object from a database, or calling a micro-service.
+     *
+     * @param function A ToDoubleFunction to be used to build a supplier of a double value.
+     * @param value    A constant value of type &lt;T&gt; to be passed to the single invocation of the above
+     *                 ToDoubleFunction.
+     * @param <T>      The type of the parameter to the passed ToDoubleFunction. Also the type of the constant value
+     *                 passed to this method.
+     * @return A lazy DoubleSupplier built from the passed ToDoubleFunction and constant value of type &lt;T&gt;.
+     */
+    public static <T> DoubleSupplier lazyDblSupplier(ToDoubleFunction<T> function, T value) {
+        return newLazyDoubleSupplier(dblSupplier(function, value));
+    }
+
+    /**
+     * First creates a supplier using the {@link #dblSupplier(ToDoubleBiFunction, ConstantValues)} method, and turns it
+     * into a lazy supplier. The behavior is that the passed supplier is called only the first time a value is
+     * retrieved, and caches its result for subsequent invocations. Useful in many situations where retrieving a value
+     * is an expensive operation, such as retrieving an object from a database, or calling a micro-service.
+     *
+     * @param function  A ToDoubleBiFunction taking arguments of type &lt;T&gt; and &lt;U&gt;, to be used to build a
+     *                  lazy supplier of a double value.
+     * @param constants An object representing a pair of constant values of type &lt;T&gt; and &lt;U&gt;, to be passed
+     *                  to the single invocation of the above ToDoubleBiFunction. This value should be supplied via a
+     *                  call to the {@link SupplierUtils#constantValues(Object, Object)} method.
+     * @param <T>       The type of the first parameter to the passed ToDoubleBiFunction. Also the type of the first
+     *                  constant value in the constants pair passed to this method.
+     * @param <U>       The type of the second parameter to the passed ToDoubleBiFunction. Also the type of the second
+     *                  constant value in the constants pair passed to this method.
+     * @return A lazy DoubleSupplier built from the passed ToDoubleBiFunction and object representing a pair of constant
+     * values of type &lt;T&gt; and &lt;U&gt;.
+     */
+    public static <T, U> DoubleSupplier lazyDblSupplier(ToDoubleBiFunction<T, U> function, ConstantValues<T, U> constants) {
+        return newLazyDoubleSupplier(dblSupplier(function, constants));
     }
 }

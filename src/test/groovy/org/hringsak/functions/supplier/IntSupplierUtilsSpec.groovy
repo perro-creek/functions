@@ -7,6 +7,7 @@ import java.util.function.ToIntBiFunction
 
 import static org.hringsak.functions.internal.StringUtils.defaultString
 import static org.hringsak.functions.supplier.IntSupplierUtils.intSupplier
+import static org.hringsak.functions.supplier.IntSupplierUtils.lazyIntSupplier
 import static org.hringsak.functions.supplier.SupplierUtils.constantValues
 
 class IntSupplierUtilsSpec extends Specification {
@@ -43,5 +44,29 @@ class IntSupplierUtilsSpec extends Specification {
         'test' | null   | 4
         'test' | ''     | 4
         'test' | 'test' | 8
+    }
+
+    def 'lazy integer supplier should be called once after multiple invocations'() {
+        expect:
+        def counter = 0
+        def lazySupplier = lazyIntSupplier { -> counter++ }
+        (0..2).each { lazySupplier.getAsInt() }
+        counter == 1
+    }
+
+    def 'lazy integer supplier passing constant should be called once after multiple invocations'() {
+        expect:
+        def counter = 0
+        def lazySupplier = lazyIntSupplier({str -> counter++ }, '')
+        (0..2).each { lazySupplier.getAsInt() }
+        counter == 1
+    }
+
+    def 'lazy integer supplier passing constant values should be called once after multiple invocations'() {
+        expect:
+        def counter = 0
+        def lazySupplier = lazyIntSupplier({strOne, strTwo -> counter++ } as ToIntBiFunction, constantValues('', ''))
+        (0..2).each { lazySupplier.getAsInt() }
+        counter == 1
     }
 }
