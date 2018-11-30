@@ -7,8 +7,7 @@ import spock.lang.Unroll
 import java.util.function.BiFunction
 
 import static org.hringsak.functions.internal.StringUtils.defaultString
-import static org.hringsak.functions.supplier.SupplierUtils.constantValues
-import static org.hringsak.functions.supplier.SupplierUtils.supplier
+import static org.hringsak.functions.supplier.SupplierUtils.*
 
 class SupplierUtilsSpec extends Specification {
 
@@ -44,5 +43,29 @@ class SupplierUtilsSpec extends Specification {
         'test' | null   | 'test'
         'test' | ''     | 'test'
         'test' | 'test' | 'testtest'
+    }
+
+    def 'lazy supplier should be called once after multiple invocations'() {
+        expect:
+        def counter = 0
+        def lazySupplier = lazySupplier { -> counter++ }
+        (0..2).each { lazySupplier.get() }
+        counter == 1
+    }
+
+    def 'lazy supplier passing constant should be called once after multiple invocations'() {
+        expect:
+        def counter = 0
+        def lazySupplier = lazySupplier({str -> counter++ }, '')
+        (0..2).each { lazySupplier.get() }
+        counter == 1
+    }
+
+    def 'lazy supplier passing constant values should be called once after multiple invocations'() {
+        expect:
+        def counter = 0
+        def lazySupplier = lazySupplier({strOne, strTwo -> counter++ } as BiFunction, constantValues('', ''))
+        (0..2).each { lazySupplier.get() }
+        counter == 1
     }
 }

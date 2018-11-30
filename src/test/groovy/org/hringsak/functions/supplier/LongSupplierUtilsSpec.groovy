@@ -6,6 +6,7 @@ import spock.lang.Unroll
 import java.util.function.ToLongBiFunction
 
 import static org.hringsak.functions.internal.StringUtils.defaultString
+import static org.hringsak.functions.supplier.LongSupplierUtils.lazyLongSupplier
 import static org.hringsak.functions.supplier.LongSupplierUtils.longSupplier
 import static org.hringsak.functions.supplier.SupplierUtils.constantValues
 
@@ -43,5 +44,29 @@ class LongSupplierUtilsSpec extends Specification {
         'test' | null   | 4
         'test' | ''     | 4
         'test' | 'test' | 8
+    }
+
+    def 'lazy long supplier should be called once after multiple invocations'() {
+        expect:
+        def counter = 0L
+        def lazySupplier = lazyLongSupplier() { -> counter++ }
+        (0..2).each { lazySupplier.getAsLong() }
+        counter == 1
+    }
+
+    def 'lazy long supplier passing constant should be called once after multiple invocations'() {
+        expect:
+        def counter = 0L
+        def lazySupplier = lazyLongSupplier({str -> counter++ }, '')
+        (0..2).each { lazySupplier.getAsLong() }
+        counter == 1
+    }
+
+    def 'lazy long supplier passing constant values should be called once after multiple invocations'() {
+        expect:
+        def counter = 0L
+        def lazySupplier = lazyLongSupplier({strOne, strTwo -> counter++ } as ToLongBiFunction, constantValues('', ''))
+        (0..2).each { lazySupplier.getAsLong() }
+        counter == 1
     }
 }

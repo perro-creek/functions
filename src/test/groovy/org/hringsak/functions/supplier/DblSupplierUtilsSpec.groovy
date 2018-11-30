@@ -7,6 +7,7 @@ import java.util.function.ToDoubleBiFunction
 
 import static org.hringsak.functions.internal.StringUtils.defaultString
 import static org.hringsak.functions.supplier.DblSupplierUtils.dblSupplier
+import static org.hringsak.functions.supplier.DblSupplierUtils.lazyDblSupplier
 import static org.hringsak.functions.supplier.SupplierUtils.constantValues
 
 class DblSupplierUtilsSpec extends Specification {
@@ -43,5 +44,29 @@ class DblSupplierUtilsSpec extends Specification {
         'test' | null   | 4.0D
         'test' | ''     | 4.0D
         'test' | 'test' | 8.0D
+    }
+
+    def 'lazy double supplier should be called once after multiple invocations'() {
+        expect:
+        def counter = 0.0D
+        def lazySupplier = lazyDblSupplier { -> counter++ }
+        (0..2).each { lazySupplier.getAsDouble() }
+        counter == 1
+    }
+
+    def 'lazy double supplier passing constant should be called once after multiple invocations'() {
+        expect:
+        def counter = 0.0D
+        def lazySupplier = lazyDblSupplier({str -> counter++ }, '')
+        (0..2).each { lazySupplier.getAsDouble() }
+        counter == 1
+    }
+
+    def 'lazy double supplier passing constant values should be called once after multiple invocations'() {
+        expect:
+        def counter = 0.0D
+        def lazySupplier = lazyDblSupplier({strOne, strTwo -> counter++ } as ToDoubleBiFunction, constantValues('', ''))
+        (0..2).each { lazySupplier.getAsDouble() }
+        counter == 1
     }
 }
