@@ -18,6 +18,7 @@ import java.util.function.Predicate;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
 import static java.util.Comparator.nullsLast;
+import static org.hringsak.functions.mapper.MapperUtils.mapper;
 import static org.hringsak.functions.predicate.CharSequenceUtils.anyCharacterMatches;
 import static org.hringsak.functions.predicate.CharSequenceUtils.isCharacterMatch;
 import static org.hringsak.functions.predicate.CharSequenceUtils.noCharactersMatch;
@@ -379,7 +380,7 @@ public final class PredicateUtils {
      * @param value    A value of type &lt;R&gt; to be checked if a Collection returned by the above Function contains
      *                 it.
      * @param <T>      The type of the element taken by the Predicate built by this method.
-     * @param <R>      The type of elements for collections returned by a passed Function. Also, the type of the passed
+     * @param <R>      The type of elements for collection returned by a passed Function. Also, the type of the passed
      *                 value.
      * @return A Predicate that takes an element of type &lt;T&gt;, applies the given function to it resulting in a
      * Collection&lt;R&gt;. The Predicate checks that the returned Collection contains a passed value of type
@@ -393,6 +394,63 @@ public final class PredicateUtils {
             }
             return false;
         };
+    }
+
+    /**
+     * Given a <code>Collection</code> whose elements are of type &lt;R&gt;, and a <code>Function</code> that takes an
+     * element of type &lt;T&gt; and returns a <code>Collection</code> whose elements are of type &lt;R&gt;, this method
+     * builds a <code>Predicate</code> that takes an element of type &lt;T&gt;, and determines if the given collection
+     * contains all of the values in the collection returned by the function.
+     *
+     * @param collection A Collection of elements of type &lt;R&gt;, to be checked for whether it contains all of the
+     *                   values in the collection returned from a passed function.
+     * @param function   A Function taking an element of type &lt;T&gt; and returning a Collection of values of type
+     *                   &lt;R&gt; to be checked if its values are contained in a passed Collection.
+     * @param <T>        The type of the element taken by the Predicate built by this method.
+     * @param <R>        The type of elements in the passed Collection. Also, the type of the elements in the Collection
+     *                   returned by the passed Function.
+     * @return A Predicate that takes an element of type &lt;T&gt;, applies the given function to it resulting in a
+     * Collection whose values are of type &lt;R&gt;. The Predicate checks that all of the values in the returned
+     * Collection are contained in a passed Collection, and will return true if the passed Collection is not null and
+     * the Collection returned by the function is empty. The Predicate will return false if the passed Collection, the
+     * target element of type &lt;T&gt;, or the Collection returned by the passed Function is null.
+     * @throws ClassCastException   If the types of one or more elements in the Collection returned by the passed
+     *                              Function are incompatible with the passed Collection.
+     * @throws NullPointerException If the Collection returned by the passed Function contains one or more null elements
+     *                              and the passed Collection does not permit null elements (optional).
+     */
+    public static <T, R> Predicate<T> containsAll(Collection<? extends R> collection, Function<? super T, Collection<? extends R>> function) {
+        return t -> collection != null && mapper(function).apply(t) != null && collection.containsAll(function.apply(t));
+    }
+
+    /**
+     * Given a <code>Function</code> that takes an element of type &lt;T&gt;, and returns a
+     * <code>Collection&lt;R&gt;</code>, this method builds a <code>Predicate</code> that takes an element of type
+     * &lt;T&gt;, and determines if the collection returned by that function contains all of the value in the passed
+     * <code>Collection</code> of elements of type &lt;R&gt;.
+     * <p>
+     * This method is similar to {@link #containsAll(Collection, Function)}, but instead of a built predicate checking
+     * whether a passed collection contains all values in a collection returned by a function, in this method it checks
+     * whether a collection returned by a function contains all elements of a passed collection.
+     *
+     * @param function   A Function that takes an element and returns a Collection of elements of type &lt;R&gt;.
+     * @param collection A Collection of elements of type &lt;R&gt; to be checked whether a Collection returned by the
+     *                   above Function contains all of its elements.
+     * @param <T>        The type of the element taken by the Predicate built by this method.
+     * @param <R>        The type of elements for collection returned by a passed Function. Also, the element type of
+     *                   the passed Collection.
+     * @return A Predicate that takes an element of type &lt;T&gt;, applies the given function to it resulting in a
+     * Collection&lt;R&gt;. The Predicate checks that the returned Collection contains all of the elements in a passed
+     * Collection of elements of type &lt;R&gt;, and will return true if the Collection returned by the function is not
+     * null and the passed Collection is empty.  The Predicate will return false if the Collection returned by the
+     * passed Function, the target element of type &lt;T&gt;, or the passed Collection is null.
+     * @throws ClassCastException   If the types of one or more elements in the specified Collection are incompatible
+     *                              with the Collection returned by the passed function.
+     * @throws NullPointerException If the specified collection contains one or more null elements and the Collection
+     *                              returned by the passed function does not permit null elements (optional).
+     */
+    public static <T, R> Predicate<T> inverseContainsAll(Function<? super T, ? extends Collection<R>> function, Collection<? extends R> collection) {
+        return t -> collection != null && mapper(function).apply(t) != null && function.apply(t).containsAll(collection);
     }
 
     /**

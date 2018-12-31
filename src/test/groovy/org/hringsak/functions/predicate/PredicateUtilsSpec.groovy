@@ -264,6 +264,46 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'contains all passing collection #collection and function result #functionResult returns #expected'() {
+
+        expect:
+        def predicate = containsAll(collection, { obj -> functionResult })
+        predicate.test(new Object()) == expected
+
+        where:
+        collection         | functionResult | expected
+        ['test1', 'test2'] | [null]         | false
+        ['test1', 'test2'] | ['']           | false
+        ['test1', 'test2'] | []             | true
+        ['test1', 'test2'] | ['test1']      | true
+        [null]             | ['test1']      | false
+        [null]             | [null]         | true
+        ['']               | ['test1']      | false
+        []                 | ['test1']      | false
+        null               | ['test1']      | false
+    }
+
+    @Unroll
+    def 'inverse contains all passing function result #functionResult and collection #collection returns #expected'() {
+
+        expect:
+        def predicate = inverseContainsAll({ obj -> functionResult }, collection)
+        predicate.test(new Object()) == expected
+
+        where:
+        functionResult     | collection | expected
+        [null]             | ['test1']  | false
+        ['']               | ['test1']  | false
+        []                 | ['test1']  | false
+        ['test1', 'test2'] | ['test1']  | true
+        ['test1', 'test2'] | [null]     | false
+        [null]             | [null]     | true
+        ['test1', 'test2'] | ['']       | false
+        ['test1', 'test2'] | []         | true
+        ['test1', 'test2'] | null       | false
+    }
+
+    @Unroll
     def 'contains key for map #map passing #enumValue returns #expected'() {
 
         expect:
