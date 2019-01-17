@@ -101,10 +101,15 @@ public final class MapperUtils {
      * <p>
      * This could be useful in a situation where you are building a key object for a map from another object. If the key
      * exists, you simply want to return the value. However, if the key does <i>not</i> exist, you want to build the
-     * value not from the key object, but from the original object. For example:
+     * value not from the key object, but from the original object. For example, assume that <code>objectMap</code> is
+     * an instance variable of type <code>Map&lt;KeyObject, ValueObject&gt;</code> on the current object:
      * <pre>
      *     public ValueObject getValue(OriginalObject original) {
-     *         return requestLevelCache.computeIfAbsent(createKeyObject(original), mapperIgnoringTarget(this::createValueObject, original));
+     *         return objectMap.computeIfAbsent(createKeyObject(original), mapperIgnoringTarget(this::createValueObject, original));
+     *     }
+     *
+     *     private KeyObject createKeyObject(OriginalObject original) {
+     *         ...
      *     }
      *
      *     private ValueObject createValueObject(OriginalObject original) {
