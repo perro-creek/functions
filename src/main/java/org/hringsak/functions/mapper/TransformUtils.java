@@ -11,7 +11,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.hringsak.functions.collector.CollectorUtils.toMapFromEntry;
 import static org.hringsak.functions.mapper.MapperUtils.flatMapper;
-import static org.hringsak.functions.mapper.MapperUtils.mapper;
 import static org.hringsak.functions.mapper.MapperUtils.pairOf;
 import static org.hringsak.functions.stream.StreamUtils.defaultStream;
 
