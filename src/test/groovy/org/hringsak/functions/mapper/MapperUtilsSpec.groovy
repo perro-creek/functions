@@ -30,6 +30,28 @@ class MapperUtilsSpec extends Specification {
     }
 
     @Unroll
+    def 'mapper ignoring target passing target "#target" for supplier returns expected'() {
+
+        expect:
+        def supplier = { -> 'expected' }
+        mapperIgnoringTarget(supplier).apply(target) == 'expected'
+
+        where:
+        target << ['test', '', null]
+    }
+
+    @Unroll
+    def 'mapper ignoring target passing target "#target" for function returns expected'() {
+
+        expect:
+        def function = { it.reverse() }
+        mapperIgnoringTarget(function, 'test').apply(target) == 'tset'
+
+        where:
+        target << ['test', '', null]
+    }
+
+    @Unroll
     def 'mapper with default returns default when target is "#target"'() {
 
         expect:

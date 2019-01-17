@@ -72,9 +72,58 @@ public final class MapperUtils {
      * @param <R>      The type of the result of the Function.
      * @return A method reference cast to a Function.
      */
-    @SuppressWarnings({"unused", "WeakerAccess"})
     public static <T, R> Function<T, R> mapper(Function<T, R> function) {
         return t -> t == null ? null : function.apply(t);
+    }
+
+    /**
+     * Takes a <code>Supplier</code> and returns a <code>Function</code> taking a parameter of type &lt;T&gt;. The
+     * parameter is ignored, and the <code>Supplier</code> is used to retrieve the result of the <code>Function</code>
+     * instead.
+     *
+     * @param supplier A Supplier to retrieve the result of the returned Function.
+     * @param <T>      The type of the single parameter to the returned Function.
+     * @param <R>      The return type of the passed Supplier, as well as the Function resulting from a call to this
+     *                 method.
+     * @return A Function that ignores its passed parameter of type &lt;T&gt;, and uses a passed Supplier to retrieve
+     * its result instead.
+     */
+    public static <T, R> Function<T, R> mapperIgnoringTarget(Supplier<R> supplier) {
+        return t -> supplier.get();
+    }
+
+    /**
+     * Takes a <code>Function</code> with a single parameter of type &lt;U&gt; and returns a <code>Function</code>
+     * taking a parameter of type &lt;T&gt;. Also takes a constant value of type &lt;U&gt;, which will be passed to it.
+     * A <code>Function</code> taking a parameter of type &lt;T&gt; will be returned, but its value will be ignored, and
+     * the passed <code>Function</code> will be called with the constant <code>value</code>, returning its result
+     * instead.
+     * <p>
+     * This could be useful in a situation where you are building a key object for a map from another object. If the key
+     * exists, you simply want to return the value. However, if the key does <i>not</i> exist, you want to build the
+     * value not from the key object, but from the original object. For example:
+     * <pre>
+     *     public ValueObject getValue(OriginalObject original) {
+     *         return requestLevelCache.computeIfAbsent(createKeyObject(original), mapperIgnoringTarget(this::createValueObject, original));
+     *     }
+     *
+     *     private ValueObject createValueObject(OriginalObject original) {
+     *         ...
+     *     }
+     * </pre>
+     *
+     * @param function A Function taking a constant value of type &lt;U&gt;, to retrieve the result of the returned
+     *                 Function.
+     * @param value    A constant value of type &lt;U&gt; to be supplied to the passed function.
+     * @param <T>      The type of the single parameter to the returned Function.
+     * @param <U>      The type of the parameter to the passed function. Also the type of a passed constant value.
+     * @param <R>      The return type of the passed Function, as well as the Function resulting from a call to this
+     *                 method.
+     * @return A Function that ignores its passed parameter of type &lt;T&gt;, and uses a passed Function to retrieve
+     * its result instead, passing it a constant value of type &lt;U&gt;.
+     */
+    public static <T, U, R> Function<T, R> mapperIgnoringTarget(Function<U, R> function, U value) {
+        return t -> function.apply(value);
     }
 
     /**
