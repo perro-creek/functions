@@ -374,7 +374,7 @@ public final class IntStreamUtils {
      */
     public static int indexOfFirstInt(int[] ints, IntPredicate predicate) {
         return defaultIntStream(ints)
-                .mapToObj(IntMapperUtils.intPairWithIndex())
+                .mapToObj(intPairWithIndex())
                 .filter(mapToIntAndFilter(IntIndexPair::getIntValue, predicate))
                 .mapToInt(IntIndexPair::getIndex)
                 .findFirst()

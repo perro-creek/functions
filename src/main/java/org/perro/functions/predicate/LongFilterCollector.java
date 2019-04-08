@@ -21,7 +21,7 @@ class LongFilterCollector<C extends Collection<Long>> {
     }
 
     LongPredicate getFilter() {
-        return LongPredicateUtils.longPredicate(filter);
+        return longPredicate(filter);
     }
 
     Collector<Long, ?, C> getCollector() {

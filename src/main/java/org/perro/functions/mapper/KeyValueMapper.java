@@ -19,10 +19,10 @@ class KeyValueMapper <T, K, V> {
     }
 
     Function<T, K> getKeyMapper() {
-        return MapperUtils.mapper(keyMapper);
+        return mapper(keyMapper);
     }
 
     Function<T, V> getValueMapper() {
-        return MapperUtils.mapper(valueMapper);
+        return mapper(valueMapper);
     }
 }

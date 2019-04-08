@@ -15,8 +15,8 @@ import java.util.stream.Collector;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.perro.functions.mapper.LongMapperUtils.longMapper;
-import static org.perro.functions.mapper.LongMapperUtils.longPairOf;
+import static org.perro.functions.collector.CollectorUtils.toMapFromEntry;
+import static org.perro.functions.mapper.LongMapperUtils.*;
 import static org.perro.functions.stream.LongStreamUtils.defaultLongStream;
 import static org.perro.functions.stream.StreamUtils.defaultStream;
 
@@ -38,7 +38,7 @@ public final class LongTransformUtils {
      * @return An array of primitive transformed longs.
      */
     public static long[] longUnaryTransform(long[] longs, LongUnaryOperator operator) {
-        return LongStreamUtils.defaultLongStream(longs)
+        return defaultLongStream(longs)
                 .map(operator)
                 .toArray();
     }
@@ -52,7 +52,7 @@ public final class LongTransformUtils {
      * @return An array of distinct, primitive, transformed longs.
      */
     public static long[] longUnaryTransformDistinct(long[] longs, LongUnaryOperator operator) {
-        return LongStreamUtils.defaultLongStream(longs)
+        return defaultLongStream(longs)
                 .map(operator)
                 .distinct()
                 .toArray();
@@ -109,8 +109,8 @@ public final class LongTransformUtils {
      * elements.
      */
     public static <R> List<R> longTransformDistinct(long[] longs, LongFunction<R> transformer) {
-        return LongStreamUtils.defaultLongStream(longs)
-                .mapToObj(LongMapperUtils.longMapper(transformer))
+        return defaultLongStream(longs)
+                .mapToObj(longMapper(transformer))
                 .distinct()
                 .collect(toList());
     }
@@ -131,7 +131,7 @@ public final class LongTransformUtils {
      * @return A collection of type &lt;C&gt; of elements &lt;U&gt;, transformed from an array of primitive longs.
      */
     public static <U, C extends Collection<U>> C longTransform(long[] longs, LongTransformerCollector<U, C> transformerCollector) {
-        return LongStreamUtils.defaultLongStream(longs)
+        return defaultLongStream(longs)
                 .mapToObj(transformerCollector.getTransformer())
                 .collect(transformerCollector.getCollector());
     }
@@ -145,8 +145,8 @@ public final class LongTransformUtils {
      * @return An array of flat-mapped primitive longs.
      */
     public static long[] longFlatMap(long[] longs, LongFunction<long[]> function) {
-        return LongStreamUtils.defaultLongStream(longs)
-                .flatMap(LongMapperUtils.longFlatMapper(function))
+        return defaultLongStream(longs)
+                .flatMap(longFlatMapper(function))
                 .toArray();
     }
 
@@ -159,8 +159,8 @@ public final class LongTransformUtils {
      * @return An array of distinct, primitive, flat-mapped longs.
      */
     public static long[] longFlatMapDistinct(long[] longs, LongFunction<long[]> function) {
-        return LongStreamUtils.defaultLongStream(longs)
-                .flatMap(LongMapperUtils.longFlatMapper(function))
+        return defaultLongStream(longs)
+                .flatMap(longFlatMapper(function))
                 .distinct()
                 .toArray();
     }
@@ -175,8 +175,8 @@ public final class LongTransformUtils {
      * @return An array of primitive flat-mapped longs.
      */
     public static <T> long[] flatMapToLong(Collection<T> objects, Function<T, long[]> function) {
-        return StreamUtils.defaultStream(objects)
-                .flatMapToLong(LongMapperUtils.flatMapperToLong(function))
+        return defaultStream(objects)
+                .flatMapToLong(flatMapperToLong(function))
                 .toArray();
     }
 
@@ -190,8 +190,8 @@ public final class LongTransformUtils {
      * @return An array of distinct, primitive, flat-mapped longs.
      */
     public static <T> long[] flatMapToLongDistinct(Collection<T> objects, Function<T, long[]> function) {
-        return StreamUtils.defaultStream(objects)
-                .flatMapToLong(LongMapperUtils.flatMapperToLong(function))
+        return defaultStream(objects)
+                .flatMapToLong(flatMapperToLong(function))
                 .distinct()
                 .toArray();
     }
@@ -230,8 +230,8 @@ public final class LongTransformUtils {
      * @return A map whose keys and values are transformed from an array of longs.
      */
     public static <K, V> Map<K, V> longTransformToMap(long[] longs, LongKeyValueMapper<K, V> keyValueMapper) {
-        return LongStreamUtils.defaultLongStream(longs)
-                .mapToObj(LongMapperUtils.longPairOf(keyValueMapper))
-                .collect(CollectorUtils.toMapFromEntry());
+        return defaultLongStream(longs)
+                .mapToObj(longPairOf(keyValueMapper))
+                .collect(toMapFromEntry());
     }
 }

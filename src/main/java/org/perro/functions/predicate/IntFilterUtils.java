@@ -8,6 +8,7 @@ import java.util.function.IntPredicate;
 import java.util.stream.Collector;
 
 import static java.util.stream.Collectors.toSet;
+import static org.perro.functions.stream.IntStreamUtils.*;
 import static org.perro.functions.stream.IntStreamUtils.defaultIntStream;
 
 /**
@@ -27,7 +28,7 @@ public final class IntFilterUtils {
      * @return An array of ints filtered from an array of int.
      */
     public static int[] intFilter(int[] ints, IntPredicate predicate) {
-        return IntStreamUtils.defaultIntStream(ints)
+        return defaultIntStream(ints)
                 .filter(predicate)
                 .toArray();
     }
@@ -52,7 +53,7 @@ public final class IntFilterUtils {
      * @return An array of distinct int values filtered, using the passed predicate, from the input array.
      */
     public static int[] intFilterDistinct(int[] ints, IntPredicate predicate) {
-        return IntStreamUtils.defaultIntStream(ints)
+        return defaultIntStream(ints)
                 .filter(predicate)
                 .distinct()
                 .toArray();
@@ -79,7 +80,7 @@ public final class IntFilterUtils {
      * @return A Collection of Integer objects filtered from an array of int.
      */
     public static <C extends Collection<Integer>> C intFilter(int[] ints, IntFilterCollector<C> filterCollector) {
-        return IntStreamUtils.defaultIntStream(ints)
+        return defaultIntStream(ints)
                 .filter(filterCollector.getFilter())
                 .boxed()
                 .collect(filterCollector.getCollector());
@@ -107,7 +108,7 @@ public final class IntFilterUtils {
      * input array.
      */
     public static <C extends Collection<Integer>> C intFilterDistinct(int[] ints, IntFilterCollector<C> filterCollector) {
-        return IntStreamUtils.defaultIntStream(ints)
+        return defaultIntStream(ints)
                 .filter(filterCollector.getFilter())
                 .distinct()
                 .boxed()

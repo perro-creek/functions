@@ -16,6 +16,7 @@ import java.util.function.ToLongFunction;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
+import static org.perro.functions.predicate.PredicateUtils.not;
 
 /**
  * Methods that build predicates specifically those involving primitive <code>long</code> types.
@@ -622,7 +623,7 @@ public final class LongPredicateUtils {
      * determines whether the returned array is <i>not</i> empty.
      */
     public static <T> Predicate<T> isLongArrayNotEmpty(Function<? super T, long[]> function) {
-        return PredicateUtils.not(isLongArrayEmpty(function));
+        return not(isLongArrayEmpty(function));
     }
 
     /**

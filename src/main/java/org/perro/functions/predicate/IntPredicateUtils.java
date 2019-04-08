@@ -16,6 +16,7 @@ import java.util.function.ToIntFunction;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
+import static org.perro.functions.predicate.PredicateUtils.not;
 
 /**
  * Methods that build predicates specifically those involving primitive <code>int</code> types.
@@ -618,7 +619,7 @@ public final class IntPredicateUtils {
      * determines whether the returned array is <i>not</i> empty.
      */
     public static <T> Predicate<T> isIntArrayNotEmpty(Function<? super T, int[]> function) {
-        return PredicateUtils.not(isIntArrayEmpty(function));
+        return not(isIntArrayEmpty(function));
     }
 
     /**

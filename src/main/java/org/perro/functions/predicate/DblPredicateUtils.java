@@ -16,6 +16,7 @@ import java.util.function.ToDoubleFunction;
 
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
+import static org.perro.functions.predicate.PredicateUtils.not;
 
 /**
  * Methods that build predicates specifically those involving primitive <code>double</code> types.
@@ -704,7 +705,7 @@ public final class DblPredicateUtils {
      * determines whether the returned array is <i>not</i> empty.
      */
     public static <T> Predicate<T> isDblArrayNotEmpty(Function<? super T, double[]> function) {
-        return PredicateUtils.not(isDblArrayEmpty(function));
+        return not(isDblArrayEmpty(function));
     }
 
     /**

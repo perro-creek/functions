@@ -21,7 +21,7 @@ class DoubleFilterCollector<C extends Collection<Double>> {
     }
 
     DoublePredicate getFilter() {
-        return DblPredicateUtils.dblPredicate(filter);
+        return dblPredicate(filter);
     }
 
     Collector<Double, ?, C> getCollector() {

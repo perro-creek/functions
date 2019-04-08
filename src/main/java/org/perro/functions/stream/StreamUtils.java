@@ -23,6 +23,7 @@ import static java.util.Comparator.naturalOrder;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toSet;
 import static org.perro.functions.mapper.MapperUtils.pairWithIndex;
+import static org.perro.functions.predicate.PredicateUtils.*;
 
 /**
  * Methods that are shortcuts to creating streams, specifically methods involving object instances.
@@ -448,8 +449,8 @@ public final class StreamUtils {
      */
     public static <T> int indexOfFirst(Collection<T> objects, Predicate<T> predicate) {
         return defaultStream(objects)
-                .map(MapperUtils.pairWithIndex())
-                .filter(PredicateUtils.mapAndFilter(ObjectIndexPair::getObject, predicate))
+                .map(pairWithIndex())
+                .filter(mapAndFilter(ObjectIndexPair::getObject, predicate))
                 .mapToInt(ObjectIndexPair::getIndex)
                 .findFirst()
                 .orElse(-1);
@@ -556,7 +557,7 @@ public final class StreamUtils {
     public static <T> Set<T> subtract(Set<T> from, Set<T> toSubtract) {
         Stream<T> keyStream = defaultStream(from);
         Set<T> nonNullToSubtract = toSubtract == null ? emptySet() : toSubtract;
-        return keyStream.filter(PredicateUtils.not(PredicateUtils.contains(nonNullToSubtract, identity())))
+        return keyStream.filter(not(contains(nonNullToSubtract, identity())))
                 .collect(toSet());
     }
 

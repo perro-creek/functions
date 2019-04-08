@@ -11,6 +11,7 @@ import java.util.stream.Collector;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.perro.functions.predicate.PredicateUtils.predicate;
+import static org.perro.functions.stream.StreamUtils.*;
 import static org.perro.functions.stream.StreamUtils.defaultStream;
 
 /**
@@ -59,8 +60,8 @@ public final class FilterUtils {
      * @return A List of objects filtered from the objects Collection.
      */
     public static <T> List<T> filterDistinct(Collection<T> objects, Predicate<T> predicate) {
-        return StreamUtils.defaultStream(objects)
-                .filter(PredicateUtils.predicate(predicate))
+        return defaultStream(objects)
+                .filter(predicate(predicate))
                 .distinct()
                 .collect(toList());
     }
@@ -87,7 +88,7 @@ public final class FilterUtils {
      * @return A Collection of objects filtered from the objects Collection.
      */
     public static <T, C extends Collection<T>> C filter(Collection<T> objects, FilterCollector<T, C> filterCollector) {
-        return StreamUtils.defaultStream(objects)
+        return defaultStream(objects)
                 .filter(filterCollector.getFilter())
                 .collect(filterCollector.getCollector());
     }

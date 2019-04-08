@@ -19,14 +19,14 @@ final class CharSequenceUtils {
 
     static boolean contains(CharSequence sequence, int searchChar) {
         return sequence != null && sequence.codePoints()
-                .anyMatch(IntPredicateUtils.isIntEqual(searchChar));
+                .anyMatch(isIntEqual(searchChar));
     }
 
     static boolean containsIgnoreCase(CharSequence sequence, int searchChar) {
         int lowerSearchChar = Character.toLowerCase(searchChar);
         return sequence != null && sequence.codePoints()
                 .map(Character::toLowerCase)
-                .anyMatch(IntPredicateUtils.isIntEqual(lowerSearchChar));
+                .anyMatch(isIntEqual(lowerSearchChar));
     }
 
     static boolean contains(CharSequence sequence, CharSequence searchSequence) {

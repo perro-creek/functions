@@ -19,10 +19,10 @@ class DblKeyValueMapper<K, V> {
     }
 
     DoubleFunction<K> getKeyMapper() {
-        return DblMapperUtils.dblMapper(keyMapper);
+        return dblMapper(keyMapper);
     }
 
     DoubleFunction<V> getValueMapper() {
-        return DblMapperUtils.dblMapper(valueMapper);
+        return dblMapper(valueMapper);
     }
 }

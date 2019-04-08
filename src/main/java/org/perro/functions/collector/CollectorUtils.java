@@ -29,6 +29,7 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static org.perro.functions.supplier.SupplierUtils.*;
 import static org.perro.functions.supplier.SupplierUtils.supplier;
 
 /**
@@ -294,7 +295,7 @@ public final class CollectorUtils {
      */
     public static <E extends Enum<E>> Collector<E, ?, EnumSet<E>> toEnumSet(Class<E> enumClass) {
         Objects.requireNonNull(enumClass, "The argument, \"enumClass\", must not be null");
-        return Collector.of(SupplierUtils.supplier(EnumSet::noneOf, enumClass), accumulator(EnumSet::add), combiner(EnumSet::addAll));
+        return Collector.of(supplier(EnumSet::noneOf, enumClass), accumulator(EnumSet::add), combiner(EnumSet::addAll));
     }
 
     @SuppressWarnings("unused")

@@ -234,7 +234,7 @@ public final class LongMapperUtils {
      * given longMapper is null or empty.
      */
     public static LongFunction<LongStream> longFlatMapper(LongFunction<? extends long[]> longMapper) {
-        return l -> LongStreamUtils.defaultLongStream(longMapper.apply(l));
+        return l -> defaultLongStream(longMapper.apply(l));
     }
 
     /**
@@ -270,7 +270,7 @@ public final class LongMapperUtils {
      * empty.
      */
     public static <T> Function<T, LongStream> flatMapperToLong(Function<? super T, ? extends long[]> toLongArrayMapper) {
-        return t -> t == null ? LongStream.empty() : LongStreamUtils.defaultLongStream(toLongArrayMapper.apply(t));
+        return t -> t == null ? LongStream.empty() : defaultLongStream(toLongArrayMapper.apply(t));
     }
 
     /**

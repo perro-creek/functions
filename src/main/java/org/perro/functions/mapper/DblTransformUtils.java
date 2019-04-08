@@ -15,8 +15,7 @@ import java.util.stream.Collector;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.perro.functions.collector.CollectorUtils.toMapFromEntry;
-import static org.perro.functions.mapper.DblMapperUtils.dblMapper;
-import static org.perro.functions.mapper.DblMapperUtils.dblPairOf;
+import static org.perro.functions.mapper.DblMapperUtils.*;
 import static org.perro.functions.stream.DblStreamUtils.defaultDblStream;
 import static org.perro.functions.stream.StreamUtils.defaultStream;
 
@@ -38,7 +37,7 @@ public final class DblTransformUtils {
      * @return An array of primitive transformed doubles.
      */
     public static double[] dblUnaryTransform(double[] doubles, DoubleUnaryOperator operator) {
-        return DblStreamUtils.defaultDblStream(doubles)
+        return defaultDblStream(doubles)
                 .map(operator)
                 .toArray();
     }
@@ -53,7 +52,7 @@ public final class DblTransformUtils {
      * @return An array of distinct, primitive, transformed doubles.
      */
     public static double[] dblUnaryTransformDistinct(double[] doubles, DoubleUnaryOperator operator) {
-        return DblStreamUtils.defaultDblStream(doubles)
+        return defaultDblStream(doubles)
                 .map(operator)
                 .distinct()
                 .toArray();
@@ -113,8 +112,8 @@ public final class DblTransformUtils {
      * elements.
      */
     public static <R> List<R> dblTransformDistinct(double[] doubles, DoubleFunction<R> transformer) {
-        return DblStreamUtils.defaultDblStream(doubles)
-                .mapToObj(DblMapperUtils.dblMapper(transformer))
+        return defaultDblStream(doubles)
+                .mapToObj(dblMapper(transformer))
                 .distinct()
                 .collect(toList());
     }
@@ -135,7 +134,7 @@ public final class DblTransformUtils {
      * @return A collection of type &lt;C&gt; of elements &lt;U&gt;, transformed from an array of primitive doubles.
      */
     public static <U, C extends Collection<U>> C dblTransform(double[] doubles, DblTransformerCollector<U, C> transformerCollector) {
-        return DblStreamUtils.defaultDblStream(doubles)
+        return defaultDblStream(doubles)
                 .mapToObj(transformerCollector.getTransformer())
                 .collect(transformerCollector.getCollector());
     }
@@ -149,8 +148,8 @@ public final class DblTransformUtils {
      * @return An array of flat-mapped primitive doubles.
      */
     public static double[] dblFlatMap(double[] doubles, DoubleFunction<double[]> function) {
-        return DblStreamUtils.defaultDblStream(doubles)
-                .flatMap(DblMapperUtils.dblFlatMapper(function))
+        return defaultDblStream(doubles)
+                .flatMap(dblFlatMapper(function))
                 .toArray();
     }
 
@@ -163,8 +162,8 @@ public final class DblTransformUtils {
      * @return An array of distinct, primitive, flat-mapped doubles.
      */
     public static double[] dblFlatMapDistinct(double[] doubles, DoubleFunction<double[]> function) {
-        return DblStreamUtils.defaultDblStream(doubles)
-                .flatMap(DblMapperUtils.dblFlatMapper(function))
+        return defaultDblStream(doubles)
+                .flatMap(dblFlatMapper(function))
                 .distinct()
                 .toArray();
     }
@@ -180,7 +179,7 @@ public final class DblTransformUtils {
      */
     public static <T> double[] flatMapToDbl(Collection<T> objects, Function<T, double[]> function) {
         return StreamUtils.defaultStream(objects)
-                .flatMapToDouble(DblMapperUtils.flatMapperToDbl(function))
+                .flatMapToDouble(flatMapperToDbl(function))
                 .toArray();
     }
 
@@ -195,7 +194,7 @@ public final class DblTransformUtils {
      */
     public static <T> double[] flatMapToDblDistinct(Collection<T> objects, Function<T, double[]> function) {
         return StreamUtils.defaultStream(objects)
-                .flatMapToDouble(DblMapperUtils.flatMapperToDbl(function))
+                .flatMapToDouble(flatMapperToDbl(function))
                 .distinct()
                 .toArray();
     }
@@ -235,8 +234,8 @@ public final class DblTransformUtils {
      * @return A map whose keys and values are transformed from an array of doubles.
      */
     public static <K, V> Map<K, V> dblTransformToMap(double[] doubles, DblKeyValueMapper<K, V> keyValueMapper) {
-        return DblStreamUtils.defaultDblStream(doubles)
-                .mapToObj(DblMapperUtils.dblPairOf(keyValueMapper))
+        return defaultDblStream(doubles)
+                .mapToObj(dblPairOf(keyValueMapper))
                 .collect(toMapFromEntry());
     }
 }

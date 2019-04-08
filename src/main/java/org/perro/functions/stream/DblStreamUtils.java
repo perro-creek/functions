@@ -374,7 +374,7 @@ public final class DblStreamUtils {
      */
     public static int indexOfFirstDbl(double[] doubles, DoublePredicate predicate) {
         return defaultDblStream(doubles)
-                .mapToObj(DblMapperUtils.dblPairWithIndex())
+                .mapToObj(dblPairWithIndex())
                 .filter(mapToDblAndFilter(DoubleIndexPair::getDoubleValue, predicate))
                 .mapToInt(DoubleIndexPair::getIndex)
                 .findFirst()
