@@ -178,7 +178,7 @@ public final class DblTransformUtils {
      * @return An array of primitive flat-mapped doubles.
      */
     public static <T> double[] flatMapToDbl(Collection<T> objects, Function<T, double[]> function) {
-        return StreamUtils.defaultStream(objects)
+        return defaultStream(objects)
                 .flatMapToDouble(flatMapperToDbl(function))
                 .toArray();
     }
@@ -193,7 +193,7 @@ public final class DblTransformUtils {
      * @return An array of distinct, primitive, flat-mapped doubles.
      */
     public static <T> double[] flatMapToDblDistinct(Collection<T> objects, Function<T, double[]> function) {
-        return StreamUtils.defaultStream(objects)
+        return defaultStream(objects)
                 .flatMapToDouble(flatMapperToDbl(function))
                 .distinct()
                 .toArray();
