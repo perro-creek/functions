@@ -56,7 +56,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             customizePom(pom)
-            groupId 'com.github.perro-creek'
+            groupId 'org.perro-creek'
             artifactId 'functions'
             version "${moduleVersion}"
 
@@ -135,7 +135,7 @@ def customizePom(pom) {
             name 'Java 8 Functional Utilities'
             url 'https://github.com/perro-creek/functions'
             organization {
-                name 'org.perro.functions'
+                name 'org.perro-creek.functions'
                 url 'https://github.com/perro-creek'
             }
             issueManagement {
