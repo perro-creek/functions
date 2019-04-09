@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        moduleVersion = project.hasProperty('moduleVersion') ? project.getProperty('moduleVersion') : '0.0.1-SNAPSHOT'
+        moduleVersion = project.hasProperty('moduleVersion') ? project.getProperty('moduleVersion') : '1.0.0'
         uploaderUser = project.hasProperty('uploaderUser') ? project.getProperty('uploaderUser') : 'uploader'
         uploaderPassword = project.hasProperty('uploaderPassword') ? project.getProperty('uploaderPassword') : 'Set me with -P'
     }
@@ -8,6 +8,7 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
 apply plugin: 'jacoco'
 apply plugin: 'groovy'
 
@@ -19,39 +20,82 @@ jacocoTestReport {
 }
 
 jar {
-    baseName = 'javelin-common-cmcs-utils'
+    baseName = 'functions'
     version = "${moduleVersion}"
 }
 
 javadoc { failOnError = false }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    classifier 'javadoc'
     from javadoc.destinationDir
 }
 
-task sourceJar(type: Jar) { from sourceSets.main.allJava }
+task sourceJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allJava
+}
+
+artifacts {
+    archives jar
+    archives sourceJar
+    archives javadocJar
+}
+
+model {
+    tasks.generatePomFileForMavenJavaPublication {
+        destination = file("$buildDir/generated-pom.xml")
+    }
+}
+
+signing {
+    sign configurations.archives
+}
 
 publishing {
     publications {
-        maven(MavenPublication) {
-            groupId 'com.mrll.javelin'
-            artifactId 'javelin-common-cmcs-utils'
+        mavenJava(MavenPublication) {
+            customizePom(pom)
+            groupId 'com.github.perro-creek'
+            artifactId 'functions'
             version "${moduleVersion}"
 
             from components.java
 
-            artifact sourceJar { classifier "sources" }
-            artifact javadocJar
+            // create the sign pom artifact
+            pom.withXml {
+                def pomFile = file("${project.buildDir}/generated-pom.xml")
+                writeTo(pomFile)
+                def pomAscFile = signing.sign(pomFile).signatureFiles[0]
+                artifact(pomAscFile) {
+                    classifier = null
+                    extension = 'pom.asc'
+                }
+            }
+
+            artifact sourceJar { classifier = 'sources' }
+            artifact javadocJar { classifier = 'javadoc'}
+
+            // create the signed artifacts
+            project.tasks.signArchives.signatureFiles.each {
+                artifact(it) {
+                    def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
+                    if (matcher.find()) {
+                        classifier = matcher.group(1)
+                    } else {
+                        classifier = null
+                    }
+                    extension = 'jar.asc'
+                }
+            }
         }
     }
     repositories {
         maven {
-            url "https://merrillcorp.jfrog.io/merrillcorp/javelin-libs"
-            // Jenkins provides these as -P Gradle parameters.
+            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
             credentials {
-                username = "${uploaderUser}"
-                password = "${uploaderPassword}"
+                username sonatypeUsername
+                password sonatypePassword
             }
         }
         mavenLocal()
@@ -62,21 +106,71 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-    maven {
-        credentials {
-            username "downloader"
-            password "downloader"
-        }
-        url "https://merrillcorp.jfrog.io/merrillcorp/ds1"
-    }
+    mavenCentral()
     mavenLocal()
 }
 
 dependencies {
     testCompile group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4'
-
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.9'
+}
+
+def customizePom(pom) {
+    pom.withXml {
+        def root = asNode()
+
+        // eliminate test-scoped dependencies (no need in maven central POMs)
+        root.dependencies.removeAll { dep ->
+            dep.scope == "test"
+        }
+
+        // add all items necessary for maven central publication
+        root.children().last() + {
+            resolveStrategy = Closure.DELEGATE_FIRST
+
+            description 'Utilities for functional programming in Java 8'
+            name 'Java 8 Functional Utilities'
+            url 'https://github.com/perro-creek/functions'
+            organization {
+                name 'org.perro.functions'
+                url 'https://github.com/perro-creek'
+            }
+            issueManagement {
+                system 'GitHub'
+                url 'https://github.com/perro-creek/functions/issues'
+            }
+            licenses {
+                license {
+                    name 'Apache License 2.0'
+                    url 'https://github.com/perro-creek/blob/master/LICENSE'
+                    distribution 'repo'
+                }
+            }
+            scm {
+                url 'https://github.com/perro-creek/functions'
+                connection 'scm:git:git://github.com/perro-creek/functions.git'
+                developerConnection 'scm:git:ssh://git@github.com:perro-creek/functions.git'
+            }
+            developers {
+                developer {
+                    name 'Hringsak'
+                }
+            }
+        }
+    }
+}
+
+model {
+    tasks.generatePomFileForMavenJavaPublication {
+        destination = file("$buildDir/generated-pom.xml")
+    }
+    tasks.publishMavenJavaPublicationToMavenLocal {
+        dependsOn project.tasks.signArchives
+    }
+    tasks.publishMavenJavaPublicationToMavenRepository {
+        dependsOn project.tasks.signArchives
+    }
 }
