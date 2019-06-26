@@ -66,6 +66,7 @@ class IntConsumerUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'map to int and consume behaves as expected passing target "#target"'() {
 
         when:

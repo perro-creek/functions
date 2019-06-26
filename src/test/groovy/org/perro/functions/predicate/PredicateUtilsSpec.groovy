@@ -1,15 +1,12 @@
 package org.perro.functions.predicate
 
-
 import org.perro.functions.TestValue
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.util.function.Function
-
 import static java.util.function.Function.identity
 import static java.util.stream.Collectors.toList
-import static PredicateUtils.*
+import static org.perro.functions.predicate.PredicateUtils.*
 
 class PredicateUtilsSpec extends Specification {
 
@@ -34,6 +31,7 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'predicate default passing parameter "#booleanParameter" and target "#target" returns #expected'() {
 
         expect:
@@ -54,7 +52,7 @@ class PredicateUtilsSpec extends Specification {
     def 'predicate for bi-predicate passing constantValue "#constantValue" and target "#target" returns #expected'() {
 
         expect:
-        def predicate = predicate({ a, b -> a.equals(b) }, constantValue)
+        def predicate = predicate({ a, b -> a == b }, constantValue)
         predicate.test(target) == expected
 
         where:
@@ -70,7 +68,7 @@ class PredicateUtilsSpec extends Specification {
     def 'inverse predicate for bi-predicate passing constantValue "#constantValue" and target "#target" returns #expected'() {
 
         expect:
-        def predicate = inversePredicate({ a, b -> a.equals(b) }, constantValue)
+        def predicate = inversePredicate({ a, b -> a == b }, constantValue)
         predicate.test(target) == expected
 
         where:
@@ -83,6 +81,7 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'predicate constant passing parameter "#booleanParameter" and target "#target" returns #expected'() {
 
         expect:
@@ -340,7 +339,7 @@ class PredicateUtilsSpec extends Specification {
     def 'contains char with string extractor passing value "#extractedString" and "#searchChar" returns "#expected"'() {
 
         expect:
-        def predicate = containsChar(Function.identity(), searchChar.codePointAt(0))
+        def predicate = containsChar(identity(), searchChar.codePointAt(0))
         predicate.test(extractedString) == expected
 
         where:
@@ -355,7 +354,7 @@ class PredicateUtilsSpec extends Specification {
     def 'contains char ignore case with string extractor passing value "#extractedString" and "#searchChar" returns "#expected"'() {
 
         expect:
-        def predicate = containsCharIgnoreCase(Function.identity(), searchChar.codePointAt(0))
+        def predicate = containsCharIgnoreCase(identity(), searchChar.codePointAt(0))
         predicate.test(extractedString) == expected
 
         where:
@@ -370,7 +369,7 @@ class PredicateUtilsSpec extends Specification {
     def 'contains sequence with string extractor passing value "#extractedString" and "#searchSeq" returns "#expected"'() {
 
         expect:
-        def predicate = containsSeq(Function.identity(), searchSeq)
+        def predicate = containsSeq(identity(), searchSeq)
         predicate.test(extractedString) == expected
 
         where:
@@ -387,7 +386,7 @@ class PredicateUtilsSpec extends Specification {
     def 'contains sequence ignore case with string extractor passing value "#extractedString" and "#searchSeq" returns "#expected"'() {
 
         expect:
-        def predicate = containsSeqIgnoreCase(Function.identity(), searchSeq)
+        def predicate = containsSeqIgnoreCase(identity(), searchSeq)
         predicate.test(extractedString) == expected
 
         where:
@@ -406,7 +405,7 @@ class PredicateUtilsSpec extends Specification {
     def 'is alpha passing value "#extractedString" returns "#expected"'() {
 
         expect:
-        def predicate = isAlpha Function.identity()
+        def predicate = isAlpha identity()
         predicate.test(extractedString) == expected
 
         where:
@@ -423,7 +422,7 @@ class PredicateUtilsSpec extends Specification {
     def 'is alphanumeric passing value "#extractedString" returns "#expected"'() {
 
         expect:
-        def predicate = isAlphanumeric Function.identity()
+        def predicate = isAlphanumeric identity()
         predicate.test(extractedString) == expected
 
         where:
@@ -442,7 +441,7 @@ class PredicateUtilsSpec extends Specification {
     def 'is numeric passing value "#extractedString" returns "#expected"'() {
 
         expect:
-        def predicate = isNumeric Function.identity()
+        def predicate = isNumeric identity()
         predicate.test(extractedString) == expected
 
         where:
@@ -462,7 +461,7 @@ class PredicateUtilsSpec extends Specification {
     def 'starts with passing value "#extractedString" and "#prefix" returns "#expected"'() {
 
         expect:
-        def predicate = startsWith(Function.identity(), prefix)
+        def predicate = startsWith(identity(), prefix)
         predicate.test(extractedString) == expected
 
         where:
@@ -479,7 +478,7 @@ class PredicateUtilsSpec extends Specification {
     def 'starts with ignore case passing value "#extractedString" and "#prefix" returns "#expected"'() {
 
         expect:
-        def predicate = startsWithIgnoreCase(Function.identity(), prefix)
+        def predicate = startsWithIgnoreCase(identity(), prefix)
         predicate.test(extractedString) == expected
 
         where:
@@ -497,7 +496,7 @@ class PredicateUtilsSpec extends Specification {
     def 'ends with passing value "#extractedString" and "#suffix" returns "#expected"'() {
 
         expect:
-        def predicate = endsWith(Function.identity(), suffix)
+        def predicate = endsWith(identity(), suffix)
         predicate.test(extractedString) == expected
 
         where:
@@ -514,7 +513,7 @@ class PredicateUtilsSpec extends Specification {
     def 'ends with ignore case passing value "#extractedString" and "#suffix" returns "#expected"'() {
 
         expect:
-        def predicate = endsWithIgnoreCase(Function.identity(), suffix)
+        def predicate = endsWithIgnoreCase(identity(), suffix)
         predicate.test(extractedString) == expected
 
         where:
@@ -605,10 +604,11 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'gt with "#target" and "#value" returns #expected'() {
         expect:
         def predicate = gt(identity(), value as Comparable)
-        predicate.test(target) == expected
+        predicate.test(target as Comparable) == expected
 
         where:
         target | value | expected
@@ -625,11 +625,12 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'gte with "#target" and "#value" returns #expected'() {
 
         expect:
         def predicate = gte(identity(), value as Comparable)
-        predicate.test(target) == expected
+        predicate.test(target as Comparable) == expected
 
         where:
         target | value | expected
@@ -646,11 +647,12 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'lt with "#target" and "#value" returns #expected'() {
 
         expect:
         def predicate = lt(identity(), value as Comparable)
-        predicate.test(target) == expected
+        predicate.test(target as Comparable) == expected
 
         where:
         target | value | expected
@@ -667,11 +669,12 @@ class PredicateUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'lte with "#target" and "#value" returns #expected'() {
 
         expect:
         def predicate = lte(identity(), value as Comparable)
-        predicate.test(target) == expected
+        predicate.test(target as Comparable) == expected
 
         where:
         target | value | expected
@@ -793,7 +796,7 @@ class PredicateUtilsSpec extends Specification {
     def 'map and filter passing input "#input"'() {
 
         expect:
-        def predicate = mapAndFilter({ String s -> s.length() }, isEqual(Function.identity(), 4))
+        def predicate = mapAndFilter({ String s -> s.length() }, isEqual(identity(), 4))
         predicate.test(input) == expected
 
         where:

@@ -49,7 +49,7 @@ class LongSupplierUtilsSpec extends Specification {
     def 'lazy long supplier should be called once after multiple invocations'() {
         expect:
         def counter = 0L
-        def lazySupplier = lazyLongSupplier() { -> counter++ }
+        def lazySupplier = lazyLongSupplier { -> counter++ }
         (0..2).each { lazySupplier.getAsLong() }
         counter == 1
     }

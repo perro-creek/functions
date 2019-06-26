@@ -1,8 +1,5 @@
 package org.perro.functions.mapper;
 
-import org.perro.functions.stream.DblStreamUtils;
-import org.perro.functions.stream.StreamUtils;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

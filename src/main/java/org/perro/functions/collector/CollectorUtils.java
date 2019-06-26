@@ -2,34 +2,15 @@ package org.perro.functions.collector;
 
 import org.perro.functions.internal.Invariants;
 import org.perro.functions.stream.DblStreamUtils;
-import org.perro.functions.supplier.SupplierUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
+import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static org.perro.functions.supplier.SupplierUtils.*;
+import static java.util.stream.Collectors.*;
 import static org.perro.functions.supplier.SupplierUtils.supplier;
 
 /**
@@ -202,7 +183,6 @@ public final class CollectorUtils {
      * @param <T>           The type of the elements in the collection to be partitioned.
      * @return A Collector that accumulates into a list of lists, each with a maximum size of partitionSize.
      */
-    @SuppressWarnings("WeakerAccess")
     public static <T> Collector<T, ?, List<List<T>>> toPartitionedList(int partitionSize) {
         Invariants.checkArgument(partitionSize > 0, "The 'partitionSize' argument must be greater than zero");
         return Collector.of(ArrayList::new, listPartitionAccumulator(partitionSize), combiner(List::addAll));
@@ -237,7 +217,6 @@ public final class CollectorUtils {
      * @return A Collector that accumulates into a list of objects of type &lt;R&gt;, each accumulating a maximum number
      * of partitioned elements, given by partitionSize.
      */
-    @SuppressWarnings("WeakerAccess")
     public static <T, R> Collector<T, List<List<T>>, List<R>> toPartitionedList(int partitionSize, Function<List<List<T>>, List<R>> finisher) {
         Invariants.checkArgument(partitionSize > 0, "The 'partitionSize' argument must be greater than zero");
         return Collector.of(ArrayList::new, listPartitionAccumulator(partitionSize), combiner(List::addAll), finisher);

@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.perro.functions.stream.DblStreamUtils.defaultDblStream;
-import static org.junit.Assert.assertTrue;
 
 public class DblStreamUtilsTest {
 
@@ -34,7 +34,7 @@ public class DblStreamUtilsTest {
     }
 
     private void thenExpectStream(double... expected) {
-        assertTrue(Arrays.equals(expected, result.toArray()));
+        assertArrayEquals(expected, result.toArray(), 0.0);
     }
 
     @Test

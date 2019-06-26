@@ -3,6 +3,7 @@ package org.perro.functions.stream
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.util.function.Function
 import java.util.function.Predicate
 import java.util.function.Supplier
 
@@ -156,6 +157,7 @@ class StreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'find any default null returns expected value for string length "#length"'() {
 
         expect:
@@ -169,6 +171,7 @@ class StreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'find any with default returns expected value for string length "#length"'() {
 
         expect:
@@ -183,6 +186,7 @@ class StreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'find any with default supplier returns expected value for string length "#length"'() {
 
         expect:
@@ -198,6 +202,7 @@ class StreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'find first default null returns expected value for string length "#length"'() {
 
         expect:
@@ -211,6 +216,7 @@ class StreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'find first with default returns expected value for string length "#length"'() {
 
         expect:
@@ -225,6 +231,7 @@ class StreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'find first with default supplier returns expected value for string length "#length"'() {
 
         expect:
@@ -253,6 +260,7 @@ class StreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'any match returns expected value for string length "#length"'() {
 
         expect:
@@ -266,6 +274,7 @@ class StreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'none match returns expected value for string length "#length"'() {
 
         expect:
@@ -292,9 +301,10 @@ class StreamUtilsSpec extends Specification {
 
         given:
         def values = ['m1', 'm2', 'm3']
+        def identity = { t -> t } as Function<String, CharSequence>
 
         expect:
-        join(values, mapperWithDelimiter({ t -> t }, delimiter)) == expectedString
+        join(values, mapperWithDelimiter(identity, delimiter)) == expectedString
 
         where:
         delimiter || expectedString
@@ -307,9 +317,10 @@ class StreamUtilsSpec extends Specification {
 
         given:
         def values = ['m1', 'm2', 'm3']
+        def identity = { t -> t } as Function<String, CharSequence>
 
         expect:
-        join(values, mapperWithCollector({ t -> t }, joining(delimiter, prefix, suffix))) == expectedString
+        join(values, mapperWithCollector(identity, joining(delimiter, prefix, suffix))) == expectedString
 
         where:
         delimiter | prefix | suffix  || expectedString

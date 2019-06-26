@@ -8,7 +8,7 @@ import java.util.function.Consumer
 import java.util.function.LongConsumer
 import java.util.function.ObjLongConsumer
 
-import static LongConsumerUtils.*
+import static org.perro.functions.consumer.LongConsumerUtils.*
 
 class LongConsumerUtilsSpec extends Specification {
 
@@ -66,6 +66,7 @@ class LongConsumerUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'map to long and consume behaves as expected passing target "#target"'() {
 
         when:

@@ -127,14 +127,14 @@ class IntPredicateUtilsSpec extends Specification {
 
     def 'int is null passing function returns expected value'() {
         expect:
-        def predicate = intIsNull() { i -> i == 2 ? null : String.valueOf(i) }
+        def predicate = intIsNull { i -> i == 2 ? null : String.valueOf(i) }
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [2] as int[]
     }
 
     def 'int is not null passing function returns expected value'() {
         expect:
-        def predicate = intIsNotNull() { i -> i == 2 ? null : String.valueOf(i) }
+        def predicate = intIsNotNull { i -> i == 2 ? null : String.valueOf(i) }
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [1, 3] as int[]
     }
@@ -240,21 +240,21 @@ class IntPredicateUtilsSpec extends Specification {
 
     def 'is int collection not empty passing function returns expected value'() {
         expect:
-        def predicate = isIntCollNotEmpty() { i -> i == 2 ? [] : [String.valueOf(i)] }
+        def predicate = isIntCollNotEmpty { i -> i == 2 ? [] : [String.valueOf(i)] }
         def ints = [1, 2, 3] as int[]
         intFilter(ints, predicate) == [1, 3] as int[]
     }
 
     def 'is int array empty passing function returns expected value'() {
         expect:
-        def predicate = isIntArrayEmpty { String s -> s == 'b' ? [] as int[] : [s.charAt(0)] as int[] }
+        def predicate = isIntArrayEmpty { String s -> s == 'b' ? ([] as int[]) : [s.charAt(0)] as int[] }
         def objs = ['a', 'b', 'c']
         filter(objs, predicate) == ['b']
     }
 
     def 'is int array not empty passing function returns expected value'() {
         expect:
-        def predicate = isIntArrayNotEmpty { String s -> s == 'b' ? [] as int[] : [s.charAt(0)] as int[] }
+        def predicate = isIntArrayNotEmpty { String s -> s == 'b' ? ([] as int[]) : [s.charAt(0)] as int[] }
         def objs = ['a', 'b', 'c']
         filter(objs, predicate) == ['a', 'c']
     }

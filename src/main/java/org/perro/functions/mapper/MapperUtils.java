@@ -2,7 +2,6 @@ package org.perro.functions.mapper;
 
 import org.perro.functions.internal.Pair;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -676,13 +675,9 @@ public final class MapperUtils {
      * passed function, along with an associated element from the passed pairedList.
      */
     public static <T, U, V> Function<T, Pair<U, V>> pairWith(Function<? super T, ? extends U> function, List<V> pairedList) {
-        List<V> nonNullList = pairedList == null ? new ArrayList<>() : pairedList;
-        AtomicInteger idx = new AtomicInteger();
-        return t -> {
-            U extracted = t == null ? null : function.apply(t);
-            int i = idx.getAndIncrement();
-            return (i < nonNullList.size()) ? Pair.of(extracted, nonNullList.get(i)) : Pair.of(extracted, null);
-        };
+        PairWithListBuilder<U, V> builder = new PairWithListBuilder<>(pairedList);
+        Function<? super T, ? extends U> nullSafe = mapper(function);
+        return t -> builder.buildPair(nullSafe.apply(t));
     }
 
     /**

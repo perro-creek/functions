@@ -1,6 +1,8 @@
 package org.perro.functions.predicate;
 
+import org.perro.functions.internal.CollectionUtils;
 import org.perro.functions.mapper.IntMapperUtils;
+import org.perro.functions.mapper.MapperUtils;
 import org.perro.functions.stream.IntStreamUtils;
 import org.perro.functions.stream.StreamUtils;
 
@@ -603,8 +605,9 @@ public final class IntPredicateUtils {
      * determines whether the returned array is empty.
      */
     public static <T> Predicate<T> isIntArrayEmpty(Function<? super T, int[]> function) {
+        Function<? super T, int[]> nullSafe = MapperUtils.mapper(function);
         return t -> {
-            int[] ints = t == null ? null : function.apply(t);
+            int[] ints = nullSafe.apply(t);
             return ints == null || ints.length == 0;
         };
     }

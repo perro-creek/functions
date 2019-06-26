@@ -3,6 +3,8 @@ package org.perro.functions.mapper
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.util.function.LongFunction
+
 import static java.util.stream.Collectors.toCollection
 import static java.util.stream.Collectors.toList
 import static LongMapperUtils.longKeyValueMapper
@@ -62,7 +64,7 @@ class LongTransformUtilsSpec extends Specification {
     def 'long transform to set returns expected results'() {
         expect:
         def longs = [1L, 2L, 3L] as long[]
-        def mapper = { l -> String.valueOf(l) }
+        def mapper = { l -> String.valueOf(l) } as LongFunction<String>
         longTransformToSet(longs, mapper) == ['1', '2', '3'] as HashSet
     }
 

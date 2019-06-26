@@ -63,6 +63,7 @@ class DblConsumerUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'map to double and consume behaves as expected passing target "#target"'() {
 
         when:

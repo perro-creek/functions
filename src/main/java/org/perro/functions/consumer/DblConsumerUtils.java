@@ -62,7 +62,7 @@ public final class DblConsumerUtils {
      *                 return value, to be cast to a DoubleConsumer.
      * @return A Runnable or Supplier method reference cast to a DoubleConsumer.
      */
-    @SuppressWarnings({"unused", "WeakerAccess"})
+    @SuppressWarnings("unused")
     public static DoubleConsumer dblConsumer(Runnable runnable) {
         return d -> runnable.run();
     }

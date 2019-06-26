@@ -1,18 +1,17 @@
 package org.perro.functions.mapper
 
-
 import org.perro.functions.TestValue
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.util.function.Function
 
+import static MapperUtils.keyValueMapper
 import static java.util.function.Function.identity
 import static java.util.stream.Collectors.toCollection
 import static java.util.stream.Collectors.toList
 import static org.perro.functions.collector.CollectorUtils.toEnumSet
-import static MapperUtils.keyValueMapper
-import static TransformUtils.*
+import static org.perro.functions.mapper.TransformUtils.*
 
 class TransformUtilsSpec extends Specification {
 
@@ -177,7 +176,8 @@ class TransformUtilsSpec extends Specification {
         def function = { s -> ['a', 'b', 'c'] }
 
         expect:
-        def result = flatMap(collection, flatMapAndThen(function, toCollection({ new LinkedList() })))
+        def flatMapCollector = flatMapAndThen(function, toCollection({ new LinkedList() }))
+        def result = flatMap(collection, flatMapCollector)
         result == expectedList
         result instanceof LinkedList
 
