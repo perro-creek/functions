@@ -61,7 +61,7 @@ public final class LongConsumerUtils {
      *                 return value, to be cast to a LongConsumer.
      * @return A Runnable or Supplier method reference cast to a LongConsumer.
      */
-    @SuppressWarnings({"unused", "WeakerAccess"})
+    @SuppressWarnings("unused")
     public static LongConsumer longConsumer(Runnable runnable) {
         return l -> runnable.run();
     }

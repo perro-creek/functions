@@ -214,6 +214,7 @@ class IntStreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'int any match returns #expected for compareValue #compareValue'() {
 
         expect:
@@ -227,6 +228,7 @@ class IntStreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'int none match returns #expected for compareValue #compareValue'() {
 
         expect:

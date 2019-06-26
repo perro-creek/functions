@@ -214,6 +214,7 @@ class LongStreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'long any match returns #expected for compareValue #compareValue'() {
 
         expect:
@@ -227,6 +228,7 @@ class LongStreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'long none match returns #expected for compareValue #compareValue'() {
 
         expect:

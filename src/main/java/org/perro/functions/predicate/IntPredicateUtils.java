@@ -1,5 +1,6 @@
 package org.perro.functions.predicate;
 
+import org.perro.functions.internal.CollectionUtils;
 import org.perro.functions.mapper.IntMapperUtils;
 import org.perro.functions.stream.IntStreamUtils;
 import org.perro.functions.stream.StreamUtils;

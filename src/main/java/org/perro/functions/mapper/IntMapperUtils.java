@@ -5,13 +5,7 @@ import org.perro.functions.internal.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.IntPredicate;
-import java.util.function.IntUnaryOperator;
-import java.util.function.ToIntBiFunction;
-import java.util.function.ToIntFunction;
+import java.util.function.*;
 import java.util.stream.IntStream;
 
 import static org.perro.functions.stream.IntStreamUtils.defaultIntStream;
@@ -385,13 +379,8 @@ public final class IntMapperUtils {
      * associated element from the passed pairedList.
      */
     public static <U, V> IntFunction<Pair<U, V>> intPairWith(IntFunction<? extends U> function, List<V> pairedList) {
-        List<V> nonNullList = pairedList == null ? new ArrayList<>() : pairedList;
-        AtomicInteger idx = new AtomicInteger();
-        return i -> {
-            U extracted = function.apply(i);
-            int j = idx.getAndIncrement();
-            return (j < nonNullList.size()) ? Pair.of(extracted, nonNullList.get(j)) : Pair.of(extracted, null);
-        };
+        PairWithBuilder<U, V> builder = new PairWithBuilder<>(pairedList);
+        return i -> builder.buildPair(function.apply(i));
     }
 
     /**

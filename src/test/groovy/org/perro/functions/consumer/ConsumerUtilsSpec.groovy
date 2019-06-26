@@ -7,7 +7,7 @@ import java.util.function.BiConsumer
 import java.util.function.Consumer
 import java.util.function.Function
 
-import static ConsumerUtils.*
+import static org.perro.functions.consumer.ConsumerUtils.*
 
 class ConsumerUtilsSpec extends Specification {
 

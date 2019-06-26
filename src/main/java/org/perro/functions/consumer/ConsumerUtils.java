@@ -72,7 +72,7 @@ public final class ConsumerUtils {
      * @param <T>      The type of the single parameter to the Consumer.
      * @return A Runnable or Supplier method reference cast to a Consumer.
      */
-    @SuppressWarnings({"unused", "WeakerAccess"})
+    @SuppressWarnings("unused")
     public static <T> Consumer<T> consumer(Runnable runnable) {
         return t -> runnable.run();
     }

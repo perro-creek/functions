@@ -214,6 +214,7 @@ class DblStreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'double any match returns #expected for compareValue #compareValue'() {
 
         expect:
@@ -227,6 +228,7 @@ class DblStreamUtilsSpec extends Specification {
     }
 
     @Unroll
+    @SuppressWarnings("GroovyAssignabilityCheck")
     def 'double none match returns #expected for compareValue #compareValue'() {
 
         expect:

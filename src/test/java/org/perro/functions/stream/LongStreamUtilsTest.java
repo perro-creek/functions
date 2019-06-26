@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.perro.functions.stream.LongStreamUtils.defaultLongStream;
-import static org.junit.Assert.assertTrue;
 
 public class LongStreamUtilsTest {
 
@@ -34,7 +34,7 @@ public class LongStreamUtilsTest {
     }
 
     private void thenExpectStream(long... expected) {
-        assertTrue(Arrays.equals(expected, result.toArray()));
+        assertArrayEquals(expected, result.toArray());
     }
 
     @Test

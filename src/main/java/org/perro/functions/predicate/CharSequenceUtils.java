@@ -94,8 +94,4 @@ final class CharSequenceUtils {
                         sequence.length() >= suffix.length() &&
                         equalsIgnoreCase(getEndsWithSubSequence(sequence, suffix), suffix));
     }
-
-    static boolean isNullOrEmpty(CharSequence sequence) {
-        return sequence == null || sequence.length() == 0;
-    }
 }

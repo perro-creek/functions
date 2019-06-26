@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.perro.functions.stream.IntStreamUtils.defaultIntStream;
-import static org.junit.Assert.assertTrue;
 
 public class IntStreamUtilsTest {
 
@@ -34,7 +34,7 @@ public class IntStreamUtilsTest {
     }
 
     private void thenExpectStream(int... expected) {
-        assertTrue(Arrays.equals(expected, result.toArray()));
+        assertArrayEquals(expected, result.toArray());
     }
 
     @Test

@@ -9,8 +9,8 @@ import java.util.function.Function
 import java.util.function.ToDoubleFunction
 
 import static DblFilterUtils.dblFilter
-import static DblPredicateUtils.*
 import static FilterUtils.filter
+import static org.perro.functions.predicate.DblPredicateUtils.*
 
 class DblPredicateUtilsSpec extends Specification {
 
@@ -155,14 +155,14 @@ class DblPredicateUtilsSpec extends Specification {
 
     def 'double is null passing function returns expected value'() {
         expect:
-        def predicate = dblIsNull() { d -> d == 2.0D ? null : String.valueOf(d) }
+        def predicate = dblIsNull { d -> d == 2.0D ? null : String.valueOf(d) }
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblFilter(doubles, predicate) == [2.0D] as double[]
     }
 
     def 'double is not null passing function returns expected value'() {
         expect:
-        def predicate = dblIsNotNull() { d -> d == 2.0D ? null : String.valueOf(d) }
+        def predicate = dblIsNotNull { d -> d == 2.0D ? null : String.valueOf(d) }
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
         dblFilter(doubles, predicate) == [1.0D, 3.0D] as double[]
     }
@@ -275,14 +275,14 @@ class DblPredicateUtilsSpec extends Specification {
 
     def 'is double array empty passing function returns expected value'() {
         expect:
-        def predicate = isDblArrayEmpty { String s -> s == 'b' ? [] as double[] : [s.charAt(0)] as double[] }
+        def predicate = isDblArrayEmpty { String s -> s == 'b' ? ([] as double[]) : [s.charAt(0)] as double[] }
         def objs = ['a', 'b', 'c']
         filter(objs, predicate) == ['b']
     }
 
     def 'is double array not empty passing function returns expected value'() {
         expect:
-        def predicate = isDblArrayNotEmpty() { String s -> s == 'b' ? [] as double[] : [s.charAt(0)] as double[] }
+        def predicate = isDblArrayNotEmpty { String s -> s == 'b' ? ([] as double[]) : [s.charAt(0)] as double[] }
         def objs = ['a', 'b', 'c']
         filter(objs, predicate) == ['a', 'c']
     }

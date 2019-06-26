@@ -10,7 +10,7 @@ import java.util.function.ToLongFunction
 
 import static FilterUtils.filter
 import static LongFilterUtils.longFilter
-import static LongPredicateUtils.*
+import static org.perro.functions.predicate.LongPredicateUtils.*
 
 class LongPredicateUtilsSpec extends Specification {
 
@@ -127,14 +127,14 @@ class LongPredicateUtilsSpec extends Specification {
 
     def 'long is null passing function returns expected value'() {
         expect:
-        def predicate = longIsNull() { l -> l == 2L ? null : String.valueOf(l) }
+        def predicate = longIsNull { l -> l == 2L ? null : String.valueOf(l) }
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == [2L] as long[]
     }
 
     def 'long is not null passing function returns expected value'() {
         expect:
-        def predicate = longIsNotNull() { l -> l == 2L ? null : String.valueOf(l) }
+        def predicate = longIsNotNull { l -> l == 2L ? null : String.valueOf(l) }
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == [1L, 3L] as long[]
     }
@@ -240,21 +240,21 @@ class LongPredicateUtilsSpec extends Specification {
 
     def 'is long collection not empty passing function returns expected value'() {
         expect:
-        def predicate = isLongCollNotEmpty() { l -> l == 2L ? [] : [String.valueOf(l)] }
+        def predicate = isLongCollNotEmpty { l -> l == 2L ? [] : [String.valueOf(l)] }
         def longs = [1L, 2L, 3L] as long[]
         longFilter(longs, predicate) == [1L, 3L] as long[]
     }
 
     def 'is long array empty passing function returns expected value'() {
         expect:
-        def predicate = isLongArrayEmpty() { String s -> s == 'b' ? [] as long[] : [s.charAt(0)] as long[] }
+        def predicate = isLongArrayEmpty { String s -> s == 'b' ? ([] as long[]) : [s.charAt(0)] as long[] }
         def objs = ['a', 'b', 'c']
         filter(objs, predicate) == ['b']
     }
 
     def 'is long array not empty passing function returns expected value'() {
         expect:
-        def predicate = isLongArrayNotEmpty() { String s -> s == 'b' ? [] as long[] : [s.charAt(0)] as long[] }
+        def predicate = isLongArrayNotEmpty { String s -> s == 'b' ? ([] as long[]) : [s.charAt(0)] as long[] }
         def objs = ['a', 'b', 'c']
         filter(objs, predicate) == ['a', 'c']
     }

@@ -3,10 +3,12 @@ package org.perro.functions.mapper
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.util.function.DoubleFunction
+
+import static DblMapperUtils.dblKeyValueMapper
 import static java.util.stream.Collectors.toCollection
 import static java.util.stream.Collectors.toList
-import static DblMapperUtils.dblKeyValueMapper
-import static DblTransformUtils.*
+import static org.perro.functions.mapper.DblTransformUtils.*
 
 class DblTransformUtilsSpec extends Specification {
 
@@ -62,7 +64,7 @@ class DblTransformUtilsSpec extends Specification {
     def 'double transform to set returns expected results'() {
         expect:
         def doubles = [1.0D, 2.0D, 3.0D] as double[]
-        def mapper = { d -> String.valueOf(d) }
+        def mapper = { d -> String.valueOf(d) } as DoubleFunction<String>
         dblTransformToSet(doubles, mapper) == ['1.0', '2.0', '3.0'] as HashSet
     }
 

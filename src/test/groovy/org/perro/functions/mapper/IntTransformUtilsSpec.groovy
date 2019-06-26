@@ -3,6 +3,8 @@ package org.perro.functions.mapper
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import java.util.function.IntFunction
+
 import static java.util.stream.Collectors.toCollection
 import static java.util.stream.Collectors.toList
 import static IntMapperUtils.intKeyValueMapper
@@ -62,7 +64,7 @@ class IntTransformUtilsSpec extends Specification {
     def 'int transform to set returns expected results'() {
         expect:
         def ints = [1, 2, 3] as int[]
-        def mapper = { d -> String.valueOf(d) }
+        def mapper = { d -> String.valueOf(d) } as IntFunction<String>
         intTransformToSet(ints, mapper) == ['1', '2', '3'] as HashSet
     }
 

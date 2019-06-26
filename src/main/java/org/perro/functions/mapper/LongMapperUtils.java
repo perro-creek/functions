@@ -1,18 +1,11 @@
 package org.perro.functions.mapper;
 
 import org.perro.functions.internal.Pair;
-import org.perro.functions.stream.LongStreamUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.LongFunction;
-import java.util.function.LongPredicate;
-import java.util.function.LongUnaryOperator;
-import java.util.function.ToLongBiFunction;
-import java.util.function.ToLongFunction;
+import java.util.function.*;
 import java.util.stream.LongStream;
 
 import static org.perro.functions.stream.LongStreamUtils.defaultLongStream;
@@ -387,13 +380,8 @@ public final class LongMapperUtils {
      * associated element from the passed pairedList.
      */
     public static <U, V> LongFunction<Pair<U, V>> longPairWith(LongFunction<? extends U> function, List<V> pairedList) {
-        List<V> nonNullList = pairedList == null ? new ArrayList<>() : pairedList;
-        AtomicInteger idx = new AtomicInteger();
-        return l -> {
-            U extracted = function.apply(l);
-            int i = idx.getAndIncrement();
-            return (i < nonNullList.size()) ? Pair.of(extracted, nonNullList.get(i)) : Pair.of(extracted, null);
-        };
+        PairWithBuilder<U, V> builder = new PairWithBuilder<>(pairedList);
+        return l -> builder.buildPair(function.apply(l));
     }
 
     /**

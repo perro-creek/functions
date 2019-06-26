@@ -61,7 +61,7 @@ public final class IntConsumerUtils {
      *                 return value, to be cast to an IntConsumer.
      * @return A Runnable or Supplier method reference cast to an IntConsumer.
      */
-    @SuppressWarnings({"unused", "WeakerAccess"})
+    @SuppressWarnings("unused")
     public static IntConsumer intConsumer(Runnable runnable) {
         return i -> runnable.run();
     }
