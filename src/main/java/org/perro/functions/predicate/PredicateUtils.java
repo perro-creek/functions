@@ -287,7 +287,8 @@ public final class PredicateUtils {
      * CharSequence, and determines whether it is equal to a passed CharSequence ignoring case.
      */
     public static <T> Predicate<T> equalsIgnoreCase(Function<? super T, ? extends CharSequence> function, CharSequence value) {
-        return t -> CharSequenceUtils.equalsIgnoreCase(t == null ? null : function.apply(t), value);
+        Function<? super T, ? extends CharSequence> nullSafe = MapperUtils.mapper(function);
+        return t -> CharSequenceUtils.equalsIgnoreCase(nullSafe.apply(t), value);
     }
 
     /**
@@ -322,7 +323,8 @@ public final class PredicateUtils {
      * value of type &lt;R&gt;, and compares it for equality to a passed value, also of type &lt;R&gt;.
      */
     public static <T, R> Predicate<T> isEqual(Function<? super T, ? extends R> function, R value) {
-        return t -> Objects.equals(t == null ? null : function.apply(t), value);
+        Function<? super T, ? extends R> nullSafe = MapperUtils.mapper(function);
+        return t -> Objects.equals(nullSafe.apply(t), value);
     }
 
     /**

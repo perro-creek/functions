@@ -379,7 +379,7 @@ public final class IntMapperUtils {
      * associated element from the passed pairedList.
      */
     public static <U, V> IntFunction<Pair<U, V>> intPairWith(IntFunction<? extends U> function, List<V> pairedList) {
-        PairWithBuilder<U, V> builder = new PairWithBuilder<>(pairedList);
+        PairWithListBuilder<U, V> builder = new PairWithListBuilder<>(pairedList);
         return i -> builder.buildPair(function.apply(i));
     }
 

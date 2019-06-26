@@ -389,7 +389,7 @@ public final class DblMapperUtils {
      * associated element from the passed pairedList.
      */
     public static <U, V> DoubleFunction<Pair<U, V>> dblPairWith(DoubleFunction<? extends U> function, List<V> pairedList) {
-        PairWithBuilder<U, V> builder = new PairWithBuilder<>(pairedList);
+        PairWithListBuilder<U, V> builder = new PairWithListBuilder<>(pairedList);
         return d -> builder.buildPair(function.apply(d));
     }
 

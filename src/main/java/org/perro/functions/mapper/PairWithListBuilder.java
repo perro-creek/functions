@@ -6,12 +6,12 @@ import org.perro.functions.internal.Pair;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-class PairWithBuilder<U, V> {
+class PairWithListBuilder<U, V> {
 
     private final AtomicInteger idx;
     private final List<V> pairedList;
 
-    PairWithBuilder(List<V> pairedList) {
+    PairWithListBuilder(List<V> pairedList) {
         idx = new AtomicInteger();
         this.pairedList = CollectionUtils.defaultList(pairedList);
     }

@@ -380,7 +380,7 @@ public final class LongMapperUtils {
      * associated element from the passed pairedList.
      */
     public static <U, V> LongFunction<Pair<U, V>> longPairWith(LongFunction<? extends U> function, List<V> pairedList) {
-        PairWithBuilder<U, V> builder = new PairWithBuilder<>(pairedList);
+        PairWithListBuilder<U, V> builder = new PairWithListBuilder<>(pairedList);
         return l -> builder.buildPair(function.apply(l));
     }
 

@@ -2,6 +2,7 @@ package org.perro.functions.predicate;
 
 import org.perro.functions.internal.CollectionUtils;
 import org.perro.functions.mapper.LongMapperUtils;
+import org.perro.functions.mapper.MapperUtils;
 import org.perro.functions.stream.LongStreamUtils;
 import org.perro.functions.stream.StreamUtils;
 
@@ -608,8 +609,9 @@ public final class LongPredicateUtils {
      * determines whether the returned array is empty.
      */
     public static <T> Predicate<T> isLongArrayEmpty(Function<? super T, long[]> function) {
+        Function<? super T, long[]> nullSafe = MapperUtils.mapper(function);
         return t -> {
-            long[] longs = t == null ? null : function.apply(t);
+            long[] longs = nullSafe.apply(t);
             return longs == null || longs.length == 0;
         };
     }
